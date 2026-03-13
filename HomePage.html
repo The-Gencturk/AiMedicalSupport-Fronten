@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI-Tomografi - Yapay Zeka ile Tomografi Analizi</title>
+<!-- Tailwind CSS CDN with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Custom Colors -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            medBlue: '#0052CC',
+            medLight: '#E6F0FF',
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Typography and Smooth Scrolling -->
+<style data-purpose="typography-and-base">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+<!-- BEGIN: Navigation -->
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100" data-purpose="main-navigation">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-20">
+<!-- Logo -->
+<div class="flex-shrink-0 flex items-center">
+<span class="text-2xl font-bold text-medBlue tracking-tight">AI-Tomografi</span>
+</div>
+<!-- Desktop Menu -->
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#">Ana Sayfa</a>
+<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#about">Hakkımızda</a>
+<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#services">Hizmetler</a>
+<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#contact">İletişim</a>
+<button class="bg-medBlue text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md">
+            Giriş Yap
+          </button>
+</div>
+<!-- Mobile Menu Toggle (Simplified) -->
+<div class="md:hidden flex items-center">
+<button class="text-slate-600 focus:outline-none">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<!-- END: Navigation -->
+<!-- BEGIN: Hero Section -->
+<section class="relative py-20 lg:py-32 overflow-hidden" data-purpose="hero-banner">
+<!-- Abstract Background Shape -->
+<div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-1/2 h-full bg-medLight rounded-full blur-3xl opacity-50 -z-10"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<div class="space-y-8">
+<div class="inline-flex items-center px-3 py-1 rounded-full bg-medLight text-medBlue text-sm font-semibold">
+<span class="mr-2">●</span> Yeni Nesil Sağlık Teknolojisi
+          </div>
+<h1 class="text-5xl lg:text-7xl font-bold text-slate-900 leading-tight">
+            Yapay Zeka ile <span class="text-medBlue">Tomografi</span> Analizi
+          </h1>
+<p class="text-xl text-slate-600 max-w-lg leading-relaxed">
+            Hızlı, güvenilir ve detaylı tomografi okuma hizmeti. En gelişmiş algoritmalarımızla saniyeler içinde teşhis desteği alın.
+          </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="px-8 py-4 bg-medBlue text-white rounded-xl font-bold text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300">
+              Tomografi Yükle
+            </button>
+<button class="px-8 py-4 bg-white text-slate-700 border-2 border-slate-200 rounded-xl font-bold text-lg hover:border-medBlue hover:text-medBlue transition-all duration-300">
+              Nasıl Çalışır?
+            </button>
+</div>
+</div>
+<div class="relative">
+<!-- Placeholder for Hero Image/Graphic -->
+<div class="bg-white p-4 rounded-3xl shadow-2xl border border-slate-100">
+<img alt="Tomografi Analiz Önizleme" class="rounded-2xl w-full h-auto" src="RadiologyImages/ornek vakalar beyin bt Berk AI/F_HEAD_20260308_203408.jpeg">
+</div>
+
+</div>
+</div>
+</div>
+</section>
+<!-- END: Hero Section -->
+<!-- BEGIN: Services Section -->
+<section class="py-24 bg-slate-50" data-purpose="services-grid" id="services">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center mb-16">
+<h2 class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Analiz Sürecimiz</h2>
+<p class="text-lg text-slate-600 max-w-2xl mx-auto">Teknolojimiz, tıbbi görüntülemeyi her zamankinden daha hızlı ve kesin hale getirmek için tasarlandı.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<!-- Service 1: AI Analysis -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 bg-medLight rounded-xl flex items-center justify-center mb-6">
+<svg class="w-8 h-8 text-medBlue" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-900 mb-3">Derin Öğrenme</h3>
+<p class="text-slate-600 leading-relaxed">
+            Milyonlarca vaka ile eğitilmiş yapay zeka modellerimiz, en küçük anomalileri bile tespit etmek üzere optimize edilmiştir.
+          </p>
+</div>
+<!-- Service 2: Medical Tech -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 bg-medLight rounded-xl flex items-center justify-center mb-6">
+<svg class="w-8 h-8 text-medBlue" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.642.321a6 6 0 01-3.86.517l-2.388-.477a2 2 0 00-1.022.547l-1.168 1.168a2 2 0 00-.586 1.414v1.171a2 2 0 00.586 1.414l1.168 1.168a2 2 0 001.414.586h11.172a2 2 0 001.414-.586l1.168-1.168a2 2 0 00.586-1.414v-1.171a2 2 0 00-.586-1.414l-1.168-1.168zM12 13V3l8 4-8 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-900 mb-3">Tıbbi Hassasiyet</h3>
+<p class="text-slate-600 leading-relaxed">
+            DICOM standartlarına tam uyumlu altyapımız ile görüntü kalitesinden ödün vermeden analiz gerçekleştiriyoruz.
+          </p>
+</div>
+<!-- Service 3: Speed -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 bg-medLight rounded-xl flex items-center justify-center mb-6">
+<svg class="w-8 h-8 text-medBlue" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-900 mb-3">Anlık Sonuçlar</h3>
+<p class="text-slate-600 leading-relaxed">
+            Normalde saatler süren manuel incelemeyi saniyelere indirerek klinik karar verme sürecinizi hızlandırıyoruz.
+          </p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Services Section -->
+<!-- BEGIN: Contact Section -->
+<section class="py-24 bg-white" data-purpose="contact-form" id="contact">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl mx-auto bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
+<!-- Left Side: Info -->
+<div class="p-12 md:w-2/5 text-white bg-medBlue flex flex-col justify-between">
+<div>
+<h2 class="text-3xl font-bold mb-6">Bize Ulaşın</h2>
+<p class="text-blue-100 mb-8">Kurumsal çözümlerimiz ve entegrasyon süreçleri hakkında bilgi almak için formu doldurabilirsiniz.</p>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>info@ai-tomografi.com</span>
+</div>
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>İstanbul, Türkiye</span>
+</div>
+</div>
+</div>
+<!-- Right Side: Form -->
+<div class="p-12 md:w-3/5 bg-white">
+<form class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700" for="name">İsim</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="name" placeholder="Adınız" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700" for="email">E-posta</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="email" placeholder="E-posta adresiniz" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700" for="subject">Konu</label>
+<select class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="subject">
+<option>Hizmetler Hakkında Bilgi</option>
+<option>Teknik Destek</option>
+<option>Kurumsal Ortaklık</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700" for="message">Mesaj</label>
+<textarea class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="message" placeholder="Size nasıl yardımcı olabiliriz?" rows="4"></textarea>
+</div>
+<button class="w-full bg-medBlue text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100" type="submit">
+              Mesaj Gönder
+            </button>
+</form>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Contact Section -->
+<!-- BEGIN: Footer -->
+<footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800" data-purpose="site-footer">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<div class="mb-8">
+<span class="text-2xl font-bold text-white tracking-tight">AI-Tomografi</span>
+</div>
+<p class="mb-8 max-w-md mx-auto">Tıbbi görüntülemede yapay zeka devrimi. Daha sağlıklı bir gelecek için teknolojiyi kullanıyoruz.</p>
+<div class="flex justify-center space-x-6 mb-8">
+<a class="hover:text-white transition-colors" href="#">Twitter</a>
+<a class="hover:text-white transition-colors" href="#">LinkedIn</a>
+<a class="hover:text-white transition-colors" href="#">Instagram</a>
+</div>
+<div class="border-t border-slate-800 pt-8 text-sm">
+        © 2023 AI-Tomografi Analiz Hizmetleri A.Ş. Tüm hakları saklıdır.
+      </div>
+</div>
+</footer>
+<!-- END: Footer -->
+</body></html>
