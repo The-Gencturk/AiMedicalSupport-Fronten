@@ -1,0 +1,496 @@
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+.typing-cursor::after {
+  content: "|";
+  margin-left: 4px;
+
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+@keyframes fadeLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 1s ease forwards;
+}
+
+.animate-fade-down {
+  animation: fadeDown 1s ease forwards;
+}
+
+.animate-fade-left {
+  animation: fadeLeft 1s ease forwards;
+}
+
+.animate-fade-right {
+  animation: fadeRight 1.2s ease forwards;
+}
+
+.delay-100 {
+  animation-delay: .1s;
+}
+
+.delay-200 {
+  animation-delay: .2s;
+}
+
+.delay-400 {
+  animation-delay: .4s;
+}
+
+.delay-600 {
+  animation-delay: .6s;
+}
+
+.delay-800 {
+  animation-delay: .8s;
+}
+
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal-right.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: all 0.8s ease;
+}
+
+.reveal-left.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+.delay-1 {
+  transition-delay: .1s;
+}
+
+.delay-2 {
+  transition-delay: .2s;
+}
+
+.delay-3 {
+  transition-delay: .3s;
+}
+
+.delay-4 {
+  transition-delay: .4s;
+}
+
+.delay-5 {
+  transition-delay: .5s;
+}
+
+/* Ortak */
+.phones-section {
+  position: relative;
+  height: 450px;
+  width: 460px;
+  margin: auto;
+  overflow: hidden;
+}
+
+/* Ortak */
+.phone {
+  position: absolute;
+
+  width: 460px;
+
+  left: 50%;
+  top: 50%;
+
+  --x: 0px;
+  --r: 0deg;
+  --s: 1.9;
+
+  transform:
+    translate(-50%, -50%) scale(var(--s)) translateX(var(--x)) rotate(var(--r));
+
+  transition: transform 0.15s ease-out;
+}
+
+/* Üst üste */
+.phone-1 {
+  z-index: 3;
+}
+
+.phone-2 {
+  z-index: 2;
+}
+
+.phone-3 {
+  z-index: 1;
+}
+
+/* Normal hali */
+header .h-20 {
+  transition: all 0.3s ease;
+}
+
+header nav a,
+header button,
+header svg {
+  transition: all 0.3s ease;
+}
+
+/* SHRINK MODE */
+header.shrink .h-20 {
+  height: 60px !important;
+}
+
+header.shrink nav a {
+  font-size: 13px;
+}
+
+header.shrink a.px-5 {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+header.shrink button svg {
+  width: 22px;
+  height: 22px;
+}
+
+header.shrink svg {
+  height: 45px !important;
+}
+
+/* Header iç boşluk azalt */
+header.shrink .max-w-7xl {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+header.shrink {
+  background: rgba(255, 255, 255, 0.252);
+  backdrop-filter: saturate(180%) blur(12px);
+}
+
+/* WHATSAPP BUTON VE PENCERE STİLLERİ */
+.btn-whatsapp-pulse {
+    background: #25d366;
+    color: white;
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    font-size: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 70px;
+    text-decoration: none;
+    border-radius: 50%;
+    animation: wp-pulse 1.5s ease-out infinite;
+    z-index: 1001;
+}
+
+
+
+@keyframes pulse {  
+    0%  { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+    80% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }}
+
+
+@keyframes wp-pulse {  
+    0%  { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+    80% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }}
+
+.wp-chat-container {
+  display: none;
+  position: fixed;
+  bottom: 170px;
+  right: 50px;
+  width: 350px;
+  border-radius: 15px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
+  z-index: 1000;
+}
+
+.wp-header {
+  background-color: #075E54;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wp-avatar {
+  position: relative;
+}
+
+/* Eksikti, eklendi */
+.wp-avatar img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #fff;
+  padding: 1px;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #4AD964;
+  border: 1px solid #075E54;
+  border-radius: 50%;
+}
+
+.wp-body {
+  background: #e5ddd5 url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+  padding: 20px;
+  height: 250px;
+  overflow-y: auto;
+}
+
+.wp-bubble {
+  background: white;
+  padding: 10px 15px;
+  border-radius: 0 15px 15px 15px;
+  max-width: 85%;
+  position: relative;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.wp-footer {
+  background: #f0f0f0;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.wp-footer input {
+  flex: 1;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  outline: none;
+}
+
+.wp-footer button {
+  background: none;
+  border: none;
+  color: #075E54;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.wp-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.wp-chat-container.wp-open {
+  display: flex;
+  flex-direction: column;
+}
+.wp-hidden {
+  display: none !important;
+}
+
+/* Yazıyor Animasyonu (Üç Nokta) */
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  padding: 5px 0;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  background: #999;
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1.0);
+  }
+}
+
+/* Yavaşça Belirme Efekti */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-in forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+nav a {
+  position: relative;
+}
+
+/* Alt çizgi temel yapı */
+nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 2px;
+  width: 0;
+  background-color: #120aff;
+  transition: width 0.3s ease;
+}
+
+/* Hover olunca çizgi */
+nav a:hover::after {
+  width: 100%;
+}
+
+/* Aktif sayfa */
+nav a.active-link::after {
+  width: 100%;
+}
+
+/* Nav içinde herhangi bir hover varsa aktifinki gizlensin */
+nav:hover a.active-link::after {
+  width: 0;
+}
+
+
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  z-index: 9999;
+  background: transparent;
+}
+
+#scroll-progress>div {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1c74e9, #a147d9, #d81ce9);
+  background-size: 200% 200%;
+  animation: gradientShift 2.5s linear infinite;
+  box-shadow: 0 8px 24px rgba(28, 116, 233, .25);
+  border-radius: 999px;
+}

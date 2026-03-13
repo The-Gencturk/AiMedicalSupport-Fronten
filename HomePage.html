@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-
-<html lang="tr"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>AI-Tomografi - Yapay Zeka ile Tomografi Analizi</title>
-<!-- Tailwind CSS CDN with Plugins -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Tailwind Configuration for Custom Colors -->
+<html class="scroll-smooth" lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta name="description" content="IKNET ile izin, vardiya, bordro ve saha takibini tek panelden yönetin."/>
+  <title>IKNET - İnsan Kaynakları Yönetim Yazılımı</title>
+  <link rel="stylesheet" href="Main.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script>
     tailwind.config = {
       theme: {
@@ -14,6 +19,11 @@
           colors: {
             medBlue: '#0052CC',
             medLight: '#E6F0FF',
+            "primary": "#1c74e9",
+            "background-light": "#f6f7f8",
+            "background-dark": "#111821",
+            "slate-heading": "#0e141b",
+            "slate-body": "#4d6e99"
           },
           fontFamily: {
             sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
@@ -22,49 +32,11 @@
       }
     }
   </script>
-<!-- Custom Typography and Smooth Scrolling -->
-<style data-purpose="typography-and-base">
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    html {
-      scroll-behavior: smooth;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-  </style>
-</head>
+
+
 <body class="bg-white text-slate-800">
-<!-- BEGIN: Navigation -->
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100" data-purpose="main-navigation">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex justify-between items-center h-20">
-<!-- Logo -->
-<div class="flex-shrink-0 flex items-center">
-<span class="text-2xl font-bold text-medBlue tracking-tight">AI-Tomografi</span>
-</div>
-<!-- Desktop Menu -->
-<div class="hidden md:flex space-x-8 items-center">
-<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#">Ana Sayfa</a>
-<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#about">Hakkımızda</a>
-<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#services">Hizmetler</a>
-<a class="text-slate-600 hover:text-medBlue font-medium transition-colors" href="#contact">İletişim</a>
-<button class="bg-medBlue text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md">
-            Giriş Yap
-          </button>
-</div>
-<!-- Mobile Menu Toggle (Simplified) -->
-<div class="md:hidden flex items-center">
-<button class="text-slate-600 focus:outline-none">
-<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-</nav>
-<!-- END: Navigation -->
-<!-- BEGIN: Hero Section -->
+<div id="Header"></div>
+
 <section class="relative py-20 lg:py-32 overflow-hidden" data-purpose="hero-banner">
 <!-- Abstract Background Shape -->
 <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-1/2 h-full bg-medLight rounded-full blur-3xl opacity-50 -z-10"></div>
@@ -215,4 +187,4 @@
 </div>
 </footer>
 <!-- END: Footer -->
-</body></html>
+</body><script src="MenuLoader.js"></script></html>
