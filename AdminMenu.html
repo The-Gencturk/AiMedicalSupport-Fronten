@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidebar Menü</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root, [data-theme="light"] {
+  --bg-primary:    #FFFFFFF8;
+  --bg-secondary:  #f8fafc;
+  --bg-antilight:  #0f172a;
+  --bg-card:       #ffffff;
+  --text-primary:  #0f172a;
+  --text-muted:    #64748b;
+  --border:        rgba(0,0,0,0.08);
+  --accent:        #3b9e8a;
+  --accent-light:  #63cab7;
+  --card:          var(--bg-card);
+  --muted:         var(--text-muted);
+  --accent2:       var(--accent-light);
+}
+
+[data-theme="dark"] {
+  --bg-primary:    #080f1a;
+  --bg-secondary:  #0d1829;
+  --bg-card:       #111c2d;
+  --text-primary:  #63cab7;
+  --text-second:   rgba(255,255,255,0.96);
+  --text-muted:    #55DD07D2;
+  --border:        rgba(255,255,255,0.08);
+  --accent:        #63cab7;
+  --accent-light:  #9ee8d8;
+  --card:          var(--bg-card);
+  --muted:         var(--text-muted);
+  --accent2:       var(--accent-light);
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+#Menu {
+  position: fixed;
+  top: 0; left: 0;
+  width: 240px;
+  height: 100%;
+  z-index: 1000;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out, background 0.2s, border-color 0.2s;
+}
+
+#Menu.menu-closed {
+  transform: translateX(-240px);
+}
+
+/* Başlık alanı */
+.menu-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-header .logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.menu-header h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Nav */
+nav {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+nav::-webkit-scrollbar { width: 4px; }
+nav::-webkit-scrollbar-track { background: transparent; }
+nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* Nav başlık etiketleri */
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 10px 12px 4px;
+  text-transform: uppercase;
+}
+
+/* Nav linkleri */
+nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-second, var(--text-primary));
+  font-size: 13px;
+  font-weight: 500;
+  position: relative;
+  transition: background 0.15s, color 0.15s;
+}
+
+nav a i {
+  width: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+nav a:hover {
+  background: rgba(99, 202, 183, 0.1);
+  color: var(--accent);
+}
+
+nav a:hover i {
+  color: var(--accent);
+}
+
+nav a.active {
+  background: rgba(99, 202, 183, 0.15);
+  color: var(--accent);
+}
+
+nav a.active i {
+  color: var(--accent);
+}
+
+nav a.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Ayırıcı */
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 10px;
+}
+
+/* Alt kısım */
+.menu-footer {
+  padding: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menu-footer a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-second, var(--text-primary));
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.menu-footer a i {
+  width: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.menu-footer a:hover {
+  background: rgba(99, 202, 183, 0.1);
+  color: var(--accent);
+}
+
+.menu-footer a:hover i { color: var(--accent); }
+
+/* Toggle butonu */
+#MenuButons {
+  position: absolute;
+  top: 20px;
+  right: -40px;
+  width: 32px; height: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 1100;
+  transition: background 0.2s, border-color 0.2s, transform 0.3s ease-in-out;
+}
+
+#MenuButons:hover {
+  background: rgba(99, 202, 183, 0.1);
+}
+
+#Menu.menu-closed #MenuButons {
+  transform: translateX(0);
+}
+
+/* Tema toggle */
+#themeToggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2000;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+#themeToggle:hover { background: rgba(99,202,183,0.1); }
+
+/* Main */
+main {
+  margin-left: 240px;
+  padding: 40px;
+  transition: margin-left 0.3s ease-in-out;
+  min-height: 100vh;
+}
+
+#Menu.menu-closed ~ main {
+  margin-left: 0;
+}
+
+.demo-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 500px;
+}
+
+.demo-content h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.demo-content p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  main { margin-left: 0; }
+  #Menu { transform: translateX(-240px); }
+  #Menu.menu-open { transform: translateX(0); }
+}
+</style>
+</head>
+<body>
+
+<aside id="Menu">
+  <div id="MenuButons" onclick="toggleMenu()">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+
+  <div class="menu-header">
+    <div class="logo-icon"><i class="fa-solid fa-brain"></i></div>
+    <h1>Yönetici Paneli</h1>
+  </div>
+
+  <nav>
+    <span class="nav-section-label">Genel</span>
+
+    <a href="AdmistorPage.html" class="active">
+      <i class="fa-solid fa-crown"></i>
+      <span>Admin Sayfası</span>
+    </a>
+
+    <a href="StaticksRapors.html">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>Analizler &amp; Raporlar</span>
+    </a>
+
+    <a href="Activitys.html">
+      <i class="fa-solid fa-circle-nodes"></i>
+      <span>Aktiviteler</span>
+    </a>
+
+    <div class="nav-divider"></div>
+    <span class="nav-section-label">Yönetim</span>
+
+    <a href="ProductEditorForAdmin.html">
+      <i class="fa-solid fa-cube"></i>
+      <span>Roller</span>
+    </a>
+
+    <a href="CatogoryManager.Html">
+      <i class="fa-solid fa-list"></i>
+      <span>İzinler</span>
+    </a>
+
+    <a href="CuponsManager.Html">
+      <i class="fa-solid fa-people-carry"></i>
+      <span>Topluluk</span>
+    </a>
+
+
+
+
+    <span class="nav-section-label">AI</span>
+
+    <a href="AdmistorPage.html" class="active">
+      <i class="fa-solid fa-crown"></i>
+      <span>Model</span>
+    </a>
+
+    <a href="StaticksRapors.html">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>Eğitim</span>
+    </a>
+
+    <a href="Activitys.html">
+      <i class="fa-solid fa-circle-nodes"></i>
+      <span>Aktiviteler</span>
+    </a>
+
+  
+
+    
+
+
+    <div class="nav-divider"></div>
+    <span class="nav-section-label">Sistem</span>
+
+    <a href="Notifications.html">
+      <i class="fa-solid fa-bell"></i>
+      <span>Bildirimler</span>
+    </a>
+
+    <a href="Logs.html">
+      <i class="fa-solid fa-clipboard-list"></i>
+      <span>Loglar</span>
+    </a>
+
+    <a href="HomePage.html">
+      <i class="fa-solid fa-eye"></i>
+      <span>Ana Sayfa</span>
+    </a>
+  </nav>
+
+  <div class="menu-footer">
+    <a href="Options.Html">
+      <i class="fa-solid fa-gear"></i>
+      <span>Ayarlar</span>
+    </a>
+  </div>
+</aside>
+
+
+
+<script>
+  function toggleMenu() {
+    document.getElementById('Menu').classList.toggle('menu-closed');
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('themeLabel').textContent = isDark ? 'Dark Mod' : 'Light Mod';
+  }
+
+  // Aktif linki otomatik işaretle
+  const links = document.querySelectorAll('nav a');
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      links.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Sayfası</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+     <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+    />
+  <link rel="stylesheet" href="Theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 0.15; }
+      50%       { opacity: 0.32; }
+    }
+    @keyframes scan {
+      0%   { top: 0%; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .fade-up { animation: fadeUp 0.65s ease both; }
+    .fade-up-1 { animation-delay: 0.05s; }
+    .fade-up-2 { animation-delay: 0.15s; }
+    .fade-up-3 { animation-delay: 0.25s; }
+    .fade-up-4 { animation-delay: 0.35s; }
+    .pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
+    .scan-line {
+      position: absolute; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99,202,183,0.6), transparent);
+      animation: scan 3s ease-in-out infinite;
+    }
+    .field-enter { animation: slideIn 0.28s ease both; }
+
+    .input-field {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #f1f5f9;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .input-field::placeholder { color: rgba(255,255,255,0.22); }
+    .input-field:focus {
+      outline: none;
+      border-color: rgba(99,202,183,0.6);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .tab-btn {
+      position: relative;
+      padding-bottom: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px; width: 0;
+      background: #63cab7;
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+    .tab-btn.active { color: #63cab7; }
+    .tab-btn.active::after { width: 100%; }
+    .tab-btn:not(.active) { color: rgba(255,255,255,0.28); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      transition: opacity 0.2s, transform 0.15s;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0px); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  </style>
+</head>
+<body class="min-h-screen flex" style="background: var(--bg-primary);">
+
+<div id="AdminMenu"></div>
+<div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
+
+</body>
+<script>      document.addEventListener('DOMContentLoaded', () => {
+     Theme.renderToggle('themeBtn');
+
+  });</script>
+<script src="MenuLoader.js"></script>
+<script src="AdminMenuOptions.js"></script>
+<script src="Template.js"></script>
+</html>

@@ -6,7 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setActiveNav();
   });
 
-  // MobileApp yüklenince animasyonu başlat
+ loadMenu("AdminMenu","AdminMenu.html", () => {
+  initAdminMenu();
+ });
 
 });
 
