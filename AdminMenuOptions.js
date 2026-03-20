@@ -29,12 +29,11 @@ function initAdminMenu() {
     };
 
 
-    // Aktif sayfa
 document.querySelectorAll("#Menu a").forEach(link => {
 
     if (link.href === window.location.href) {
       
-        link.classList.add("bg-primary","text-white");
+        link.classList.add("active");
     }
 });
 }

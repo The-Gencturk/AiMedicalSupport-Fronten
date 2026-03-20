@@ -89,6 +89,19 @@
     .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(0px); }
     .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+ .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
   </style>
 </head>
 <body class="min-h-screen flex" style="background: var(--bg-primary);">
@@ -96,12 +109,83 @@
 <div id="AdminMenu"></div>
 <div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
 
-</body>
-<script>      document.addEventListener('DOMContentLoaded', () => {
-     Theme.renderToggle('themeBtn');
+<main class="flex-1 p-8">
+<header style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="mb-8 flex items-center justify-center gap-8 dark:bg-background-dark p-8 rounded-xl  transition-all duration-00 ease-in-out">
 
-  });</script>
+  <img id="userProfile"  src="RadiologyImages/ornek vakalar beyin bt Berk AI/F_HEAD_20260308_203408.jpeg" alt="Profil" style="border:solid 3px #37ff00ec;" class="w-20 h-20 rounded-full border border-slate-900 "/>
+  <div class="text-center ">
+    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Hoşgeldin</h2>
+    <span id="username" class="block text-1xl font-semibold text-slate-700 dark:text-gray-300"></span>
+    <p id="changingText" class="text-slate-500 dark:text-slate-400 transition-opacity duration-500"></p>
+  </div>
+</header> 
+
+
+</header>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4" style="color: var(--text-second);">Özet</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);" class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);" >Toplam Analizler</p>
+<p id="totalProducts" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">0</p>
+</div>
+<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl ">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Toplam Hasta</p>
+<p  id="pendingOrders" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">0</p>
+</div>
+<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Sadace Bugün</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+</div>
+<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"   class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Doğruluk Oranı</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+</div>
+<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Toplam Personel</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+</div>
+<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Ai Eğitimi</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Son Aktiviteler</h3>  
+
+<div class="overflow-x-auto bg-background-light dark:bg-background-dark rounded-xl border border-primary/20 dark:border-primary/30">
+<table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
+
+<thead class="text-xs text-slate-700 dark:text-slate-300 uppercase bg-primary/20 dark:bg-primary/30">
+<tr>
+<th class="px-6 py-3" scope="col">Analiz Id</th>
+<th class="px-6 py-3" scope="col">Hasta</th>
+<th class="px-6 py-3" scope="col">Tarih</th>
+<th class="px-6 py-3" scope="col">Durum</th>
+<th class="px-6 py-3 text-right " scope="col">Toplam</th>
+<th class="px-6 py-3" scope="col"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="bg-background-light dark:bg-background-dark border-b border-primary/20 dark:border-primary/30">
+<th class="px-6 py-4 font-medium text-slate-900 dark:text-white whitespace-nowrap" scope="row"></th>
+<td class="px-6 py-4"></td>
+<td class="px-6 py-4"></td>
+<td class="px-6 py-4">
+<span class="status-badge status-beklemede"></span>
+</td>
+<td class="px-6 py-4 text-right"></td>
+</body>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+     Theme.renderToggle('themeBtn');
+   const user = await getCurrentUser();
+   console.log(user);
+  });
+</script>
 <script src="MenuLoader.js"></script>
+<script src="auth.js"></script>
 <script src="AdminMenuOptions.js"></script>
 <script src="Template.js"></script>
 </html>

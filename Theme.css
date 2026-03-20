@@ -1,10 +1,13 @@
 :root, [data-theme="light"] {
   --bg-primary:    #FFFFFFF8;
   --bg-secondary:  #f8fafc;
+  --bg-thiry:      #E2E8EC;
   --bg-antilight : #0f172a;
+  --text-second:   rgba(15 15 15 / 0.96);
   --bg-card:       #ffffff;
   --text-primary:  #0f172a;
   --text-muted:    #64748b;
+  --text-green:    #55DD07D2;
   --border:        rgba(0,0,0,0.08);
   --accent:        #3b9e8a;
   --accent-light:  #63cab7;
@@ -16,9 +19,11 @@
 [data-theme="dark"] {
   --bg-primary:    #080f1a;
   --bg-secondary:  #0d1829;
+  --bg-thiry:      #0D1520;
   --bg-card:       #111c2d;
   --text-primary:  #63cab7;
-  --text-second:  rgba(255, 255, 255, 0.96);
+  --text-green:    #55DD07D2;
+  --text-second:   rgba(255, 255, 255, 0.96);
   --text-muted:    #55DD07D2;
   --border:        rgba(255,255,255,0.08);
   --accent:        #63cab7;

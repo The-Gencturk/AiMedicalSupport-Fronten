@@ -314,7 +314,8 @@
           })
         });
         if (res.ok) {
-          window.location.href = '/dashboard.html';
+          alert(res);
+          window.location.href = '/AdminPage.html';
         } else {
           const data = await res.json();
           showAlert(data.detail || 'E-posta veya şifre hatalı', 'error');
