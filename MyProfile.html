@@ -1,0 +1,1261 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .page-shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      position: relative;
+      isolation: isolate;
+    }
+    .page-shell::before {
+      content: "";
+      position: absolute;
+      inset: -20% 0 auto;
+      height: 420px;
+      background:
+        radial-gradient(720px 280px at 12% 8%, rgba(99, 202, 183, 0.2), transparent 70%),
+        radial-gradient(620px 240px at 92% 20%, rgba(59, 158, 138, 0.14), transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .hero-title,
+    .metric-number,
+    .chip,
+    .panel-title,
+    .name-text {
+    }
+    .hero {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(150deg, rgba(99, 202, 183, 0.16), rgba(99, 202, 183, 0.03) 34%), var(--bg-card);
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -50px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(99, 202, 183, 0.12);
+      pointer-events: none;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid rgba(99, 202, 183, 0.35);
+      background: rgba(99, 202, 183, 0.1);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.7rem;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+    .chip.offline {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    .profile-wrap {
+      width: 92px;
+      height: 92px;
+      border-radius: 20px;
+      border: 2px solid rgba(99, 202, 183, 0.35);
+      background: rgba(99, 202, 183, 0.08);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .avatar-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      align-items: flex-start;
+    }
+    .avatar-edit-btn {
+      border: 1px rgba(255 255 255 / 0);
+      background: rgba(255 255 255 / 0.78);
+      color: rgba(0 13 255 / 0.8);
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      font-size: 14px;
+      align-items: center;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .avatar-edit-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .avatar-edit-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .profile-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .profile-initial {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      user-select: none;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.45rem;
+      background: #22c55e;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.15);
+    }
+    .status-dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.15);
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-card);
+      padding: 1rem;
+      min-height: 96px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::after {
+      content: "";
+      position: absolute;
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      top: -46px;
+      right: -44px;
+      background: rgba(99, 202, 183, 0.14);
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .metric-number {
+      font-size: clamp(1.35rem, 1.9vw, 1.75rem);
+      line-height: 1;
+      margin-top: 0.45rem;
+      color: var(--text-second);
+    }
+    .metric-sub {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.28rem;
+    }
+    .kv-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.68rem 0.8rem;
+      background: var(--bg-primary);
+    }
+    .kv-key {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .kv-value {
+      color: var(--text-second);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+    .f-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+    .f-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+      padding: 0.62rem 0.84rem;
+      font-size: 0.92rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .f-input:focus {
+      outline: none;
+      border-color: rgba(99, 202, 183, 0.65);
+      box-shadow: 0 0 0 3px rgba(99, 202, 183, 0.16);
+    }
+    .f-input[readonly] {
+      opacity: 0.82;
+      cursor: not-allowed;
+    }
+    .btn-main,
+    .btn-lite,
+    .btn-danger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      border-radius: 12px;
+      padding: 0.64rem 0.96rem;
+      font-weight: 700;
+      font-size: 0.84rem;
+      transition: opacity 0.2s, transform 0.15s, border-color 0.2s, background 0.2s;
+    }
+    .btn-main {
+      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      color: #fff;
+      border: 1px solid transparent;
+    }
+    .btn-main:hover { opacity: 0.9; }
+    .btn-lite {
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .btn-lite:hover {
+      border-color: rgba(99, 202, 183, 0.4);
+      background: rgba(99, 202, 183, 0.08);
+    }
+    .btn-danger {
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+    .btn-danger:hover { opacity: 0.85; }
+    .btn-main:disabled,
+    .btn-lite:disabled,
+    .btn-danger:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .timeline {
+      border-left: 2px solid rgba(99, 202, 183, 0.3);
+      padding-left: 1rem;
+      margin-left: 0.5rem;
+    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1rem;
+    }
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -1.38rem;
+      top: 0.26rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #63cab7;
+      box-shadow: 0 0 0 4px rgba(99, 202, 183, 0.2);
+    }
+    .timeline-title {
+      color: var(--text-second);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .timeline-desc {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+    .timeline-time {
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .loading-skeleton {
+      height: 14px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(148, 163, 184, 0.16), rgba(148, 163, 184, 0.32), rgba(148, 163, 184, 0.16));
+      background-size: 220% 100%;
+      animation: shimmer 1.4s ease infinite;
+    }
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to { background-position: -40% 0; }
+    }
+    .toast {
+      min-height: 1.1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .toast.error { color: #ef4444; }
+    .toast.success { color: #22c55e; }
+    .crop-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+    .crop-panel {
+      width: min(860px, 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      box-shadow: 0 24px 60px rgba(2, 6, 23, 0.42);
+      padding: 1rem;
+    }
+    .crop-canvas-wrap {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(2, 6, 23, 0.7);
+    }
+    .crop-canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      touch-action: none;
+      cursor: pointer;
+    }
+    .crop-canvas:active {
+      cursor: grabbing;
+    }
+    .crop-slider {
+      width: 100%;
+      accent-color: #63cab7;
+    }
+    .panel-title {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    @media (max-width: 1024px) {
+      .page-shell { padding-top: 5rem; }
+    }
+    @media (max-width: 640px) {
+      .page-shell { padding-left: 0.8rem; padding-right: 0.8rem; }
+      .profile-wrap {
+        width: 78px;
+        height: 78px;
+        border-radius: 16px;
+      }
+      .profile-initial { font-size: 1.7rem; }
+      .avatar-tools {
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
+
+  <main class="flex-1 overflow-y-auto">
+    <div class="page-shell">
+      <section class="hero">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex items-center gap-4">
+            <div class="avatar-tools">
+              <div class="profile-wrap" style="border-radius: 50%; border:2px solid yellow;">
+                <img id="avatarImg" alt="Profil" />
+                <span id="avatarInitial" class="profile-initial">U</span>
+              </div>
+              <button id="changeAvatarBtn" style="left: 70px; bottom: 100px; position: relative;" class="avatar-edit-btn" type="button">
+                <i class="fa-solid fa-pen"></i> 
+              </button>
+            </div>
+            <div>
+              <h1 id="heroName" class="hero-title text-2xl md:text-3xl">My Profile</h1>
+              <p id="heroEmail" class="mt-1 text-sm md:text-base" style="color: var(--text-muted);">Kullanici bilgisi yukleniyor...</p>
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <span id="heroRole" class="chip">Rol bekleniyor</span>
+                <span id="heroStatus" class="chip"><span id="statusDot" class="status-dot"></span>Durum bekleniyor</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button id="refreshBtn" class="btn-lite" type="button"><i class="fa-solid fa-rotate-right"></i> Profili Yenile</button>
+            <button id="logoutBtn" class="btn-danger" type="button"><i class="fa-solid fa-right-from-bracket"></i> Cikis</button>
+          </div>
+        </div>
+        <input id="avatarFileInput" type="file" class="hidden" accept="image/png,image/jpeg,image/webp" />
+      </section>
+
+      <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="metric">
+          <p class="metric-label">Kullanici ID</p>
+          <p id="metricId" class="metric-number">-</p>
+          <p class="metric-sub">Sistem kimligi</p>
+        </article>
+        <article class="metric">
+          <p class="metric-label">Hesap Yasi</p>
+          <p id="metricAge" class="metric-number">-</p>
+          <p class="metric-sub">Gun bazli hesap suresi</p>
+        </article>
+        <article class="metric">
+          <p class="metric-label">Uzmanlik</p>
+          <p id="metricSpecialty" class="metric-number">-</p>
+          <p class="metric-sub">Rol / departman</p>
+        </article>
+        <article class="metric">
+          <p class="metric-label">Uyelik Baslangici</p>
+          <p id="metricCreated" class="metric-number" style="font-size: 1.1rem;">-</p>
+          <p id="metricCreatedSub" class="metric-sub">Kayit tarihi</p>
+        </article>
+      </section>
+
+      <section class="mt-4 grid grid-cols-1 xl:grid-cols-5 gap-4">
+        <article class="panel p-4 xl:col-span-3">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h2 class="panel-title">Kisisel Bilgiler</h2>
+            <span id="profileLoadedAt" class="chip">Yuklenmedi</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+            <div class="kv-row"><span class="kv-key">Ad Soyad</span><span id="kvName" class="kv-value">-</span></div>
+            <div class="kv-row"><span class="kv-key">E-Posta</span><span id="kvEmail" class="kv-value">-</span></div>
+            <div class="kv-row"><span class="kv-key">Rol</span><span id="kvRole" class="kv-value">-</span></div>
+            <div class="kv-row"><span class="kv-key">Durum</span><span id="kvStatus" class="kv-value">-</span></div>
+            <div class="kv-row"><span class="kv-key">Olusturma</span><span id="kvCreated" class="kv-value">-</span></div>
+          </div>
+
+          <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label for="fullNameInput" class="f-label">Ad Soyad</label>
+              <input id="fullNameInput" class="f-input" type="text" />
+            </div>
+            <div>
+              <label for="emailInput" class="f-label">E-Posta</label>
+              <input id="emailInput" class="f-input" type="email" />
+            </div>
+            <div>
+              <label for="specialtyInput" class="f-label">Uzmanlik / Rol</label>
+              <input id="specialtyInput" class="f-input" type="text" />
+            </div>
+            <div>
+              <label for="idInput" class="f-label">Kullanici ID</label>
+              <input id="idInput" class="f-input" type="text" readonly />
+            </div>
+            <div class="md:col-span-2 flex flex-wrap gap-2 items-center">
+              <button id="saveBtn" class="btn-main" type="submit"><i class="fa-solid fa-floppy-disk"></i> Profili Kaydet</button>
+              <button id="resetBtn" class="btn-lite" type="button"><i class="fa-solid fa-rotate-left"></i> Formu Sifirla</button>
+              <span id="formMessage" class="toast"></span>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel p-4 xl:col-span-2">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h2 class="panel-title">Hesap Zaman Cizelgesi</h2>
+            <span class="chip">Audit</span>
+          </div>
+          <div id="timeline" class="timeline"></div>
+        </article>
+      </section>
+
+      <section class="panel mt-4 p-4">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <h2 class="panel-title">Canli Durum</h2>
+          <span id="apiState" class="chip">API kontrol ediliyor</span>
+        </div>
+        <div id="liveState" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
+          <div class="kv-row"><span class="kv-key">Kaynak</span><span id="sourceText" class="kv-value">-</span></div>
+          <div class="kv-row"><span class="kv-key">Son Senkron</span><span id="syncText" class="kv-value">-</span></div>
+          <div class="kv-row"><span class="kv-key">Profil Resmi</span><span id="avatarState" class="kv-value">-</span></div>
+          <div class="kv-row"><span class="kv-key">Baglanti</span><span id="connectText" class="kv-value">-</span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="cropModal" class="crop-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+    <div class="crop-panel">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div>
+          <p class="panel-title">Profil Fotografı Ayarla</p>
+        </div>
+        <button id="cancelCropBtn" class="btn-lite !px-3 !py-2" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="crop-canvas-wrap">
+        <canvas id="cropCanvas"  class="crop-canvas" width="820" height="420"></canvas>
+      </div>
+
+      <div class="mt-3">
+        <div class="flex items-center justify-between text-xs mb-2" style="color: var(--text-muted);">
+          <span>Zoom</span>
+          <span id="cropZoomValue">100%</span>
+        </div>
+        <input id="cropZoomRange" class="crop-slider" type="range" min="100" max="280" step="1" value="100" />
+      </div>
+
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button id="selectCropFileBtn" class="btn-lite" type="button"><i class="fa-solid fa-image"></i> Dosya Sec</button>
+        <button id="resetCropBtn" class="btn-lite" type="button"><i class="fa-solid fa-rotate-left"></i> Pozisyonu Sifirla</button>
+        <button id="uploadCropBtn" class="btn-main" type="button"><i class="fa-solid fa-cloud-arrow-up"></i> Kirp ve Yukle</button>
+        <span id="cropMessage" class="toast"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="MenuLoader.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+  <script src="auth.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const API_ORIGIN = "http://localhost:8000";
+      const FALLBACK_USER = {
+        id: 1,
+        full_name: "Kagan Gencturk",
+        email: "eymengencturk2008@gmail.com",
+        specialty: "SuperAdmin",
+        is_active: true,
+        profile: "/wwwroot/UserProfile/a04cd77d-5a04-459b-ad06-0b36f1f44d71.jpeg",
+        created_at: "2026-03-14T00:16:27.579706+03:00"
+      };
+
+      const state = {
+        user: null,
+        loadedAt: null,
+        source: "api"
+      };
+      const cropState = {
+        image: null,
+        file: null,
+        baseScale: 1,
+        zoom: 1,
+        offsetX: 0,
+        offsetY: 0,
+        dragging: false,
+        pointerId: null,
+        lastX: 0,
+        lastY: 0
+      };
+
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+
+      function setupElements() {
+        [
+          "avatarImg", "avatarInitial", "heroName", "heroEmail", "heroRole", "heroStatus", "statusDot",
+          "metricId", "metricAge", "metricSpecialty", "metricCreated", "metricCreatedSub",
+          "profileLoadedAt", "kvName", "kvEmail", "kvRole", "kvStatus", "kvCreated",
+          "fullNameInput", "emailInput", "specialtyInput", "idInput", "profileForm", "saveBtn", "resetBtn", "formMessage",
+          "timeline", "refreshBtn", "logoutBtn", "apiState", "sourceText", "syncText", "avatarState", "connectText",
+          "changeAvatarBtn", "avatarFileInput", "cropModal", "cropCanvas", "cropZoomRange", "cropZoomValue",
+          "cancelCropBtn", "resetCropBtn", "uploadCropBtn", "selectCropFileBtn", "cropMessage"
+        ].forEach((id) => {
+          el[id] = pick(id);
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function normalizeUser(raw) {
+        const profilePath = raw?.profile || "";
+        const hasAbsolute = /^https?:\/\//i.test(profilePath);
+
+        return {
+          id: raw?.id ?? "-",
+          full_name: raw?.full_name || "Bilinmeyen Kullanici",
+          email: raw?.email || "-",
+          specialty: raw?.specialty || "Belirtilmedi",
+          is_active: Boolean(raw?.is_active),
+          profile: profilePath ? (hasAbsolute ? profilePath : `${API_ORIGIN}${profilePath}`) : "",
+          created_at: raw?.created_at || null
+        };
+      }
+
+      function getProfilePathFromUploadResponse(data) {
+        const candidates = [
+          data?.profile,
+          data?.profile_url,
+          data?.avatar,
+          data?.image,
+          data?.data?.profile,
+          data?.user?.profile
+        ];
+
+        const found = candidates.find((value) => typeof value === "string" && value.trim() !== "");
+        if (!found) return "";
+        if (/^https?:\/\//i.test(found)) return found;
+        const relative = found.startsWith("/") ? found : `/${found.replace(/^\/+/, "")}`;
+        return `${API_ORIGIN}${relative}`;
+      }
+
+      function formatDate(raw) {
+        if (!raw) return "-";
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return "-";
+        return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+      }
+
+      function formatShortDate(raw) {
+        if (!raw) return "-";
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return "-";
+        return new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "short", year: "numeric" }).format(d);
+      }
+
+      function dayDiffFromNow(raw) {
+        if (!raw) return "-";
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return "-";
+        const diff = Date.now() - d.getTime();
+        const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+        return `${days} gun`;
+      }
+
+      function getInitial(name) {
+        const safe = String(name || "U").trim();
+        return safe ? safe.charAt(0).toUpperCase() : "U";
+      }
+
+      function setStatusChip(isActive) {
+        el.heroStatus.classList.toggle("offline", !isActive);
+        const dotClass = isActive ? "status-dot" : "status-dot offline";
+        const label = isActive ? "Aktif" : "Pasif";
+        el.heroStatus.innerHTML = `<span class="${dotClass}"></span>${label}`;
+      }
+
+      function renderTimeline(user) {
+        const createdAt = formatDate(user.created_at);
+        const loadedAt = state.loadedAt ? formatDate(state.loadedAt) : "-";
+        const timeline = [
+          { title: "Hesap olusturuldu", desc: `${user.full_name} sisteme kaydoldu.`, time: createdAt },
+          { title: "Rol atamasi", desc: `${user.specialty} rolunde yetkilendirildi.`, time: createdAt },
+          { title: "Profil goruntulendi", desc: "My Profile paneli uzerinden bilgiler senkronlandi.", time: loadedAt }
+        ];
+
+        el.timeline.innerHTML = timeline
+          .map((item) => `
+            <div class="timeline-item">
+              <p class="timeline-title">${escapeHtml(item.title)}</p>
+              <p class="timeline-desc">${escapeHtml(item.desc)}</p>
+              <p class="timeline-time">${escapeHtml(item.time)}</p>
+            </div>
+          `)
+          .join("");
+      }
+
+      function render(user) {
+        el.heroName.textContent = user.full_name;
+        el.heroEmail.textContent = user.email;
+        el.heroRole.textContent = user.specialty;
+
+        setStatusChip(user.is_active);
+
+        el.metricId.textContent = `#${user.id}`;
+        el.metricAge.textContent = dayDiffFromNow(user.created_at);
+        el.metricSpecialty.textContent = user.specialty;
+        el.metricCreated.textContent = formatShortDate(user.created_at);
+        el.metricCreatedSub.textContent = formatDate(user.created_at);
+
+        el.kvName.textContent = user.full_name;
+        el.kvEmail.textContent = user.email;
+        el.kvRole.textContent = user.specialty;
+        el.kvStatus.textContent = user.is_active ? "Aktif" : "Pasif";
+        el.kvCreated.textContent = formatDate(user.created_at);
+
+
+
+        el.fullNameInput.value = user.full_name;
+        el.emailInput.value = user.email;
+        el.specialtyInput.value = user.specialty;
+        el.idInput.value = user.id;
+
+        el.avatarInitial.textContent = getInitial(user.full_name);
+        if (user.profile) {
+          el.avatarImg.src = user.profile;
+          el.avatarImg.style.display = "block";
+          el.avatarInitial.style.display = "none";
+          el.avatarState.textContent = "Mevcut";
+        } else {
+          el.avatarImg.style.display = "none";
+          el.avatarInitial.style.display = "block";
+          el.avatarState.textContent = "Yok";
+        }
+
+        el.profileLoadedAt.textContent = `Yuklenme: ${formatDate(state.loadedAt)}`;
+        el.sourceText.textContent = state.source === "api" ? "Canli API" : "Yerel Ornek Veri";
+        el.syncText.textContent = formatDate(state.loadedAt);
+        el.connectText.textContent = state.source === "api" ? "Bagli" : "Kesik";
+        el.apiState.textContent = state.source === "api" ? "API Bagli" : "API Erisilemedi";
+        el.apiState.classList.toggle("offline", state.source !== "api");
+
+        renderTimeline(user);
+      }
+
+      function setFormMessage(text, type) {
+        el.formMessage.textContent = text || "";
+        el.formMessage.className = "toast";
+        if (type === "error") el.formMessage.classList.add("error");
+        if (type === "success") el.formMessage.classList.add("success");
+      }
+
+      function setCropMessage(text, type) {
+        el.cropMessage.textContent = text || "";
+        el.cropMessage.className = "toast";
+        if (type === "error") el.cropMessage.classList.add("error");
+        if (type === "success") el.cropMessage.classList.add("success");
+      }
+
+      function setLoading(isLoading) {
+        el.refreshBtn.disabled = isLoading;
+        el.saveBtn.disabled = isLoading;
+        el.changeAvatarBtn.disabled = isLoading;
+
+        if (isLoading) {
+          el.heroName.innerHTML = '<span class="loading-skeleton" style="display:block;width:220px;"></span>';
+          el.heroEmail.innerHTML = '<span class="loading-skeleton" style="display:block;width:180px;"></span>';
+        }
+      }
+
+      async function fetchUserFromApi() {
+        let raw = null;
+
+        if (typeof getCurrentUser === "function") {
+          raw = await getCurrentUser();
+          if (raw) return raw;
+        }
+
+        const res = await fetch(`${API_ORIGIN}/api/v1/auth/Me`, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        return await res.json();
+      }
+
+      async function loadProfile() {
+        setFormMessage("", "");
+        setLoading(true);
+
+        try {
+          const raw = await fetchUserFromApi();
+          state.user = normalizeUser(raw);
+          state.source = "api";
+          state.loadedAt = new Date().toISOString();
+          render(state.user);
+          setFormMessage("Profil bilgileri basariyla guncellendi.", "success");
+        } catch {
+          state.user = normalizeUser(FALLBACK_USER);
+          state.source = "fallback";
+          state.loadedAt = new Date().toISOString();
+          render(state.user);
+          setFormMessage("API ulasilamadi. Gosterim icin ornek veri kullaniliyor.", "error");
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function resetFormToUser() {
+        if (!state.user) return;
+        el.fullNameInput.value = state.user.full_name;
+        el.emailInput.value = state.user.email;
+        el.specialtyInput.value = state.user.specialty;
+        setFormMessage("Form son yuklenen veriye donduruldu.", "success");
+      }
+
+      function openCropModal() {
+        el.cropModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeCropModal() {
+        el.cropModal.classList.add("hidden");
+        document.body.style.overflow = "";
+        cropState.image = null;
+        cropState.file = null;
+        cropState.dragging = false;
+        cropState.pointerId = null;
+        el.avatarFileInput.value = "";
+        setCropMessage("", "");
+      }
+
+      function renderCropPlaceholder() {
+        const canvas = el.cropCanvas;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#070d18";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(148, 163, 184, 0.85)";
+        ctx.font = "600 14px Outfit, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Profil fotografi  yükle", canvas.width / 2, canvas.height / 2);
+      }
+
+
+      function getCropLayout() {
+        const canvas = el.cropCanvas;
+        const width = canvas.width;
+        const height = canvas.height;
+        const cropSize = Math.max(160, Math.min(width, height) - 90);
+        const radius = cropSize / 2;
+        const cx = width / 2;
+        const cy = height / 2;
+        return { width, height, cropSize, radius, cx, cy };
+      }
+
+      function clampCropOffsets() {
+        if (!cropState.image) return;
+        const { cropSize } = getCropLayout();
+        const scale = cropState.baseScale * cropState.zoom;
+        const drawW = cropState.image.naturalWidth * scale;
+        const drawH = cropState.image.naturalHeight * scale;
+
+        const maxOffsetX = Math.max(0, (drawW - cropSize) / 2);
+        const maxOffsetY = Math.max(0, (drawH - cropSize) / 2);
+
+        cropState.offsetX = Math.min(maxOffsetX, Math.max(-maxOffsetX, cropState.offsetX));
+        cropState.offsetY = Math.min(maxOffsetY, Math.max(-maxOffsetY, cropState.offsetY));
+      }
+
+      function renderCropCanvas() {
+        const image = cropState.image;
+        if (!image) {
+          renderCropPlaceholder();
+          return;
+        }
+
+        const canvas = el.cropCanvas;
+        const ctx = canvas.getContext("2d");
+        const { width, height, radius, cx, cy } = getCropLayout();
+
+        const scale = cropState.baseScale * cropState.zoom;
+        const drawW = image.naturalWidth * scale;
+        const drawH = image.naturalHeight * scale;
+        const drawX = (width - drawW) / 2 + cropState.offsetX;
+        const drawY = (height - drawH) / 2 + cropState.offsetY;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#070d18";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(image, drawX, drawY, drawW, drawH);
+
+        ctx.fillStyle = "rgba(2, 6, 23, 0.56)";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.strokeStyle = "rgba(153, 246, 228, 0.95)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(153, 246, 228, 0.35)";
+        ctx.lineWidth = 1;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.beginPath();
+        ctx.moveTo(cx - radius, cy);
+        ctx.lineTo(cx + radius, cy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - radius);
+        ctx.lineTo(cx, cy + radius);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function resetCropView() {
+        if (!cropState.image) return;
+        const { cropSize } = getCropLayout();
+        cropState.baseScale = Math.max(
+          cropSize / cropState.image.naturalWidth,
+          cropSize / cropState.image.naturalHeight
+        );
+        cropState.zoom = 1;
+        cropState.offsetX = 0;
+        cropState.offsetY = 0;
+        el.cropZoomRange.value = "100";
+        el.cropZoomValue.textContent = "100%";
+        renderCropCanvas();
+      }
+
+      function handleCropZoomInput() {
+        const value = Number(el.cropZoomRange.value);
+        cropState.zoom = value / 100;
+        el.cropZoomValue.textContent = `${value}%`;
+        clampCropOffsets();
+        renderCropCanvas();
+      }
+
+      function startCropDrag(event) {
+        if (!cropState.image) return;
+        cropState.dragging = true;
+        cropState.pointerId = event.pointerId;
+        cropState.lastX = event.clientX;
+        cropState.lastY = event.clientY;
+        el.cropCanvas.setPointerCapture(event.pointerId);
+      }
+
+      function moveCropDrag(event) {
+        if (!cropState.dragging || cropState.pointerId !== event.pointerId) return;
+        const deltaX = event.clientX - cropState.lastX;
+        const deltaY = event.clientY - cropState.lastY;
+        cropState.lastX = event.clientX;
+        cropState.lastY = event.clientY;
+        cropState.offsetX += deltaX;
+        cropState.offsetY += deltaY;
+        clampCropOffsets();
+        renderCropCanvas();
+      }
+
+      function stopCropDrag(event) {
+        if (cropState.pointerId !== event.pointerId) return;
+        cropState.dragging = false;
+        cropState.pointerId = null;
+        try {
+          el.cropCanvas.releasePointerCapture(event.pointerId);
+        } catch {
+          // Ignore
+        }
+      }
+
+      async function createCroppedFile() {
+        if (!cropState.image || !cropState.file) {
+          throw new Error("Kirpma icin gecerli bir fotograf secin.");
+        }
+
+        const image = cropState.image;
+        const { width, height, cropSize, radius, cx, cy } = getCropLayout();
+        const scale = cropState.baseScale * cropState.zoom;
+        const drawW = image.naturalWidth * scale;
+        const drawH = image.naturalHeight * scale;
+        const drawX = (width - drawW) / 2 + cropState.offsetX;
+        const drawY = (height - drawH) / 2 + cropState.offsetY;
+
+        const srcXRaw = (cx - radius - drawX) / scale;
+        const srcYRaw = (cy - radius - drawY) / scale;
+        const srcSizeRaw = cropSize / scale;
+
+        const srcSize = Math.max(1, Math.min(srcSizeRaw, image.naturalWidth, image.naturalHeight));
+        const srcX = Math.max(0, Math.min(image.naturalWidth - srcSize, srcXRaw));
+        const srcY = Math.max(0, Math.min(image.naturalHeight - srcSize, srcYRaw));
+
+        const outputSize = Math.round(srcSize);
+        const outputCanvas = document.createElement("canvas");
+        outputCanvas.width = outputSize;
+        outputCanvas.height = outputSize;
+        const outputCtx = outputCanvas.getContext("2d");
+        outputCtx.imageSmoothingEnabled = true;
+        outputCtx.imageSmoothingQuality = "high";
+        outputCtx.drawImage(image, srcX, srcY, srcSize, srcSize, 0, 0, outputSize, outputSize);
+
+        outputCtx.save();
+        outputCtx.globalCompositeOperation = "destination-in";
+        outputCtx.beginPath();
+        outputCtx.arc(outputSize / 2, outputSize / 2, outputSize / 2, 0, Math.PI * 2);
+        outputCtx.fill();
+        outputCtx.restore();
+
+        const mime = "image/png";
+        const quality = undefined;
+        const blob = await new Promise((resolve, reject) => {
+          outputCanvas.toBlob((createdBlob) => {
+            if (createdBlob) resolve(createdBlob);
+            else reject(new Error("Kirpilmis dosya olusturulamadi."));
+          }, mime, quality);
+        });
+
+        const extension = "png";
+        return new File([blob], `profile-${Date.now()}.${extension}`, { type: mime });
+      }
+
+      async function uploadProfileImage(file) {
+        const formData = new FormData();
+        formData.append("file", file, file.name);
+
+        const res = await fetch(`${API_ORIGIN}/api/v1/auth/upload-profile`, {
+          method: "POST",
+          credentials: "include",
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => null);
+          const detail = errData?.detail || errData?.message;
+          throw new Error(detail || `Profil resmi yuklenemedi (HTTP ${res.status})`);
+        }
+
+        return await res.json().catch(() => ({}));
+      }
+
+      async function handleUploadCrop() {
+        if (!cropState.image || !cropState.file || !state.user) {
+          setCropMessage("Once bir fotograf secin.", "error");
+          return;
+        }
+
+        setCropMessage("", "");
+        const oldLabel = el.uploadCropBtn.innerHTML;
+        el.uploadCropBtn.disabled = true;
+        el.uploadCropBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Yukleniyor';
+
+        try {
+          const croppedFile = await createCroppedFile();
+          const response = await uploadProfileImage(croppedFile);
+          const profilePath = getProfilePathFromUploadResponse(response);
+
+          state.user = normalizeUser({
+            ...state.user,
+            ...(response?.user || {}),
+            ...(response?.data || {}),
+            ...(profilePath ? { profile: profilePath } : {})
+          });
+          state.loadedAt = new Date().toISOString();
+          render(state.user);
+
+          closeCropModal();
+          setFormMessage("Profil resmi basariyla guncellendi.", "success");
+        } catch (error) {
+          setCropMessage(error?.message || "Yukleme sirasinda bir hata olustu.", "error");
+        } finally {
+          el.uploadCropBtn.disabled = false;
+          el.uploadCropBtn.innerHTML = oldLabel;
+        }
+      }
+
+      function openCropperForFile(file) {
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+          setFormMessage("Lutfen gecerli bir gorsel dosyasi secin.", "error");
+          return;
+        }
+
+        const maxSizeMb = 15;
+        if (file.size > maxSizeMb * 1024 * 1024) {
+          setFormMessage(`Dosya boyutu ${maxSizeMb} MB sinirini asiyor.`, "error");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const image = new Image();
+          image.onload = () => {
+            cropState.image = image;
+            cropState.file = file;
+            openCropModal();
+            resetCropView();
+            setCropMessage("Fotografi surukleyerek konumlandirabilir, zoom ile yuvarlak kirpabilirsiniz.", "success");
+          };
+          image.onerror = () => {
+            setFormMessage("Secilen gorsel okunamadi.", "error");
+          };
+          image.src = String(reader.result || "");
+        };
+        reader.onerror = () => {
+          setFormMessage("Dosya okunurken hata olustu.", "error");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function trySaveToApi(payload) {
+        const endpoints = [
+          `${API_ORIGIN}/api/v1/auth/me`,
+          `${API_ORIGIN}/api/v1/auth/Me`,
+          `${API_ORIGIN}/api/v1/users/${encodeURIComponent(state.user.id)}`,
+          `${API_ORIGIN}/api/v1/auth/profile`
+        ];
+
+        for (const url of endpoints) {
+          try {
+            const res = await fetch(url, {
+              method: "PATCH",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) continue;
+
+            const data = await res.json().catch(() => ({}));
+            return { ok: true, data };
+          } catch {
+            // Try next endpoint
+          }
+        }
+
+        return { ok: false, data: null };
+      }
+
+      async function handleSave(event) {
+        event.preventDefault();
+        if (!state.user) return;
+
+        const payload = {
+          full_name: el.fullNameInput.value.trim(),
+          email: el.emailInput.value.trim(),
+          specialty: el.specialtyInput.value.trim()
+        };
+
+        if (!payload.full_name || !payload.email) {
+          setFormMessage("Ad Soyad ve E-Posta alanlari zorunludur.", "error");
+          return;
+        }
+
+        const oldLabel = el.saveBtn.innerHTML;
+        el.saveBtn.disabled = true;
+        el.saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Kaydediliyor';
+
+        try {
+          const saveResult = await trySaveToApi(payload);
+
+          state.user = {
+            ...state.user,
+            ...payload,
+            ...(saveResult.ok ? saveResult.data : {})
+          };
+          state.user = normalizeUser(state.user);
+          state.loadedAt = new Date().toISOString();
+          render(state.user);
+
+          if (saveResult.ok) {
+            setFormMessage("Profil bilgileri API uzerinde guncellendi.", "success");
+          } else {
+            setFormMessage("Kaydet endpointi bulunamadi. Degisiklikler ekranda guncellendi.", "error");
+          }
+        } catch {
+          setFormMessage("Profil kaydedilirken beklenmeyen bir hata olustu.", "error");
+        } finally {
+          el.saveBtn.disabled = false;
+          el.saveBtn.innerHTML = oldLabel;
+        }
+      }
+
+      function bindEvents() {
+        el.refreshBtn.addEventListener("click", loadProfile);
+        el.resetBtn.addEventListener("click", resetFormToUser);
+        el.profileForm.addEventListener("submit", handleSave);
+        el.changeAvatarBtn.addEventListener("click", () => {
+          openCropModal();
+          renderCropPlaceholder();
+          setCropMessage("Once dosya secin, sonra yuvarlak alani ayarlayin.", "success");
+        });
+        el.selectCropFileBtn.addEventListener("click", () => el.avatarFileInput.click());
+        el.avatarFileInput.addEventListener("change", (event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          openCropperForFile(file);
+        });
+
+        el.cropZoomRange.addEventListener("input", handleCropZoomInput);
+        el.resetCropBtn.addEventListener("click", resetCropView);
+        el.cancelCropBtn.addEventListener("click", closeCropModal);
+        el.uploadCropBtn.addEventListener("click", handleUploadCrop);
+        el.cropCanvas.addEventListener("click", () => el.avatarFileInput.click());
+        el.cropCanvas.addEventListener("pointerdown", startCropDrag);
+        el.cropCanvas.addEventListener("pointermove", moveCropDrag);
+        el.cropCanvas.addEventListener("pointerup", stopCropDrag);
+        el.cropCanvas.addEventListener("pointercancel", stopCropDrag);
+        el.cropModal.addEventListener("click", (event) => {
+          if (event.target === el.cropModal) closeCropModal();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !el.cropModal.classList.contains("hidden")) {
+            closeCropModal();
+          }
+        });
+
+        el.logoutBtn.addEventListener("click", async () => {
+          if (typeof logout === "function") {
+            await logout();
+          } else {
+            window.location.href = "LoginPage.html";
+          }
+        });
+      }
+
+      function init() {
+        setupElements();
+        bindEvents();
+
+        if (window.Theme && typeof window.Theme.renderToggle === "function") {
+          window.Theme.renderToggle("themeBtn");
+        }
+
+        loadProfile();
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+</html>

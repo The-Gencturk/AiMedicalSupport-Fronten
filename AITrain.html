@@ -1,0 +1,735 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Egitimi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .page-shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      position: relative;
+      isolation: isolate;
+    }
+    .page-shell::before {
+      content: "";
+      position: absolute;
+      inset: -20% 0 auto;
+      height: 420px;
+      background:
+        radial-gradient(680px 260px at 8% 8%, rgba(99, 202, 183, 0.17), transparent 70%),
+        radial-gradient(620px 240px at 92% 20%, rgba(59, 158, 138, 0.13), transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .hero-title,
+    .metric-number,
+    .chip,
+    .panel-title,
+    .job-id {
+      
+    }
+    .hero {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(99, 202, 183, 0.14), rgba(99, 202, 183, 0.03) 35%), var(--bg-card);
+      padding: 1.2rem;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid rgba(99, 202, 183, 0.35);
+      background: rgba(99, 202, 183, 0.1);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.32rem 0.7rem;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-card);
+      padding: 1rem;
+      min-height: 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::after {
+      content: "";
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      top: -48px;
+      right: -48px;
+      background: rgba(99, 202, 183, 0.14);
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .metric-number {
+      font-size: clamp(1.4rem, 2vw, 1.8rem);
+      line-height: 1;
+      margin-top: 0.45rem;
+      color: var(--text-second);
+    }
+    .metric-sub {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.28rem;
+    }
+    .f-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+    .f-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+      padding: 0.6rem 0.8rem;
+      font-size: 0.92rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .f-input:focus {
+      outline: none;
+      border-color: rgba(99, 202, 183, 0.65);
+      box-shadow: 0 0 0 3px rgba(99, 202, 183, 0.17);
+    }
+    .btn-main,
+    .btn-lite {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      border-radius: 12px;
+      padding: 0.65rem 0.95rem;
+      font-weight: 700;
+      font-size: 0.84rem;
+      transition: opacity 0.2s, transform 0.15s, border-color 0.2s, background 0.2s;
+    }
+    .btn-main {
+      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      color: #fff;
+      border: 1px solid transparent;
+    }
+    .btn-main:hover { opacity: 0.9; }
+    .btn-lite {
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .btn-lite:hover {
+      border-color: rgba(99, 202, 183, 0.4);
+      background: rgba(99, 202, 183, 0.08);
+    }
+    .btn-main:disabled,
+    .btn-lite:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .toggle-row {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.65rem 0.8rem;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #63cab7;
+      cursor: pointer;
+    }
+    .ring-wrap {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: conic-gradient(#63cab7 0deg, rgba(148, 163, 184, 0.22) 0deg);
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+    }
+    .ring-inner {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.1rem;
+    }
+    .ring-value {
+      font-weight: 800;
+      font-size: 1.6rem;
+      line-height: 1;
+      color: var(--text-second);
+    }
+    .ring-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #63cab7, #3b9e8a);
+      transition: width 0.35s ease;
+    }
+    .gpu-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-primary);
+      padding: 0.65rem 0.75rem;
+    }
+    .gpu-track {
+      margin-top: 0.35rem;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.3);
+      overflow: hidden;
+    }
+    .gpu-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+    .table-wrap {
+      overflow: auto;
+      border-top: 1px solid var(--border);
+      border-radius: 0 0 16px 16px;
+    }
+    table {
+      width: 100%;
+      min-width: 840px;
+      border-collapse: collapse;
+    }
+    thead th {
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.8rem 1rem;
+      background: rgba(99, 202, 183, 0.07);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-second);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    tbody tr:hover { background: rgba(99, 202, 183, 0.08); }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.2rem 0.62rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .status-running { color: #2563eb; background: rgba(37, 99, 235, 0.14); border-color: rgba(37, 99, 235, 0.3); }
+    .status-done { color: #16a34a; background: rgba(34, 197, 94, 0.14); border-color: rgba(34, 197, 94, 0.3); }
+    .status-wait { color: #d97706; background: rgba(217, 119, 6, 0.14); border-color: rgba(217, 119, 6, 0.3); }
+    .status-fail { color: #ef4444; background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.3); }
+    .job-id {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .toast { min-height: 1.1rem; color: var(--text-muted); font-size: 0.8rem; }
+    .toast.error { color: #ef4444; }
+    @media (max-width: 1024px) {
+      .page-shell { padding-top: 5rem; }
+    }
+    @media (max-width: 640px) {
+      .page-shell { padding-left: 0.8rem; padding-right: 0.8rem; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
+
+  <main class="flex-1 overflow-y-auto">
+    <div class="page-shell">
+      <section class="hero">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 class="hero-title text-2xl md:text-3xl">Model Egitimi</h1>
+            <p class="mt-2 text-sm md:text-base" style="color: var(--text-muted);">Yeni egitim isleri baslatin, GPU kullanimini izleyin ve egitim gecmisini tek ekrandan yonetin.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="chip">GPU Havuzu Aktif</span>
+            <span id="headerUpdatedAt" class="chip">Henuz egitim baslamadi</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="metric"><p class="metric-label">Calisan Is</p><p id="metricRunning" class="metric-number">0</p><p class="metric-sub">Anlik aktif egitim</p></article>
+        <article class="metric"><p class="metric-label">Bugun Tamamlanan</p><p id="metricDone" class="metric-number">0</p><p class="metric-sub">Son 24 saat</p></article>
+        <article class="metric"><p class="metric-label">Ortalama Sure</p><p id="metricDuration" class="metric-number">0 dk</p><p class="metric-sub">Tamamlanan isler</p></article>
+        <article class="metric"><p class="metric-label">Basari Orani</p><p id="metricSuccess" class="metric-number">0%</p><p class="metric-sub">Egitim tamamlanma orani</p></article>
+      </section>
+
+      <section class="mt-4 grid grid-cols-1 xl:grid-cols-5 gap-4">
+        <article class="panel p-4 xl:col-span-3">
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <h2 class="panel-title text-sm font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Egitim Baslat</h2>
+            <span class="chip" id="formHint">Yeni is hazir</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label for="modelSelect" class="f-label">Model Ailesi</label>
+              <select id="modelSelect" class="f-input">
+                <option value="HemorrhageNet-v5">HemorrhageNet-v5</option>
+                <option value="BleedWatch-v4">BleedWatch-v4</option>
+                <option value="NeuroAssist-v2">NeuroAssist-v2</option>
+              </select>
+            </div>
+            <div>
+              <label for="datasetSelect" class="f-label">Dataset Surumu</label>
+              <select id="datasetSelect" class="f-input">
+                <option value="BrainCT_2026_03">BrainCT_2026_03</option>
+                <option value="BrainCT_2026_02">BrainCT_2026_02</option>
+                <option value="MixedNeuro_2026_01">MixedNeuro_2026_01</option>
+              </select>
+            </div>
+            <div>
+              <label for="epochInput" class="f-label">Epoch</label>
+              <input id="epochInput" class="f-input" type="number" min="5" max="250" value="60" />
+            </div>
+            <div>
+              <label for="lrInput" class="f-label">Learning Rate</label>
+              <input id="lrInput" class="f-input" type="number" min="0.00001" max="0.01" step="0.00001" value="0.00035" />
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <label class="toggle-row">
+              <span>
+                <span class="block text-sm font-semibold" style="color: var(--text-second);">MixUp Augmentation</span>
+                <span class="block text-xs" style="color: var(--text-muted);">Overfitting riskini dusurur</span>
+              </span>
+              <input id="mixupToggle" type="checkbox" checked />
+            </label>
+            <label class="toggle-row">
+              <span>
+                <span class="block text-sm font-semibold" style="color: var(--text-second);">Hard Example Mining</span>
+                <span class="block text-xs" style="color: var(--text-muted);">Zor vakalara agirlik verir</span>
+              </span>
+              <input id="hardToggle" type="checkbox" checked />
+            </label>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <button id="startTrainBtn" class="btn-main" type="button"><i class="fa-solid fa-play"></i> Egitimi Baslat</button>
+            <button id="resetFormBtn" class="btn-lite" type="button"><i class="fa-solid fa-rotate-left"></i> Formu Sifirla</button>
+            <p id="actionMessage" class="toast ml-auto"></p>
+          </div>
+        </article>
+
+        <article class="panel p-4 xl:col-span-2">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h2 class="panel-title text-sm font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Canli Is Durumu</h2>
+            <span id="jobStateChip" class="chip">Beklemede</span>
+          </div>
+
+          <div class="ring-wrap" id="progressRing">
+            <div class="ring-inner">
+              <div id="progressValue" class="ring-value">0%</div>
+              <div class="ring-label">Progress</div>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <div>
+              <div class="flex items-center justify-between text-xs mb-1" style="color: var(--text-muted);">
+                <span>Asama</span>
+                <span id="stageText">Hazir</span>
+              </div>
+              <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span style="color: var(--text-muted);">Tahmini Kalan</span>
+              <span id="etaText" style="color: var(--text-second);">-</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="gpu-card">
+                <p class="text-xs" style="color: var(--text-muted);">GPU-01 Kullanimi</p>
+                <p id="gpu1Value" class="text-sm font-semibold" style="color: var(--text-second);">0%</p>
+                <div class="gpu-track"><div id="gpu1Bar" class="gpu-bar" style="width:0%"></div></div>
+              </div>
+              <div class="gpu-card">
+                <p class="text-xs" style="color: var(--text-muted);">GPU-02 Kullanimi</p>
+                <p id="gpu2Value" class="text-sm font-semibold" style="color: var(--text-second);">0%</p>
+                <div class="gpu-track"><div id="gpu2Bar" class="gpu-bar" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel mt-4">
+        <div class="px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 class="panel-title text-sm font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Egitim Gecmisi</h2>
+          <span id="historyCount" class="chip">0 is</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job ID</th>
+                <th>Model</th>
+                <th>Dataset</th>
+                <th>Durum</th>
+                <th>Sure</th>
+                <th>Olusturma Zamani</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="MenuLoader.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const history = [
+        { id: "TR-2041", model: "HemorrhageNet-v4", dataset: "BrainCT_2026_02", status: "done", duration: 98, createdAt: "2026-03-24T08:12:00" },
+        { id: "TR-2040", model: "BleedWatch-v3", dataset: "BrainCT_2026_02", status: "done", duration: 84, createdAt: "2026-03-23T21:40:00" },
+        { id: "TR-2039", model: "NeuroAssist-v2", dataset: "MixedNeuro_2026_01", status: "fail", duration: 46, createdAt: "2026-03-23T16:03:00" },
+        { id: "TR-2038", model: "HemorrhageNet-v4", dataset: "BrainCT_2026_01", status: "wait", duration: 0, createdAt: "2026-03-23T10:20:00" }
+      ];
+
+      let activeJob = null;
+      let timer = null;
+
+      const stages = [
+        { min: 0, max: 20, label: "Data loading" },
+        { min: 21, max: 45, label: "Pre-processing" },
+        { min: 46, max: 80, label: "Training epochs" },
+        { min: 81, max: 97, label: "Validation" },
+        { min: 98, max: 100, label: "Finalizing" }
+      ];
+
+      const statusMap = {
+        running: { cls: "status-running", label: "Running", icon: "fa-spinner" },
+        done: { cls: "status-done", label: "Done", icon: "fa-circle-check" },
+        wait: { cls: "status-wait", label: "Queue", icon: "fa-hourglass-half" },
+        fail: { cls: "status-fail", label: "Failed", icon: "fa-triangle-exclamation" }
+      };
+
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+
+      function formatDate(raw) {
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return "Tarih yok";
+        return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+      }
+
+      function currentStage(progress) {
+        return stages.find((s) => progress >= s.min && progress <= s.max)?.label || "Running";
+      }
+
+      function renderHistory() {
+        if (!history.length) {
+          el.historyBody.innerHTML = `
+            <tr><td colspan="6" style="padding: 1.2rem 1rem; text-align:center; color: var(--text-muted);">Kayit bulunamadi.</td></tr>
+          `;
+          el.historyCount.textContent = "0 is";
+          return;
+        }
+
+        el.historyBody.innerHTML = history.map((h) => {
+          const st = statusMap[h.status] || statusMap.wait;
+          return `
+            <tr>
+              <td><span class="job-id">#${h.id}</span></td>
+              <td>${h.model}</td>
+              <td>${h.dataset}</td>
+              <td><span class="status ${st.cls}"><i class="fa-solid ${st.icon}"></i>${st.label}</span></td>
+              <td>${h.duration ? `${h.duration} dk` : "-"}</td>
+              <td>${formatDate(h.createdAt)}</td>
+            </tr>
+          `;
+        }).join("");
+
+        el.historyCount.textContent = `${history.length} is`;
+      }
+
+      function updateMetrics() {
+        const running = history.filter((h) => h.status === "running").length;
+        const done = history.filter((h) => h.status === "done").length;
+        const failed = history.filter((h) => h.status === "fail").length;
+        const durations = history.filter((h) => h.status === "done" && h.duration).map((h) => h.duration);
+        const avg = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+        const totalFinished = done + failed;
+        const success = totalFinished ? (done / totalFinished) * 100 : 0;
+
+        el.metricRunning.textContent = String(running);
+        el.metricDone.textContent = String(done);
+        el.metricDuration.textContent = `${Math.round(avg)} dk`;
+        el.metricSuccess.textContent = `${Math.round(success)}%`;
+      }
+
+      function setRing(progress) {
+        const deg = Math.round((Math.max(0, Math.min(100, progress)) / 100) * 360);
+        el.progressRing.style.background = `conic-gradient(#63cab7 ${deg}deg, rgba(148, 163, 184, 0.22) ${deg}deg)`;
+        el.progressValue.textContent = `${Math.round(progress)}%`;
+        el.progressBar.style.width = `${Math.round(progress)}%`;
+      }
+
+      function setGpuUsage(progress) {
+        const gpu1 = Math.max(20, Math.min(98, Math.round(35 + progress * 0.5 + (Math.sin(progress) * 12))));
+        const gpu2 = Math.max(15, Math.min(95, Math.round(30 + progress * 0.45 + (Math.cos(progress) * 10))));
+
+        el.gpu1Value.textContent = `${gpu1}%`;
+        el.gpu2Value.textContent = `${gpu2}%`;
+        el.gpu1Bar.style.width = `${gpu1}%`;
+        el.gpu2Bar.style.width = `${gpu2}%`;
+      }
+
+      function setJobChip(text, type) {
+        if (type === "running") {
+          el.jobStateChip.textContent = text;
+          el.jobStateChip.className = "chip";
+          return;
+        }
+        if (type === "done") {
+          el.jobStateChip.textContent = text;
+          el.jobStateChip.className = "status status-done";
+          return;
+        }
+        el.jobStateChip.textContent = text;
+        el.jobStateChip.className = "chip";
+      }
+
+      function showMessage(text, isError) {
+        el.actionMessage.textContent = text || "";
+        el.actionMessage.classList.toggle("error", Boolean(isError));
+      }
+
+      function resetLivePanel() {
+        activeJob = null;
+        setRing(0);
+        setGpuUsage(0);
+        el.stageText.textContent = "Hazir";
+        el.etaText.textContent = "-";
+        setJobChip("Beklemede", "idle");
+        el.formHint.textContent = "Yeni is hazir";
+      }
+
+      function finishTraining() {
+        if (!activeJob) return;
+
+        activeJob.status = "done";
+        activeJob.duration = Math.max(24, Math.round((Date.now() - activeJob.startedAt) / 60000));
+        activeJob.createdAt = new Date().toISOString();
+
+        clearInterval(timer);
+        timer = null;
+
+        el.stageText.textContent = "Tamamlandi";
+        el.etaText.textContent = "0 dk";
+        setRing(100);
+        setGpuUsage(68);
+        setJobChip("Tamamlandi", "done");
+        el.formHint.textContent = "Egitim tamamlandi";
+        el.startTrainBtn.disabled = false;
+
+        history.unshift({
+          id: activeJob.id,
+          model: activeJob.model,
+          dataset: activeJob.dataset,
+          status: "done",
+          duration: activeJob.duration,
+          createdAt: activeJob.createdAt
+        });
+
+        updateMetrics();
+        renderHistory();
+        el.headerUpdatedAt.textContent = `Son is: ${formatDate(activeJob.createdAt)}`;
+        showMessage(`${activeJob.id} basariyla tamamlandi.`, false);
+      }
+
+      function startTraining() {
+        if (timer) {
+          showMessage("Halihazirda calisan bir egitim isi var.", true);
+          return;
+        }
+
+        const model = el.modelSelect.value;
+        const dataset = el.datasetSelect.value;
+        const epoch = Number(el.epochInput.value);
+        const lr = Number(el.lrInput.value);
+
+        if (!Number.isFinite(epoch) || epoch < 5 || epoch > 250) {
+          showMessage("Epoch degerini 5-250 araliginda girin.", true);
+          return;
+        }
+        if (!Number.isFinite(lr) || lr <= 0) {
+          showMessage("Learning rate degeri gecersiz.", true);
+          return;
+        }
+
+        const id = `TR-${Math.floor(3000 + Math.random() * 6000)}`;
+        activeJob = {
+          id,
+          model,
+          dataset,
+          status: "running",
+          progress: 0,
+          startedAt: Date.now()
+        };
+
+        history.unshift({
+          id,
+          model,
+          dataset,
+          status: "running",
+          duration: 0,
+          createdAt: new Date().toISOString()
+        });
+
+        renderHistory();
+        updateMetrics();
+
+        el.startTrainBtn.disabled = true;
+        el.formHint.textContent = `${model} icin egitim aktif`;
+        setJobChip("Running", "running");
+        showMessage(`${id} olusturuldu. Egitim baslatildi.`, false);
+
+        timer = setInterval(() => {
+          if (!activeJob) return;
+
+          const step = 2 + Math.random() * 6;
+          activeJob.progress = Math.min(100, activeJob.progress + step);
+
+          setRing(activeJob.progress);
+          setGpuUsage(activeJob.progress);
+          el.stageText.textContent = currentStage(activeJob.progress);
+
+          const remain = Math.max(0, Math.round((100 - activeJob.progress) * 0.8));
+          el.etaText.textContent = `${remain} dk`;
+
+          const row = history.find((h) => h.id === activeJob.id);
+          if (row) {
+            row.status = "running";
+            row.duration = Math.max(1, Math.round((Date.now() - activeJob.startedAt) / 60000));
+          }
+          renderHistory();
+          updateMetrics();
+
+          if (activeJob.progress >= 100) {
+            finishTraining();
+          }
+        }, 800);
+      }
+
+      function resetForm() {
+        el.modelSelect.value = "HemorrhageNet-v5";
+        el.datasetSelect.value = "BrainCT_2026_03";
+        el.epochInput.value = "60";
+        el.lrInput.value = "0.00035";
+        el.mixupToggle.checked = true;
+        el.hardToggle.checked = true;
+        showMessage("Form varsayilan degerlere dondu.", false);
+      }
+
+      function initElements() {
+        [
+          "headerUpdatedAt", "metricRunning", "metricDone", "metricDuration", "metricSuccess",
+          "modelSelect", "datasetSelect", "epochInput", "lrInput", "mixupToggle", "hardToggle",
+          "startTrainBtn", "resetFormBtn", "actionMessage", "formHint", "jobStateChip",
+          "progressRing", "progressValue", "progressBar", "stageText", "etaText",
+          "gpu1Value", "gpu2Value", "gpu1Bar", "gpu2Bar", "historyBody", "historyCount"
+        ].forEach((id) => {
+          el[id] = pick(id);
+        });
+      }
+
+      function initEvents() {
+        el.startTrainBtn.addEventListener("click", startTraining);
+        el.resetFormBtn.addEventListener("click", resetForm);
+      }
+
+      function init() {
+        initElements();
+        renderHistory();
+        updateMetrics();
+        resetLivePanel();
+        initEvents();
+
+        if (window.Theme && typeof window.Theme.renderToggle === "function") {
+          window.Theme.renderToggle("themeBtn");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+</html>

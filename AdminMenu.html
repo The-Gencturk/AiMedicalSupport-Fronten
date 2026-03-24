@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sidebar Menü</title>
+<title>Sidebar MenÃ¼</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root, [data-theme="light"] {
@@ -67,7 +67,7 @@ body {
   transform: translateX(-240px);
 }
 
-/* Başlık alanı */
+/* BaÅŸlÄ±k alanÄ± */
 .menu-header {
   padding: 24px 20px 16px;
   border-bottom: 1px solid var(--border);
@@ -108,7 +108,7 @@ nav::-webkit-scrollbar { width: 4px; }
 nav::-webkit-scrollbar-track { background: transparent; }
 nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-/* Nav başlık etiketleri */
+/* Nav baÅŸlÄ±k etiketleri */
 .nav-section-label {
   font-size: 10px;
   font-weight: 600;
@@ -168,14 +168,14 @@ nav a.active::before {
   border-radius: 0 3px 3px 0;
 }
 
-/* Ayırıcı */
+/* AyÄ±rÄ±cÄ± */
 .nav-divider {
   height: 1px;
   background: var(--border);
   margin: 6px 10px;
 }
 
-/* Alt kısım */
+/* Alt kÄ±sÄ±m */
 .menu-footer {
   padding: 10px;
   border-top: 1px solid var(--border);
@@ -332,21 +332,21 @@ main {
 
     <a href="AIModels.html">
       <i class="fa-solid fa-brain"></i>
-      <span>Model Yönetimi</span>
+      <span>AI Model Yonetimi</span>
     </a>
 
     <a href="AITrain.html">
       <i class="fa-solid fa-robot"></i>
-      <span>Model Eğitimi</span>
+      <span>Model Egitimi</span>
     </a>
 
     <a href="AIStats.html">
       <i class="fa-solid fa-chart-line"></i>
-      <span>AI Performans</span>
+      <span>Model Performansi</span>
     </a>
 
     <div class="nav-divider"></div>
-    <span class="nav-section-label">Yönetim</span>
+    <span class="nav-section-label">YÃ¶netim</span>
 
     <a href="Users.html">
       <i class="fa-solid fa-user-doctor"></i>
@@ -360,7 +360,7 @@ main {
 
     <a href="Permissions.html">
       <i class="fa-solid fa-key"></i>
-      <span>İzinler</span>
+      <span>izinler</span>
     </a>
 
 
@@ -386,15 +386,20 @@ main {
     </a>
 
       <a href="LoginPage.html">
-      <i class="fa-solid fa-bell"></i>
+      <i class="fa-solid fa-home"></i>
       <span>Ana Sayfa</span>
     </a>
 
   <div class="menu-footer" style="padding: 0;">
+    <a href="MyProfile.html">
+      <i class="fa-solid fa-user"></i>
+      <span>Hesabım</span>
+    </a>
     <a href="Options.Html">
       <i class="fa-solid fa-gear"></i>
       <span>Ayarlar</span>
     </a>
+      
   </div>
 </aside>
 
@@ -412,7 +417,7 @@ main {
     document.getElementById('themeLabel').textContent = isDark ? 'Dark Mod' : 'Light Mod';
   }
 
-  // Aktif linki otomatik işaretle
+  // Aktif linki otomatik iÅŸaretle
   const links = document.querySelectorAll('nav a');
   links.forEach(link => {
     link.addEventListener('click', () => {
@@ -423,3 +428,4 @@ main {
 </script>
 </body>
 </html>
+
