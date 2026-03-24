@@ -1,7 +1,7 @@
 const API_BASE = "http://localhost:8000/api/v1";
 
 async function getCurrentUser() {
-    const res = await fetch(`${API_BASE}/Role/profile`, {
+    const res = await fetch(`${API_BASE}/auth/Me`, {
         credentials: "include",
         method:"Get"
     });
@@ -41,3 +41,66 @@ async function logout() {
     await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" });
     window.location.href = "login.html";
 }
+
+
+
+
+
+async function renderUserInfo() {
+    const user = await getCurrentUser();
+    const loginBt = document.getElementById("loginBt");
+    const loginBtMobile = document.getElementById("loginBtMobile");
+
+    if (!user) {
+        if (loginBt) loginBt.classList.remove("hidden");
+        if (loginBtMobile) loginBtMobile.classList.remove("hidden");
+        return;
+    }
+
+    // İsim
+    const nameElem = document.getElementById("username");
+    if (nameElem) nameElem.textContent = user.full_name || "Kullanıcı";
+
+    // Email
+    const emailElem = document.getElementById("userEmail");
+    if (emailElem) emailElem.textContent = user.email || "";
+
+    // Profil resmi
+    const img = document.getElementById("userProfile");
+    const icon = document.getElementById("userProfileIcon");
+
+    if (img) {
+        if (user.profile) {
+            img.src = "http://localhost:8000" + user.profile; // base URL ekledik
+            img.classList.remove("hidden");
+            if (icon) icon.classList.add("hidden");
+        } else {
+            img.classList.add("hidden");
+            if (icon) icon.classList.remove("hidden");
+        }
+    }
+
+    const menu = document.getElementById("profileMenu");
+    if (img && menu) {
+        let hideTimeout;
+        img.addEventListener("mouseenter", () => { clearTimeout(hideTimeout); menu.classList.remove("hidden"); });
+        menu.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
+        img.addEventListener("mouseleave", () => { hideTimeout = setTimeout(() => menu.classList.add("hidden"), 150); });
+        menu.addEventListener("mouseleave", () => { hideTimeout = setTimeout(() => menu.classList.add("hidden"), 150); });
+    }
+
+    // Admin kontrolü
+    const roles = user.roles || [];
+    if (roles.includes("SuperAdmin") || roles.includes("Admin")) {
+        document.body.classList.add("AdminPower");
+        const adminPanel = document.getElementById("adminPanel");
+        const adminPower = document.getElementById("AdminPower");
+        const adminPowerMobil = document.getElementById("AdminPowerMobil");
+        if (adminPanel) adminPanel.classList.remove("hidden");
+        if (adminPower) adminPower.classList.remove("hidden");
+        if (adminPowerMobil) adminPowerMobil.classList.remove("hidden");
+    }
+}
+
+// Sayfa yüklendiğinde çağır
+document.addEventListener('DOMContentLoaded', renderUserInfo);

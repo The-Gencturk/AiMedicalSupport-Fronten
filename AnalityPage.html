@@ -2,112 +2,808 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Analiz Sayfası</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analiz Yönetimi</title>
   <script src="https://cdn.tailwindcss.com"></script>
-     <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
-    />
-  <link rel="stylesheet" href="Theme.css">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: 'Outfit', sans-serif; }
-
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+    body {
+      font-family: "Outfit", sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-second);
     }
-    @keyframes pulse-slow {
-      0%, 100% { opacity: 0.15; }
-      50%       { opacity: 0.32; }
-    }
-    @keyframes scan {
-      0%   { top: 0%; opacity: 0; }
-      10%  { opacity: 1; }
-      90%  { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(12px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .fade-up { animation: fadeUp 0.65s ease both; }
-    .fade-up-1 { animation-delay: 0.05s; }
-    .fade-up-2 { animation-delay: 0.15s; }
-    .fade-up-3 { animation-delay: 0.25s; }
-    .fade-up-4 { animation-delay: 0.35s; }
-    .pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
-    .scan-line {
-      position: absolute; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(99,202,183,0.6), transparent);
-      animation: scan 3s ease-in-out infinite;
-    }
-    .field-enter { animation: slideIn 0.28s ease both; }
-
-    .input-field {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #f1f5f9;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .input-field::placeholder { color: rgba(255,255,255,0.22); }
-    .input-field:focus {
-      outline: none;
-      border-color: rgba(99,202,183,0.6);
-      background: rgba(255,255,255,0.07);
-    }
-
-    .tab-btn {
+    .page-shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
       position: relative;
-      padding-bottom: 10px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: color 0.2s;
+      isolation: isolate;
     }
-    .tab-btn::after {
-      content: '';
+    .page-shell::before {
+      content: "";
       position: absolute;
-      bottom: 0; left: 0;
-      height: 2px; width: 0;
-      background: #63cab7;
-      transition: width 0.3s ease;
-      border-radius: 2px;
+      inset: -20% 0 auto;
+      height: 420px;
+      background: radial-gradient(700px 260px at 10% 10%, rgba(99, 202, 183, 0.17), transparent 70%), radial-gradient(600px 260px at 90% 20%, rgba(59, 158, 138, 0.13), transparent 70%);
+      z-index: -1;
+      pointer-events: none;
     }
-    .tab-btn.active { color: #63cab7; }
-    .tab-btn.active::after { width: 100%; }
-    .tab-btn:not(.active) { color: rgba(255,255,255,0.28); }
-
-    .btn-primary {
+    .hero-title,
+    .metric-number,
+    .badge-id {
+      font-family: "Syne", sans-serif;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .hero {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(99, 202, 183, 0.14), rgba(99, 202, 183, 0.03) 35%), var(--bg-card);
+      padding: 1.1rem;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid rgba(99, 202, 183, 0.35);
+      background: rgba(99, 202, 183, 0.1);
+      color: var(--accent);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.3rem 0.65rem;
+      white-space: nowrap;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-card);
+      padding: 1rem;
+      min-height: 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::after {
+      content: "";
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      top: -45px;
+      right: -45px;
+      background: rgba(99, 202, 183, 0.14);
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .metric-number {
+      font-size: clamp(1.5rem, 2vw, 1.9rem);
+      line-height: 1;
+      margin-top: 0.45rem;
+      color: var(--text-second);
+    }
+    .metric-sub {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.28rem;
+    }
+    .f-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+    .f-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+      padding: 0.6rem 0.8rem;
+      font-size: 0.92rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .f-input:focus {
+      outline: none;
+      border-color: rgba(99, 202, 183, 0.65);
+      box-shadow: 0 0 0 3px rgba(99, 202, 183, 0.17);
+    }
+    .btn-lite,
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      border-radius: 12px;
+      padding: 0.6rem 0.92rem;
+      font-weight: 700;
+      font-size: 0.84rem;
+      transition: opacity 0.2s, transform 0.15s, border-color 0.2s, background 0.2s;
+    }
+    .btn-main {
       background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
-      transition: opacity 0.2s, transform 0.15s;
-      font-family: 'Syne', sans-serif;
-      font-weight: 600;
+      color: white;
+      border: 1px solid transparent;
     }
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0px); }
-    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
- 
+    .btn-lite {
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .btn-lite:hover {
+      border-color: rgba(99, 202, 183, 0.4);
+      background: rgba(99, 202, 183, 0.08);
+    }
+    .btn-main:hover {
+      opacity: 0.9;
+    }
+    .btn-main:disabled,
+    .btn-lite:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .table-wrap {
+      overflow: auto;
+      border-top: 1px solid var(--border);
+      border-radius: 0 0 16px 16px;
+    }
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+    thead th {
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.8rem 1rem;
+      background: rgba(99, 202, 183, 0.07);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-second);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    tbody tr:hover {
+      background: rgba(99, 202, 183, 0.08);
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.2rem 0.62rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .status-normal { color: #16a34a; background: rgba(34, 197, 94, 0.14); border-color: rgba(34, 197, 94, 0.3); }
+    .status-warning { color: #d97706; background: rgba(217, 119, 6, 0.14); border-color: rgba(217, 119, 6, 0.3); }
+    .status-critical { color: #ef4444; background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.3); }
+    .conf-track {
+      height: 6px;
+      background: rgba(148, 163, 184, 0.27);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.3rem;
+    }
+    .conf-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #63cab7, #3b9e8a);
+    }
+    .conf-bar.good { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .conf-bar.low { background: linear-gradient(90deg, #f97316, #ef4444); }
+    .badge-id {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .toast { min-height: 1.1rem; color: var(--text-muted); font-size: 0.8rem; }
+    .toast.error { color: #ef4444; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.62);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1200;
+      backdrop-filter: blur(3px);
+    }
+    .modal-panel {
+      width: min(760px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      box-shadow: 0 30px 80px rgba(2, 6, 23, 0.42);
+    }
+    .detail-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.7rem 0.8rem;
+      background: var(--bg-primary);
+    }
+    .detail-k {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .detail-v {
+      color: var(--text-second);
+      font-weight: 600;
+      margin-top: 0.2rem;
+      word-break: break-word;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-primary);
+      color: var(--text-second);
+      padding: 0.8rem;
+      max-height: 280px;
+      overflow: auto;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 1024px) {
+      .page-shell { padding-top: 5rem; }
+    }
+    @media (max-width: 640px) {
+      .page-shell { padding-left: 0.8rem; padding-right: 0.8rem; }
+    }
   </style>
 </head>
-<body class="min-h-screen flex" style="background: var(--bg-primary);">
+<body class="min-h-screen flex">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
 
-<div id="AdminMenu"></div>
-<div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
+  <main class="flex-1 overflow-y-auto">
+    <div class="page-shell">
+      <section class="hero">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 class="hero-title text-2xl md:text-3xl">Analiz Yönetimi</h1>
+            <p class="mt-2 text-sm md:text-base" style="color: var(--text-muted);">Tüm analizleri arayın, filtreleyin ve detayları tek panelden yönetin.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="chip">Canlı Takip</span>
+            <span id="headerUpdatedAt" class="chip">Henüz güncellenmedi</span>
+          </div>
+        </div>
+      </section>
 
-<main class="flex-1 p-8">
-</main>
+      <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="metric"><p class="metric-label">Toplam Analiz</p><p id="metricTotal" class="metric-number">0</p><p class="metric-sub">Filtrelenmiş kayıtlar</p></article>
+        <article class="metric"><p class="metric-label">Ortalama Güven</p><p id="metricAverage" class="metric-number">0%</p><p class="metric-sub">Model güven ortalaması</p></article>
+        <article class="metric"><p class="metric-label">Kritik Bulgular</p><p id="metricCritical" class="metric-number">0</p><p class="metric-sub">Acil yorum önerilir</p></article>
+        <article class="metric"><p class="metric-label">Son 24 Saat</p><p id="metricRecent" class="metric-number">0</p><p class="metric-sub">Yeni analiz sayısı</p></article>
+      </section>
 
+      <section class="panel mt-4 p-4">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+          <div class="xl:col-span-2">
+            <label for="searchInput" class="f-label">Hızlı Arama</label>
+            <input id="searchInput" class="f-input" type="search" placeholder="Hasta, doktor, analiz id veya sonuç..." />
+          </div>
+          <div>
+            <label for="statusFilter" class="f-label">Durum</label>
+            <select id="statusFilter" class="f-input">
+              <option value="all">Tümü</option>
+              <option value="critical">Kritik</option>
+              <option value="warning">Uyarı</option>
+              <option value="normal">Normal</option>
+            </select>
+          </div>
+          <div>
+            <label for="doctorFilter" class="f-label">Doktor</label>
+            <select id="doctorFilter" class="f-input"><option value="all">Tüm doktorlar</option></select>
+          </div>
+          <div>
+            <label for="dateFrom" class="f-label">Başlangıç</label>
+            <input id="dateFrom" class="f-input" type="date" />
+          </div>
+          <div>
+            <label for="dateTo" class="f-label">Bitiş</label>
+            <input id="dateTo" class="f-input" type="date" />
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <button id="refreshBtn" class="btn-main" type="button"><i class="fa-solid fa-rotate-right"></i> Yenile</button>
+          <button id="clearFiltersBtn" class="btn-lite" type="button"><i class="fa-solid fa-filter-circle-xmark"></i> Filtreleri Temizle</button>
+          <button id="exportCsvBtn" class="btn-lite" type="button"><i class="fa-solid fa-file-csv"></i> CSV Dışa Aktar</button>
+          <p id="actionMessage" class="toast ml-auto"></p>
+        </div>
+      </section>
 
+      <section class="panel mt-4">
+        <div class="px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Analiz Kayıtları</h2>
+            <span id="resultCount" class="rounded-full px-2 py-1 text-xs font-semibold" style="background: rgba(99, 202, 183, 0.12); color: var(--accent);">0 kayıt</span>
+          </div>
+          <div id="tableLoadingHint" class="hidden text-xs font-semibold uppercase tracking-wider" style="color: var(--accent);">Yükleniyor...</div>
+        </div>
+        <div id="fetchError" class="hidden mx-4 mb-3 rounded-lg border px-3 py-2 text-sm" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); color: #ef4444;"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Analiz ID</th>
+                <th>Hasta</th>
+                <th>Doktor</th>
+                <th>Sonuç</th>
+                <th>Güven</th>
+                <th>Tarih</th>
+                <th>Eylem</th>
+              </tr>
+            </thead>
+            <tbody id="analysesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-panel">
+      <div class="px-4 py-3 border-b" style="border-color: var(--border);">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Analiz Detayı</p>
+            <h3 id="modalTitle" class="hero-title text-lg">Kayıt</h3>
+          </div>
+          <button id="closeDetailBtn" class="btn-lite !px-3 !py-2" type="button"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="p-4 grid gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="modalResultBadge" class="status status-warning">Uyarı</span>
+          <span id="modalConfidence" class="text-sm font-semibold" style="color: var(--text-muted);">Güven: -</span>
+          <span id="modalCreatedAt" class="text-sm font-semibold" style="color: var(--text-muted);">Tarih: -</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div class="detail-item"><p class="detail-k">Analiz ID</p><p id="modalAnalysisId" class="detail-v">-</p></div>
+          <div class="detail-item"><p class="detail-k">Hasta</p><p id="modalPatient" class="detail-v">-</p></div>
+          <div class="detail-item"><p class="detail-k">Doktor</p><p id="modalDoctor" class="detail-v">-</p></div>
+          <div class="detail-item"><p class="detail-k">Ham Sonuç</p><p id="modalResultRaw" class="detail-v">-</p></div>
+        </div>
+        <div class="detail-item">
+          <p class="detail-k">Ek Bilgiler</p>
+          <pre id="modalRawJson">{}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="MenuLoader.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const API_ENDPOINT = "http://localhost:8000/api/v1/analyses";
+      const state = {
+        analyses: [],
+        filtered: [],
+        lastUpdated: null,
+        timer: null
+      };
+
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+      const escapeHtml = (value) =>
+        String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+
+      function classifyResult(result) {
+        const text = String(result ?? "").toLowerCase();
+        if (/normal|negatif|bulgu yok|no finding/.test(text)) {
+          return { key: "normal", label: "Normal", className: "status-normal", icon: "fa-circle-check" };
+        }
+        if (/kanama|hemoraji|hemorrhage|bleeding|kritik|acil|pozitif|positive/.test(text)) {
+          return { key: "critical", label: "Kritik", className: "status-critical", icon: "fa-triangle-exclamation" };
+        }
+        return { key: "warning", label: "Uyarı", className: "status-warning", icon: "fa-circle-info" };
+      }
+
+      function toPercent(value) {
+        if (value === null || value === undefined || value === "") return null;
+        const n = Number(value);
+        if (!Number.isFinite(n)) return null;
+        const normalized = n <= 1 ? n * 100 : n;
+        return Math.max(0, Math.min(100, normalized));
+      }
+
+      function parseDate(raw) {
+        if (!raw) return null;
+        const d = new Date(raw);
+        return Number.isNaN(d.getTime()) ? null : d;
+      }
+
+      function normalizeAnalysis(item) {
+        if (!item || typeof item !== "object") return null;
+        return {
+          id: item.id ?? item.analysis_id ?? item.analysisId ?? "N/A",
+          patient: item.patient_name ?? item.patientName ?? item.patient?.name ?? item.patient?.full_name ?? "Bilinmiyor",
+          doctor: item.doctor_name ?? item.doctorName ?? item.doctor?.name ?? item.doctor?.full_name ?? "Bilinmiyor",
+          result: item.result ?? item.prediction ?? item.label ?? item.status ?? "Bilinmiyor",
+          confidence: toPercent(item.confidence ?? item.score ?? item.probability ?? null),
+          createdAt: parseDate(item.created_at ?? item.createdAt ?? item.timestamp ?? item.date ?? item.analyzed_at ?? null),
+          raw: item
+        };
+      }
+
+      function formatDate(date) {
+        if (!date) return "Tarih yok";
+        return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(date);
+      }
+
+      function timeAgo(date) {
+        if (!date) return "Tarih yok";
+        const diff = Date.now() - date.getTime();
+        if (diff < 60000) return "Az önce";
+        const min = Math.floor(diff / 60000);
+        if (min < 60) return `${min} dk önce`;
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return `${hr} sa önce`;
+        const day = Math.floor(hr / 24);
+        if (day < 7) return `${day} gün önce`;
+        const week = Math.floor(day / 7);
+        if (week < 5) return `${week} hf önce`;
+        const month = Math.floor(day / 30);
+        return `${month} ay önce`;
+      }
+
+      function dateInputValue(date) {
+        if (!date) return null;
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      function setMessage(text, isError) {
+        clearTimeout(state.timer);
+        el.actionMessage.textContent = text || "";
+        el.actionMessage.classList.toggle("error", Boolean(isError));
+        if (text) {
+          state.timer = setTimeout(() => {
+            el.actionMessage.textContent = "";
+            el.actionMessage.classList.remove("error");
+          }, 3200);
+        }
+      }
+
+      function setLoading(loading) {
+        el.refreshBtn.disabled = loading;
+        el.exportCsvBtn.disabled = loading;
+        el.tableLoadingHint.classList.toggle("hidden", !loading);
+
+        if (!loading) return;
+
+        const placeholders = Array.from({ length: 6 }, () => `
+          <tr>
+            <td colspan="7" style="padding: 0.72rem 1rem;">
+              <div style="height: 0.82rem; border-radius: 999px; background: rgba(99, 202, 183, 0.16);"></div>
+            </td>
+          </tr>
+        `).join("");
+
+        el.analysesBody.innerHTML = placeholders;
+      }
+
+      function renderError(message) {
+        if (!message) {
+          el.fetchError.classList.add("hidden");
+          el.fetchError.textContent = "";
+          return;
+        }
+        el.fetchError.textContent = message;
+        el.fetchError.classList.remove("hidden");
+      }
+
+      function renderRows(list) {
+        if (!list.length) {
+          el.analysesBody.innerHTML = `
+            <tr>
+              <td colspan="7" style="padding: 1.2rem 1rem; text-align:center; color: var(--text-muted);">Eşleşen analiz bulunamadı.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        el.analysesBody.innerHTML = list
+          .map((a) => {
+            const s = classifyResult(a.result);
+            const conf = typeof a.confidence === "number" ? Math.round(a.confidence) : null;
+            const confClass = conf === null ? "" : conf >= 80 ? "good" : conf < 60 ? "low" : "";
+
+            return `
+              <tr>
+                <td><span class="badge-id">#A-${escapeHtml(a.id)}</span></td>
+                <td><div class="font-semibold">${escapeHtml(a.patient)}</div></td>
+                <td>${escapeHtml(a.doctor)}</td>
+                <td>
+                  <span class="status ${s.className}"><i class="fa-solid ${s.icon}"></i>${s.label}</span>
+                  <div class="text-xs mt-1" style="color: var(--text-muted);">${escapeHtml(a.result)}</div>
+                </td>
+                <td>
+                  ${
+                    conf === null
+                      ? '<span style="color: var(--text-muted);">N/A</span>'
+                      : `<div class="text-xs">${conf}%</div><div class="conf-track"><div class="conf-bar ${confClass}" style="width:${conf}%"></div></div>`
+                  }
+                </td>
+                <td>
+                  <div>${formatDate(a.createdAt)}</div>
+                  <div class="text-xs" style="color: var(--text-muted);">${timeAgo(a.createdAt)}</div>
+                </td>
+                <td>
+                  <button class="btn-lite !text-xs !px-3 !py-2" type="button" data-action="detail" data-id="${escapeHtml(a.id)}">
+                    <i class="fa-solid fa-eye"></i> Detay
+                  </button>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      function updateMetrics(list) {
+        const total = list.length;
+        const confs = list.map((a) => a.confidence).filter((c) => typeof c === "number");
+        const avg = confs.length ? confs.reduce((sum, c) => sum + c, 0) / confs.length : 0;
+        const critical = list.filter((a) => classifyResult(a.result).key === "critical").length;
+        const recent = list.filter((a) => a.createdAt && Date.now() - a.createdAt.getTime() <= 24 * 60 * 60 * 1000).length;
+
+        el.metricTotal.textContent = String(total);
+        el.metricAverage.textContent = `${Math.round(avg)}%`;
+        el.metricCritical.textContent = String(critical);
+        el.metricRecent.textContent = String(recent);
+        el.resultCount.textContent = `${total} kayıt`;
+        el.headerUpdatedAt.textContent = `Son güncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henüz yok"}`;
+      }
+      function updateDoctorFilter() {
+        const current = el.doctorFilter.value;
+        const doctors = [...new Set(state.analyses.map((a) => a.doctor).filter(Boolean))].sort((a, b) => a.localeCompare(b, "tr"));
+        el.doctorFilter.innerHTML = ['<option value="all">Tüm doktorlar</option>', ...doctors.map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`)].join("");
+        if (doctors.includes(current)) el.doctorFilter.value = current;
+      }
+
+      function applyFilters() {
+        const term = el.searchInput.value.trim().toLowerCase();
+        const status = el.statusFilter.value;
+        const doctor = el.doctorFilter.value;
+        const from = el.dateFrom.value;
+        const to = el.dateTo.value;
+
+        state.filtered = state.analyses.filter((a) => {
+          if (term) {
+            const haystack = `${a.id} ${a.patient} ${a.doctor} ${a.result}`.toLowerCase();
+            if (!haystack.includes(term)) return false;
+          }
+          if (status !== "all" && classifyResult(a.result).key !== status) return false;
+          if (doctor !== "all" && a.doctor !== doctor) return false;
+
+          if (from || to) {
+            const rowDate = dateInputValue(a.createdAt);
+            if (!rowDate) return false;
+            if (from && rowDate < from) return false;
+            if (to && rowDate > to) return false;
+          }
+          return true;
+        });
+
+        renderRows(state.filtered);
+        updateMetrics(state.filtered);
+      }
+
+      function sortByDate(list) {
+        return list.sort((a, b) => {
+          const ta = a.createdAt ? a.createdAt.getTime() : -Infinity;
+          const tb = b.createdAt ? b.createdAt.getTime() : -Infinity;
+          return tb - ta;
+        });
+      }
+
+      async function loadAnalyses() {
+        setLoading(true);
+        renderError("");
+
+        try {
+          const res = await fetch(API_ENDPOINT, {
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+          });
+
+          if (!res.ok) throw new Error(`Veri alınamadı (HTTP ${res.status})`);
+
+          const payload = await res.json();
+          const rawList = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload.items)
+            ? payload.items
+            : Array.isArray(payload.results)
+            ? payload.results
+            : Array.isArray(payload.data)
+            ? payload.data
+            : Array.isArray(payload.analyses)
+            ? payload.analyses
+            : [];
+
+          state.analyses = sortByDate(rawList.map(normalizeAnalysis).filter(Boolean));
+          state.lastUpdated = new Date();
+          updateDoctorFilter();
+          applyFilters();
+          setMessage("Analiz listesi güncellendi.", false);
+        } catch (error) {
+          state.analyses = [];
+          state.filtered = [];
+          renderRows([]);
+          updateMetrics([]);
+          renderError(error?.message || "Analiz listesi yüklenemedi.");
+          setMessage("Yükleme başarısız. Tekrar deneyin.", true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openDetail(id) {
+        const a = state.analyses.find((x) => String(x.id) === String(id));
+        if (!a) {
+          setMessage("Detay açılacak kayıt bulunamadı.", true);
+          return;
+        }
+
+        const s = classifyResult(a.result);
+        el.modalTitle.textContent = `#A-${a.id} Analiz Detayı`;
+        el.modalAnalysisId.textContent = `#A-${a.id}`;
+        el.modalPatient.textContent = a.patient;
+        el.modalDoctor.textContent = a.doctor;
+        el.modalResultRaw.textContent = a.result;
+        el.modalConfidence.textContent = `Güven: ${a.confidence === null ? "N/A" : `${Math.round(a.confidence)}%`}`;
+        el.modalCreatedAt.textContent = `Tarih: ${formatDate(a.createdAt)}`;
+        el.modalResultBadge.className = `status ${s.className}`;
+        el.modalResultBadge.innerHTML = `<i class="fa-solid ${s.icon}"></i>${s.label}`;
+        el.modalRawJson.textContent = JSON.stringify(a.raw, null, 2);
+
+        el.detailModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeDetail() {
+        el.detailModal.classList.add("hidden");
+        document.body.style.overflow = "";
+      }
+
+      function toCsvSafe(value) {
+        const v = String(value ?? "");
+        return /[",;\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
+      }
+
+      function exportCsv() {
+        if (!state.filtered.length) {
+          setMessage("Dışa aktarılacak kayıt yok.", true);
+          return;
+        }
+
+        const headers = ["analiz_id", "hasta", "doktor", "sonuc", "guven", "tarih"];
+        const rows = state.filtered.map((a) => [
+          a.id,
+          a.patient,
+          a.doctor,
+          a.result,
+          a.confidence === null ? "" : Math.round(a.confidence),
+          formatDate(a.createdAt)
+        ]);
+
+        const csv = [headers, ...rows].map((line) => line.map(toCsvSafe).join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `analizler_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+
+        setMessage("CSV dosyası oluşturuldu.", false);
+      }
+
+      function clearFilters() {
+        el.searchInput.value = "";
+        el.statusFilter.value = "all";
+        el.doctorFilter.value = "all";
+        el.dateFrom.value = "";
+        el.dateTo.value = "";
+        applyFilters();
+        setMessage("Filtreler temizlendi.", false);
+      }
+
+      function initEvents() {
+        const doFilter = () => applyFilters();
+        el.searchInput.addEventListener("input", doFilter);
+        el.statusFilter.addEventListener("change", doFilter);
+        el.doctorFilter.addEventListener("change", doFilter);
+        el.dateFrom.addEventListener("change", doFilter);
+        el.dateTo.addEventListener("change", doFilter);
+
+        el.refreshBtn.addEventListener("click", loadAnalyses);
+        el.clearFiltersBtn.addEventListener("click", clearFilters);
+        el.exportCsvBtn.addEventListener("click", exportCsv);
+
+        el.analysesBody.addEventListener("click", (event) => {
+          const btn = event.target.closest("button[data-action='detail']");
+          if (!btn) return;
+          openDetail(btn.dataset.id);
+        });
+
+        el.closeDetailBtn.addEventListener("click", closeDetail);
+        el.detailModal.addEventListener("click", (event) => {
+          if (event.target === el.detailModal) closeDetail();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !el.detailModal.classList.contains("hidden")) closeDetail();
+        });
+      }
+
+      function initElements() {
+        [
+          "headerUpdatedAt", "metricTotal", "metricAverage", "metricCritical", "metricRecent",
+          "searchInput", "statusFilter", "doctorFilter", "dateFrom", "dateTo",
+          "refreshBtn", "clearFiltersBtn", "exportCsvBtn", "actionMessage",
+          "fetchError", "tableLoadingHint", "resultCount", "analysesBody",
+          "detailModal", "closeDetailBtn", "modalTitle", "modalResultBadge", "modalConfidence",
+          "modalCreatedAt", "modalAnalysisId", "modalPatient", "modalDoctor", "modalResultRaw", "modalRawJson"
+        ].forEach((id) => {
+          el[id] = pick(id);
+        });
+      }
+
+      function init() {
+        initElements();
+        if (window.Theme && typeof window.Theme.renderToggle === "function") {
+          window.Theme.renderToggle("themeBtn");
+        }
+        initEvents();
+        loadAnalyses();
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
 </body>
-<script>      document.addEventListener('DOMContentLoaded', () => {
-     Theme.renderToggle('themeBtn');
-
-  });</script>
-<script src="MenuLoader.js"></script>
-<script src="AdminMenuOptions.js"></script>
-<script src="Template.js"></script>
 </html>
