@@ -116,7 +116,7 @@
   <div class="text-center ">
     <h2 class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-primary);">Hoşgeldin</h2>
     <span id="username" class="block text-1xl font-semibold text-slate-700 dark:text-gray-300" style="color: var(--text-second);"></span>
-    <p id="changingText" class="text-slate-500 dark:text-slate-400 transition-opacity duration-500"></p>
+    <p id="changingText" class="text-slate-500 transition-opacity duration-500" style="color: var(--text-yellow); font-size: large; "></p>
   </div>
 </header> 
 
@@ -127,23 +127,23 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);" class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
 <p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);" >Toplam Analizler</p>
-<p id="totalProducts" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">0</p>
+<p id="totalProducts" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">4</p>
 </div>
 <div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl ">
 <p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Toplam Hasta</p>
-<p  id="pendingOrders" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">0</p>
+<p  id="pendingOrders" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">21</p>
 </div>
 <div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
 <p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Sadace Bugün</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">2</p>
 </div>
 <div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"   class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
 <p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Doğruluk Oranı</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">78</p>
 </div>
 <div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
 <p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Toplam Personel</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
+<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">4</p>
 </div>
 <div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
 <p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Ai Eğitimi</p>
@@ -190,4 +190,26 @@
 <script src="auth.js"></script>
 <script src="AdminMenuOptions.js"></script>
 <script src="Template.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const messages = [
+        `Bugün neler olur bitiğini görün  ${new Date().toLocaleDateString()}`,
+        `Bugünün Kanama Sayısı 0`,
+    ];
+
+    const textElem = document.getElementById("changingText");
+    let index = 0;
+
+    function changeText() {
+        textElem.style.opacity = 0;
+        setTimeout(() => {
+            textElem.textContent = messages[index];
+            textElem.style.opacity = 1;
+            index = (index + 1) % messages.length;
+        }, 900);
+    }
+
+    changeText(); 
+    setInterval(changeText, 3500); 
+});</script>
 </html>

@@ -8,6 +8,7 @@
   --text-primary:  #0f172a;
   --text-muted:    #64748b;
   --text-green:    #55DD07D2;
+  --text-yellow:   #BBD000;
   --border:        rgba(0,0,0,0.08);
   --accent:        #3b9e8a;
   --accent-light:  #63cab7;
@@ -23,6 +24,7 @@
   --bg-card:       #111c2d;
   --text-primary:  #63cab7;
   --text-green:    #55DD07D2;
+  --text-yellow:   #F6FF00;
   --text-second:   rgba(255, 255, 255, 0.96);
   --text-muted:    #55DD07D2;
   --border:        rgba(255,255,255,0.08);

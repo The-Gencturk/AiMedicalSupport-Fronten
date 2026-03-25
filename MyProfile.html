@@ -553,6 +553,11 @@
   <script src="auth.js"></script>
 
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+     Theme.renderToggle('themeBtn');
+   const user = await getCurrentUser();
+  });
+  
     (function () {
       "use strict";
 
