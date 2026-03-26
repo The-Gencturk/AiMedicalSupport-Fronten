@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BT Etiketleme - AI Egitim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .page-wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      position: relative;
+      isolation: isolate;
+    }
+    .page-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -18% 0 auto;
+      height: 380px;
+      background:
+        radial-gradient(680px 220px at 12% 8%, rgba(99, 202, 183, 0.18), transparent 70%),
+        radial-gradient(560px 240px at 88% 18%, rgba(59, 158, 138, 0.12), transparent 72%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .hero {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(140deg, rgba(99, 202, 183, 0.16), rgba(99, 202, 183, 0.02) 45%), var(--bg-card);
+      padding: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      border: 1px solid rgba(99, 202, 183, 0.4);
+      background: rgba(99, 202, 183, 0.12);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.62rem;
+    }
+    .layout {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      box-shadow: 0 20px 46px rgba(15, 23, 42, 0.09);
+      padding: 1rem;
+    }
+    .f-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+    .f-input,
+    .f-select,
+    .f-textarea {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+      padding: 0.66rem 0.82rem;
+      font-size: 0.92rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .f-textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+    .f-input:focus,
+    .f-select:focus,
+    .f-textarea:focus {
+      outline: none;
+      border-color: rgba(99, 202, 183, 0.68);
+      box-shadow: 0 0 0 3px rgba(99, 202, 183, 0.15);
+    }
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .radio-card {
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.58rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      background: var(--bg-primary);
+    }
+    .radio-card:hover {
+      border-color: rgba(99, 202, 183, 0.44);
+      transform: translateY(-1px);
+    }
+    .radio-card.active {
+      border-color: rgba(99, 202, 183, 0.7);
+      background: rgba(99, 202, 183, 0.12);
+    }
+    .radio-card i {
+      width: 1.55rem;
+      text-align: center;
+      color: var(--accent);
+    }
+    .drop-zone {
+      border: 1.6px dashed rgba(99, 202, 183, 0.42);
+      border-radius: 13px;
+      background: rgba(99, 202, 183, 0.05);
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      padding: 1rem;
+      text-align: center;
+    }
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: rgba(99, 202, 183, 0.7);
+      background: rgba(99, 202, 183, 0.12);
+    }
+    .preview-box {
+
+      overflow: hidden;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .btn-main,
+    .btn-lite {
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.46rem;
+      padding: 0.72rem 0.94rem;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-main {
+      width: 100%;
+      color: #ffffff;
+      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      border: 1px solid transparent;
+    }
+    .btn-lite {
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .btn-main:hover,
+    .btn-lite:hover {
+      opacity: 0.9;
+    }
+    .btn-main:disabled,
+    .btn-lite:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .mono-block {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-primary);
+      padding: 0.82rem;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      overflow: auto;
+      max-height: 240px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .status {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 0.72rem 0.84rem;
+      font-size: 0.86rem;
+      color: var(--text-second);
+      background: var(--bg-primary);
+      min-height: 56px;
+    }
+    .status.ok {
+      border-color: rgba(34, 197, 94, 0.38);
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+    }
+    .status.err {
+      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    .help-text {
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      margin-top: 0.34rem;
+    }
+    .hidden-input {
+      display: none;
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .page-wrap {
+        padding-top: 5rem;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
+
+  <main class="flex-1 overflow-y-auto">
+    <div class="page-wrap">
+      <section class="hero">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 class="text-2xl md:text-3xl" >Beyin BT Etiketleme Stüdyosu</h1>
+            <p class="mt-2 text-sm md:text-base" style="color: var(--text-muted);">
+              Yapay zeka egitimi icin kanama var/yok, kanama tipi ve siddet etiketini tek ekranda girin.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="chip"><i class="fa-solid fa-brain"></i> CT Labeling</span>
+            <span class="chip" id="chipUpdated">Hazir</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="layout">
+        <section class="panel">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h2 class="text-base" style=" font-weight:700;">Etiket Formu</h2>
+            <button id="resetBtn" class="btn-lite" type="button"><i class="fa-solid fa-rotate-left"></i> Temizle</button>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="f-label" for="caseLabel">Label</label>
+              <input id="caseLabel" class="f-input" type="text" placeholder="Orn: CT-2026-0042 / Epidural kanama supheli" />
+              <p class="help-text">Bu alan API'de <code>label</code> olarak gonderilir.</p>
+            </div>
+
+            <div>
+              <span class="f-label">Kanama Durumu</span>
+              <div class="radio-grid">
+                <label class="radio-card" id="cardBleedingNo" for="isBleedingNo">
+                  <input class="hidden-input" id="isBleedingNo" name="isBleeding" type="radio" value="false" checked />
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Kanama Yok</span>
+                </label>
+                <label class="radio-card" id="cardBleedingYes" for="isBleedingYes">
+                  <input class="hidden-input" id="isBleedingYes" name="isBleeding" type="radio" value="true" />
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Kanama Var</span>
+                </label>
+              </div>
+            </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div>
+    <label class="f-label" for="bleedingType">Kanama Türü</label>
+    <select id="bleedingType" class="f-select" disabled>
+      <option value="none">Yok</option>
+      <option value="epidural">Epidural</option>
+      <option value="subdural">Subdural</option>
+      <option value="subaraknoid">Subaraknoid</option> 
+      <option value="intraparenkimal">Intraparenkimal</option>
+      <option value="intraventrikuler">Intraventrikuler</option>
+      <option value="diger">Diğer</option>
+    </select>
+  </div>
+
+  <div>
+    <label class="f-label" for="severity">Şiddet</label>
+    <select id="severity" class="f-select">
+      <option value="none">Yok</option>
+      <option value="hafif">Hafif</option>
+      <option value="orta">Orta</option>
+      <option value="ciddi">Ciddi</option>
+    </select>
+  </div>
+</div>  
+
+            <div>
+              <label class="f-label" for="note">Klinik Not</label>
+              <textarea id="note" class="f-textarea" placeholder="Orn: Sol temporoparietal alanda odak, acil konsultaasyon onerilir."></textarea>
+            </div>
+
+
+      
+
+            <button id="submitBtn" class="btn-main" type="button">
+              <i class="fa-solid fa-paper-plane"></i>
+              Eğitimi Ver
+            </button>
+          </div>
+        </section>
+
+        
+        <section class="panel space-y-3">
+          <span class="chip" id="confChip" style="display:none;">
+
+  <i class="fa-solid fa-chart-line"></i> Güven: <span id="confValue">0</span>%
+</span>
+
+<div id="confDisplay" class="text-xs font-bold px-2 py-1 rounded hidden" style="background: rgba(99, 202, 183, 0.2); color: var(--accent);">
+  AI Güven Skoru: %<span id="confValue">0</span>
+</div>
+          <h2 class="text-base" style=" font-weight:700;">Canli Kontrol</h2>
+          
+<div class="flex gap-1" id="imageToggleGroup">
+      <button id="btnShowOriginal" class="btn-lite !py-1 !px-3 text-xs" type="button">Orijinal</button>
+      <button id="btnShowHeatmap" class="btn-lite !py-1 !px-3 text-xs" type="button">Heatmap</button>
+    </div>
+          
+          <div class="preview-box" id="previewBox">
+            <div id="previewPlaceholder"  class="text-center px-3" style="background-color: var(--AiBackgraund);">
+              <i class="fa-solid fa-image text-2xl"></i>
+              <p class="text-sm mt-2">Onizleme ici dosya secildiginde burada gorunur.</p>
+            </div>
+            <img id="previewImg" alt="BT Onizleme" class="hidden" style="background-color: var(--AiBackgraund);"/>
+          </div>
+
+          <div>
+            <p class="f-label">Gonderilecek JSON</p>
+            <pre id="payloadPreview" class="mono-block"></pre>
+          </div>
+
+
+          <div>
+            <p class="f-label">API Cevabi</p>
+            <pre id="responsePreview" class="mono-block">{ }</pre>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+     Theme.renderToggle('themeBtn');
+   const user = await getCurrentUser();
+  });
+
+
+(function () {
+  "use strict";
+
+  const Ap = "http://localhost:8000";
+  
+  const refs = {
+    caseLabel:        document.getElementById("caseLabel"),
+    isBleedingNo:     document.getElementById("isBleedingNo"),
+    isBleedingYes:    document.getElementById("isBleedingYes"),
+    cardBleedingNo:   document.getElementById("cardBleedingNo"),
+    cardBleedingYes:  document.getElementById("cardBleedingYes"),
+    bleedingType:     document.getElementById("bleedingType"),
+    severity:         document.getElementById("severity"),
+    note:             document.getElementById("note"),
+    submitBtn:        document.getElementById("submitBtn"),
+    resetBtn:         document.getElementById("resetBtn"),
+    previewImg:       document.getElementById("previewImg"),
+    previewPlaceholder: document.getElementById("previewPlaceholder"),
+    payloadPreview:   document.getElementById("payloadPreview"),
+    responsePreview:  document.getElementById("responsePreview"),
+    chipUpdated:      document.getElementById("chipUpdated"),
+    btnShowOriginal:  document.getElementById("btnShowOriginal"),
+    btnShowHeatmap:   document.getElementById("btnShowHeatmap"),
+    // Confidence elementleri
+    confValue:        document.getElementById("confValue"),
+    confChip:         document.getElementById("confChip")
+  };
+
+  const state = {
+    currentImagePath: "",
+    currentHeatmapPath: "",
+    analysisId: null
+  };
+
+  // ─── VERİ YÜKLEME (GET) ──────────────────────────────────────────────
+  async function loadAnalysisData() {
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id'); 
+    
+    if (!id) {
+        console.warn("URL'de 'id' parametresi bulunamadı.");
+        return;
+    }
+
+    if (refs.chipUpdated) refs.chipUpdated.textContent = 'Veri yükleniyor...';
+
+    try {
+      const response = await fetch(`${Ap}/api/v1/analyses/${id}`, { credentials: 'include' });
+      if (!response.ok) throw new Error("API hatası: " + response.status);
+      
+      const data = await response.json();
+      
+      // State güncelleme
+      state.analysisId = data.id;
+      state.currentImagePath = data.image_path;
+      state.currentHeatmapPath = data.heatmap_path;
+
+      populateForm(data);
+    } catch (error) {
+      console.error("Yükleme Hatası:", error);
+      if (refs.chipUpdated) refs.chipUpdated.textContent = 'Yükleme başarısız';
+    }
+  }
+
+  function populateForm(data) {
+    if (refs.caseLabel) refs.caseLabel.value = data.label || `Analiz-${data.id}`;
+    
+    // Confidence (Güven Skoru) Yazdırma
+    if (data.confidence !== undefined && refs.confValue) {
+      refs.confValue.textContent = Math.round(data.confidence);
+      if (refs.confChip) refs.confChip.style.display = 'inline-flex';
+    }
+
+    // Kanama Durumu (is_bleeding boolean gelmeli)
+    if (data.is_bleeding) {
+      refs.isBleedingYes.checked = true;
+    } else {
+      refs.isBleedingNo.checked = true;
+    }
+
+    if (refs.bleedingType) refs.bleedingType.value = data.bleeding_type || "none";
+    
+    // Şiddet Ayarı
+    if (refs.severity && data.is_bleeding) {
+      const c = data.confidence || 0;
+      refs.severity.value = c >= 90 ? 'critical' : c >= 75 ? 'severe' : c >= 55 ? 'moderate' : 'mild';
+    }
+
+    // Görüntü seçimi: Isı haritası varsa onu göster
+    switchImage(state.currentHeatmapPath ? 'heatmap' : 'original');
+    
+    syncBleedingUI();
+    updateStatusChip(data);
+  }
+
+  // ─── RESİM YÖNETİMİ ──────────────────────────────────────────────────
+  function switchImage(type) {
+    if (!refs.previewImg) return;
+
+    const path = (type === 'heatmap') ? state.currentHeatmapPath : state.currentImagePath;
+    
+    if (path) {
+      // API'den gelen yolun tam URL'e dönüştürülmesi
+      const fullUrl = path.startsWith('http') ? path : `${Ap}${path.startsWith('/') ? '' : '/'}${path}`;
+      
+      refs.previewImg.src = fullUrl;
+      refs.previewImg.classList.remove('hidden');
+      if (refs.previewPlaceholder) refs.previewPlaceholder.classList.add('hidden');
+    }
+
+    // Aktif buton görseli
+    if (refs.btnShowOriginal && refs.btnShowHeatmap) {
+      refs.btnShowOriginal.style.border = (type === 'original') ? "2px solid var(--accent)" : "1px solid var(--border)";
+      refs.btnShowHeatmap.style.border = (type === 'heatmap') ? "2px solid var(--accent)" : "1px solid var(--border)";
+    }
+  }
+
+  // ─── VERİ GÖNDERME (POST) ───────────────────────────────────────────
+  async function submitPayload() {
+  // 1. URL'deki ID'yi tam sayıya (Integer) çeviriyoruz
+  const urlParams = new URLSearchParams(window.location.search);
+  const rawId = urlParams.get('id');
+  const analysis_id = parseInt(rawId); // String'den Number'a çevir
+
+  if (isNaN(analysis_id)) {
+    alert("Geçersiz Analiz ID!");
+    return;
+  }
+
+  // 2. Payload oluşturma (Backend büyük ihtimalle body içinde tekrar ID istemiyor)
+  const isBleeding = refs.isBleedingYes.checked;
+  const payload = {
+    // analysis_id: analysis_id, // EĞER 422 devam ederse bu satırı silip dene!
+    is_bleeding:   isBleeding,
+    bleeding_type: isBleeding ? refs.bleedingType.value : "none",
+    severity:      isBleeding ? refs.severity.value : "none",
+    label:         refs.caseLabel.value.trim(),
+    note:          refs.note.value.trim()
+  };
+
+  refs.submitBtn.disabled = true;
+  const originalText = refs.submitBtn.innerHTML;
+  refs.submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Kaydediliyor...';
+
+  try {
+    const response = await fetch(`${Ap}/api/v1/analyses/${analysis_id}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      if (refs.responsePreview) refs.responsePreview.textContent = JSON.stringify(result, null, 2);
+      alert("Etiket başarıyla kaydedildi.");
+    } else {
+      // 422 hatasının detayını konsolda görmek için:
+      console.error("Doğrulama Hatası (422):", result);
+      
+      // Eğer Pydantic hatası gelirse (msg ve loc içerir), daha net mesaj gösterir:
+      const errorMsg = result.detail ? JSON.stringify(result.detail) : "Kayıt sırasında hata oluştu.";
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    alert("Hata: " + error.message);
+  } finally {
+    refs.submitBtn.disabled = false;
+    refs.submitBtn.innerHTML = originalText;
+  }
+}
+
+  // ─── DİĞER FONKSİYONLAR ─────────────────────────────────────────────
+  function syncBleedingUI() {
+    const isBleeding = refs.isBleedingYes.checked;
+    refs.cardBleedingNo.classList.toggle("active", !isBleeding);
+    refs.cardBleedingYes.classList.toggle("active", isBleeding);
+    refs.bleedingType.disabled = !isBleeding;
+    
+    if (!isBleeding) {
+        refs.bleedingType.value = "none";
+        refs.severity.value = "none";
+    }
+    
+    // Canlı JSON önizleme
+    if (refs.payloadPreview) {
+      refs.payloadPreview.textContent = JSON.stringify({
+        analysis_id: state.analysisId,
+        is_bleeding: isBleeding,
+        bleeding_type: isBleeding ? refs.bleedingType.value : null,
+        severity: refs.severity.value,
+        label: refs.caseLabel.value
+      }, null, 2);
+    }
+  }
+
+  function updateStatusChip(data) {
+    if (refs.chipUpdated) refs.chipUpdated.textContent = `Analiz ID: ${data.id}`;
+  }
+
+  function init() {
+    loadAnalysisData();
+
+    refs.isBleedingNo.addEventListener("change", syncBleedingUI);
+    refs.isBleedingYes.addEventListener("change", syncBleedingUI);
+    refs.caseLabel.addEventListener("input", syncBleedingUI);
+    refs.bleedingType.addEventListener("change", syncBleedingUI);
+    refs.severity.addEventListener("change", syncBleedingUI);
+
+    if (refs.btnShowOriginal) refs.btnShowOriginal.addEventListener('click', () => switchImage('original'));
+    if (refs.btnShowHeatmap) refs.btnShowHeatmap.addEventListener('click', () => switchImage('heatmap'));
+
+    refs.submitBtn.addEventListener("click", submitPayload);
+    refs.resetBtn.addEventListener("click", () => {
+        if(confirm("Formu sıfırlamak istediğinize emin misiniz?")) location.reload();
+    });
+
+    if (window.Theme && typeof window.Theme.renderToggle === 'function') {
+      window.Theme.renderToggle('themeBtn');
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+  <script src="auth.js"></script>
+  <script src="MenuLoader.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+</body>
+</html>

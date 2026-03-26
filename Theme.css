@@ -7,6 +7,7 @@
   --bg-card:       #ffffff;
   --text-primary:  #0f172a;
   --text-muted:    #64748b;
+  --AiBackgraund:  #ffffff; 
   --text-green:    #55DD07D2;
   --text-yellow:   #BBD000;
   --border:        rgba(0,0,0,0.08);
@@ -27,6 +28,7 @@
   --text-yellow:   #F6FF00;
   --text-second:   rgba(255, 255, 255, 0.96);
   --text-muted:    #55DD07D2;
+  --AiBackgraund:  #111c2d;
   --border:        rgba(255,255,255,0.08);
   --accent:        #63cab7;
   --accent-light:  #9ee8d8;

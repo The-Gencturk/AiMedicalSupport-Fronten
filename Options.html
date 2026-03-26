@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Paneli - Ayarlar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="Popup/Popup.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+      <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-[#212529] dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="flex flex-1">
+<div id="AdminMenu"></div>
+<main class="flex-1 p-8">
+<div class="max-w-4xl mx-auto">
+<div class="flex flex-wrap justify-between gap-3 mb-8">
+<div class="flex min-w-72 flex-col gap-2">
+<h1 class="text-[#0d121b] dark:text-white text-3xl font-black leading-tight tracking-tight">Log Ayarları</h1>
+<p class="text-[#4c669a] dark:text-gray-400 text-base font-normal leading-normal">Biriken verileri silme</p>
+</div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary h-fit">Değişiklikleri Kaydet</button>
+</div>
+<div class="space-y-8">
+<div class="bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+<div class="p-6">
+<h2 class="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-tight">BackGraund Servisler</h2>
+
+</div>
+<div id="retentionContainer" class="border-t border-gray-200 dark:border-gray-800">
+
+</div>
+</div>
+<div class="bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+<div class="p-6">
+<h2 class="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-tight">Vergi Ayarları</h2>
+<p class="text-[#4c669a] dark:text-gray-400 text-base font-normal leading-normal mt-1">Uygulanacak vergi oranlarını ve hesaplama yöntemlerini belirleyin.</p>
+</div>
+<div class="p-6 border-t border-gray-200 dark:border-gray-800 space-y-4">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-[#0d121b] dark:text-white font-medium">Fiyatlara vergiyi dahil et</p>
+<p class="text-[#4c669a] dark:text-gray-400 text-sm">Etkinleştirildiğinde, ürün fiyatlarına vergi oranı eklenmiş olarak gösterilir.</p>
+</div>
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary">
+<div class="h-full w-[27px] rounded-full bg-white" style="box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px;"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+<div class="border-t border-gray-200 dark:border-gray-800 pt-4">
+<div class="flex items-center justify-between">
+<h3 class="text-[#0d121b] dark:text-white font-medium">Vergi Oranları</h3>
+<button class="bg-primary/10 dark:bg-primary/20 text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/20 dark:hover:bg-primary/30">Yeni Oran Ekle</button>
+</div>
+<div class="mt-4 text-center py-8 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500" style="font-size: 36px;">folder_off</span>
+<p class="text-[#0d121b] dark:text-white mt-2 font-medium">Henüz vergi oranı eklenmedi.</p>
+<p class="text-[#4c669a] dark:text-gray-400 text-sm">Başlamak için 'Yeni Oran Ekle' butonuna tıklayın.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+<div class="p-6">
+<h2 class="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-tight">Fatura Ayarları</h2>
+<p class="text-[#4c669a] dark:text-gray-400 text-base font-normal leading-normal mt-1">Müşterilerinize gönderilecek faturaların detaylarını yapılandırın.</p>
+</div>
+<div class="p-6 border-t border-gray-200 dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-[#0d121b] dark:text-gray-300" for="company-name">Şirket Adı</label>
+<input class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white dark:bg-gray-800 text-[#0d121b] dark:text-white" id="company-name" type="text" value="3D Tasarım A.Ş."/>
+</div>
+<div>
+<label class="block text-sm font-medium text-[#0d121b] dark:text-gray-300" for="tax-id">Vergi Numarası</label>
+<input class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white dark:bg-gray-800 text-[#0d121b] dark:text-white" id="tax-id" type="text" value="1234567890"/>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-[#0d121b] dark:text-gray-300" for="company-address">Şirket Adresi</label>
+<textarea class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white dark:bg-gray-800 text-[#0d121b] dark:text-white" id="company-address" rows="3">Teknoloji Cad. No:1, Teknopark, İstanbul</textarea>
+</div>
+<div>
+<label class="block text-sm font-medium text-[#0d121b] dark:text-gray-300" for="invoice-prefix">Fatura Ön Eki</label>
+<input class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white dark:bg-gray-800 text-[#0d121b] dark:text-white" id="invoice-prefix" type="text" value="FAT-"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-[#0d121b] dark:text-gray-300" for="currency">Para Birimi</label>
+<select class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white dark:bg-gray-800 text-[#0d121b] dark:text-white" id="currency">
+<option>TRY (Türk Lirası)</option>
+<option selected="">USD (Amerikan Doları)</option>
+<option>EUR (Euro)</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div id="popup" class="popup" ondragstart="return false;" onselectstart="return false;">
+  <audio id="popup-sound" preload="auto"></audio>
+  <i id="Popup-icon" class="icon"></i>
+  <div id="popup-text" class="mc-text" unselectable="on"></div>
+  <img id="popup-image" alt="Popup" class="pixel-img" draggable="false" />
+</div>
+
+</div>
+</div>
+</body>
+</html>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+}); 
+</script>
+
+<script>
+
+async function loadRetentionSettings() {
+
+    const response = await fetch("http://localhost:5256/api/Options/GetRejemptData", {
+        headers: {
+             "Content-Type": "application/json",
+        },credentials: "include"
+    });
+
+    const result = await response.json();
+    if (!result.success) return;
+
+    const container = document.getElementById("retentionContainer");
+    container.innerHTML = "";
+
+    result.data.forEach(policy => {
+
+        let title = "";
+        let description = "";
+        let icon = "fa-database";
+
+        if (policy.tableName === "Cart") {
+            title = "Cart Delete";
+            description = "Kullanılmayan Sepetleri Siler";
+            icon = "fa-cart-arrow-down";
+        }
+
+        if (policy.tableName === "ActivityLogs") {
+            title = "Activity Delete";
+            description = "Geçmiş Aktiviteleri Siler";
+            icon = "fa-circle-nodes";
+        }
+
+        if (policy.tableName === "Orders" && policy.ruleName === "Rejected") {
+            title = "Cancel Order Delete";
+            description = "İptal Edilmiş Siparişleri Siler";
+            icon = "fa-ban";
+        }
+
+        if (policy.tableName === "Orders" && policy.ruleName === "All") {
+            title = "Success Order Delete";
+            description = "Uzun Zaman Geçmiş Siparişleri Siler";
+            icon = "fa-check";
+        }
+
+          if (policy.tableName === "LogFiles") {
+            title = "Logs File Delete";
+            description = "Geçmiş Logları Siler";
+            icon = "fa-solid fa-database";
+        }
+
+        if (policy.tableName === "Notivication") {
+            title = "Notivication Clear";
+            description = "Geçmiş Bildirimleri Siler";
+            icon = "fa-solid fa-bell";
+        }
+
+        const card = `
+        <div class="flex items-center gap-4 px-6 py-4 justify-between border-b border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-4">
+                <i class="fa-solid ${icon}" style="font-size:26px;"></i>
+                <div class="flex flex-col justify-center">
+                    <p class="text-[#0d121b] dark:text-white text-base font-medium leading-normal">${title}</p>
+                    <p class="text-[#4c669a] dark:text-gray-400 text-sm font-normal leading-normal">${description}</p>
+                </div>
+            </div>
+
+            <select data-id="${policy.id}" 
+                    class="retention-select w-48 p-3 rounded-lg border">
+                ${generateOptions(policy.retentionDays)}
+            </select>
+        </div>
+        `;
+
+        container.innerHTML += card;
+    });
+}
+
+function generateOptions(selectedValue) {
+
+    const options = [3,7,14,30,60,90,365];
+
+    return options.map(day => `
+        <option value="${day}" ${day === selectedValue ? "selected" : ""}>
+            ${day} Gün
+        </option>
+    `).join("");
+}
+
+
+document.addEventListener("change", async function (e) {
+
+    if (!e.target.classList.contains("retention-select")) return;
+
+    const Id = e.target.getAttribute("data-id");
+    const retentionDays = e.target.value;
+    e.target.disabled = true;
+    try {
+        const response = await fetch(
+            `http://localhost:5256/api/Options/UpdateRejemptDate?Id=${Id}&RetentionDays=${retentionDays}`,
+            {
+                method: "PUT",
+                credentials: "include",
+            }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+            console.log("Güncellendi:", Id);
+            e.target.classList.add("border-green-500");
+         setTimeout(() => {
+    e.target.classList.remove("border-green-500");
+        showPopup('GlobalSuccess',{ top: "30px", right : "80px" });
+     }, 200);
+        }
+
+    } catch (error) {
+        console.error("Update hatası:", error);
+    }
+});
+
+loadRetentionSettings();
+</script>
+<script src="MenuLoader.Js"></script>
+<script src="MenuOptions.js"></script>
+<script src="auth.js"></script>
+<script src="Popup/Popup.js"></script>

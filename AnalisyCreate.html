@@ -6,10 +6,167 @@
   <title>Analiz Oluştur</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"/>
-  <link rel="stylesheet" href="Theme.css">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    body { font-family: 'Outfit', sans-serif; }
+    /* ── Theme Variables ── */
+    :root, [data-theme="light"] {
+      --bg-primary:    #FFFFFFF8;
+      --bg-secondary:  #f8fafc;
+      --bg-thiry:      #E2E8EC;
+      --bg-antilight:  #0f172a;
+      --text-second:   rgba(15, 15, 15, 0.96);
+      --bg-card:       #ffffff;
+      --text-primary:  #0f172a;
+      --text-muted:    #64748b;
+      --text-green:    #55DD07D2;
+      --text-yellow:   #BBD000;
+      --border:        rgba(0,0,0,0.08);
+      --accent:        #3b9e8a;
+      --accent-light:  #63cab7;
+      --card:          var(--bg-card);
+      --muted:         var(--text-muted);
+      --accent2:       var(--accent-light);
+
+      /* Component-level tokens */
+      --input-bg:       rgba(0,0,0,0.04);
+      --input-border:   rgba(0,0,0,0.1);
+      --input-focus-border: rgba(59,158,138,0.6);
+      --input-focus-shadow: rgba(59,158,138,0.1);
+      --input-text:     #0f172a;
+      --input-placeholder: rgba(15,23,42,0.35);
+      --input-option-bg: #ffffff;
+
+      --drop-border:    rgba(59,158,138,0.3);
+      --drop-bg:        rgba(59,158,138,0.04);
+      --drop-hover-border: rgba(59,158,138,0.6);
+      --drop-hover-bg:  rgba(59,158,138,0.08);
+
+      --card-bg:        #ffffff;
+      --card-border:    rgba(0,0,0,0.08);
+      --card-header-border: rgba(0,0,0,0.07);
+
+      --stat-chip-bg:   rgba(0,0,0,0.04);
+      --stat-chip-border: rgba(0,0,0,0.08);
+
+      --rec-bg:         rgba(239,68,68,0.07);
+      --rec-border:     rgba(239,68,68,0.2);
+      --rec-text:       rgba(185,28,28,0.9);
+
+      --reset-btn-bg:   rgba(0,0,0,0.05);
+      --reset-btn-border: rgba(0,0,0,0.1);
+      --reset-btn-text: rgba(15,23,42,0.7);
+
+      --error-bg:       rgba(239,68,68,0.06);
+      --error-border:   rgba(239,68,68,0.2);
+
+      --placeholder-text: rgba(15,23,42,0.3);
+      --placeholder-sub:  rgba(15,23,42,0.18);
+
+      --step-dot-inactive: rgba(15,23,42,0.15);
+      --step-label:    rgba(15,23,42,0.4);
+
+      --page-subtitle: rgba(15,23,42,0.45);
+      --field-label:   rgba(15,23,42,0.5);
+
+      --scanner-color: rgba(59,158,138,0.5);
+
+      --loading-ring:  rgba(59,158,138,0.15);
+      --loading-text:  #0f172a;
+      --loading-sub:   rgba(15,23,42,0.4);
+
+      --conf-bar-bg:   rgba(0,0,0,0.07);
+
+      --result-detail: rgba(15,23,42,0.55);
+      --result-timestamp: rgba(15,23,42,0.4);
+      --result-field-label: rgba(15,23,42,0.4);
+      --result-label-text: #0f172a;
+      --conf-label:    rgba(15,23,42,0.5);
+
+      --icon-wrap-bg:  rgba(59,158,138,0.1);
+      --icon-wrap-border: rgba(59,158,138,0.2);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary:    #080f1a;
+      --bg-secondary:  #0d1829;
+      --bg-thiry:      #0D1520;
+      --bg-card:       #111c2d;
+      --text-primary:  #63cab7;
+      --text-green:    #55DD07D2;
+      --text-yellow:   #F6FF00;
+      --text-second:   rgba(255,255,255,0.96);
+      --text-muted:    #55DD07D2;
+      --border:        rgba(255,255,255,0.08);
+      --accent:        #63cab7;
+      --accent-light:  #9ee8d8;
+      --card:          var(--bg-card);
+      --muted:         var(--text-muted);
+      --accent2:       var(--accent-light);
+
+      --input-bg:       rgba(255,255,255,0.04);
+      --input-border:   rgba(255,255,255,0.09);
+      --input-focus-border: rgba(99,202,183,0.55);
+      --input-focus-shadow: rgba(99,202,183,0.08);
+      --input-text:     #f1f5f9;
+      --input-placeholder: rgba(255,255,255,0.2);
+      --input-option-bg: #121e2d;
+
+      --drop-border:    rgba(99,202,183,0.25);
+      --drop-bg:        rgba(99,202,183,0.03);
+      --drop-hover-border: rgba(99,202,183,0.55);
+      --drop-hover-bg:  rgba(99,202,183,0.07);
+
+      --card-bg:        rgba(255,255,255,0.03);
+      --card-border:    rgba(255,255,255,0.08);
+      --card-header-border: rgba(255,255,255,0.07);
+
+      --stat-chip-bg:   rgba(255,255,255,0.04);
+      --stat-chip-border: rgba(255,255,255,0.08);
+
+      --rec-bg:         rgba(248,113,113,0.07);
+      --rec-border:     rgba(248,113,113,0.2);
+      --rec-text:       rgba(248,113,113,0.85);
+
+      --reset-btn-bg:   rgba(255,255,255,0.06);
+      --reset-btn-border: rgba(255,255,255,0.1);
+      --reset-btn-text: rgba(255,255,255,0.7);
+
+      --error-bg:       rgba(248,113,113,0.06);
+      --error-border:   rgba(248,113,113,0.2);
+
+      --placeholder-text: rgba(255,255,255,0.3);
+      --placeholder-sub:  rgba(255,255,255,0.18);
+
+      --step-dot-inactive: rgba(255,255,255,0.15);
+      --step-label:    rgba(255,255,255,0.3);
+
+      --page-subtitle: rgba(255,255,255,0.35);
+      --field-label:   rgba(255,255,255,0.45);
+
+      --scanner-color: rgba(99,202,183,0.55);
+
+      --loading-ring:  rgba(99,202,183,0.15);
+      --loading-text:  #f1f5f9;
+      --loading-sub:   rgba(255,255,255,0.3);
+
+      --conf-bar-bg:   rgba(255,255,255,0.07);
+
+      --result-detail: rgba(255,255,255,0.5);
+      --result-timestamp: rgba(255,255,255,0.3);
+      --result-field-label: rgba(255,255,255,0.3);
+      --result-label-text: #f1f5f9;
+      --conf-label:    rgba(255,255,255,0.4);
+
+      --icon-wrap-bg:  rgba(99,202,183,0.12);
+      --icon-wrap-border: rgba(99,202,183,0.2);
+    }
+
+    * { transition: background 0.3s, color 0.2s, border-color 0.2s, box-shadow 0.2s; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
 
     /* ── Animations ── */
     @keyframes fadeUp {
@@ -28,13 +185,9 @@
       100% { box-shadow: 0 0 0 0   rgba(99,202,183,0); }
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(14px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
     @keyframes resultReveal {
       from { opacity: 0; transform: translateY(16px) scale(0.98); }
-      to   { opacity: 1; transform: translateY(0)   scale(1); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .fade-up   { animation: fadeUp 0.65s ease both; }
@@ -43,37 +196,73 @@
     .fade-up-3 { animation-delay: 0.25s; }
     .fade-up-4 { animation-delay: 0.35s; }
     .fade-up-5 { animation-delay: 0.45s; }
+    .fade-up-6 { animation-delay: 0.55s; }
 
     .scan-line {
       position: absolute; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(99,202,183,0.55), transparent);
+      background: linear-gradient(90deg, transparent, var(--scanner-color), transparent);
       animation: scan 3s ease-in-out infinite;
       pointer-events: none;
     }
 
-    /* ── Input fields ── */
+    /* ── Input / Select ── */
     .input-field {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      color: #f1f5f9;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--input-text);
       transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
       border-radius: 10px;
     }
-    .input-field::placeholder { color: rgba(255,255,255,0.2); }
+    .input-field::placeholder { color: var(--input-placeholder); }
     .input-field:focus {
       outline: none;
-      border-color: rgba(99,202,183,0.55);
-      background: rgba(255,255,255,0.07);
-      box-shadow: 0 0 0 3px rgba(99,202,183,0.08);
+      border-color: var(--input-focus-border);
+      background: var(--input-bg);
+      box-shadow: 0 0 0 3px var(--input-focus-shadow);
+    }
+
+    /* ── Patient select ── */
+    .select-wrapper { position: relative; }
+    .select-wrapper .s-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent-light); font-size: 0.8rem;
+      pointer-events: none; z-index: 1;
+    }
+    .select-wrapper .s-arrow {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--input-placeholder); font-size: 0.65rem;
+      pointer-events: none; z-index: 1;
+    }
+    select.input-field {
+      appearance: none;
+      -webkit-appearance: none;
+      padding-left: 38px;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    select.input-field option {
+      background: var(--input-option-bg);
+      color: var(--input-text);
+    }
+
+    /* ── Optional badge ── */
+    .opt-badge {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 999px;
+      background: var(--stat-chip-bg);
+      border: 1px solid var(--stat-chip-border);
+      color: var(--field-label);
     }
 
     /* ── Buttons ── */
     .btn-primary {
-      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
       transition: opacity 0.2s, transform 0.15s;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-weight: 700; letter-spacing: 0.02em;
+      color: #fff;
     }
     .btn-primary:hover  { opacity: 0.88; transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(0); }
@@ -81,25 +270,23 @@
 
     /* ── Drop zone ── */
     .drop-zone {
-      border: 2px dashed rgba(99,202,183,0.25);
-      background: rgba(99,202,183,0.03);
+      border: 2px dashed var(--drop-border);
+      background: var(--drop-bg);
       transition: border-color 0.2s, background 0.2s;
       cursor: pointer;
       border-radius: 14px;
       position: relative;
       overflow: hidden;
     }
-    .drop-zone:hover,
-    .drop-zone.dragover {
-      border-color: rgba(99,202,183,0.55);
-      background: rgba(99,202,183,0.07);
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--drop-hover-border);
+      background: var(--drop-hover-bg);
     }
     .drop-zone.has-file {
-      border-color: rgba(99,202,183,0.5);
-      background: rgba(99,202,183,0.06);
+      border-color: var(--drop-hover-border);
+      background: var(--drop-hover-bg);
     }
 
-    /* ── Preview image ── */
     #previewImg {
       display: none;
       width: 100%; height: 100%;
@@ -108,134 +295,205 @@
       position: absolute; top: 0; left: 0;
     }
 
-    /* ── Spinner ── */
-    .spinner {
-      width: 22px; height: 22px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: inline-block;
+    /* ── Drop zone text ── */
+    .drop-title { color: var(--text-second); opacity: 0.7; }
+    .drop-sub   { color: var(--input-placeholder); }
+    .drop-icon-wrap {
+      background: var(--icon-wrap-bg);
+      border: 1px solid var(--icon-wrap-border);
     }
+
+    /* ── Steps ── */
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--step-dot-inactive);
+      transition: background 0.3s;
+    }
+    .step-dot.active { background: var(--accent-light); animation: pulse-ring 1.8s ease-out infinite; }
+    .step-dot.done   { background: var(--accent); }
+    #stepLabel { color: var(--step-label); }
 
     /* ── Result card ── */
     .result-card {
       animation: resultReveal 0.45s ease both;
-      border-radius: 16px;
-      overflow: hidden;
+      border-radius: 16px; overflow: hidden;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
     }
 
-    /* ── Severity badge ── */
-    .badge {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 999px;
+    .result-card-header {
+      border-bottom: 1px solid var(--card-header-border);
     }
-    .badge-normal   { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-    .badge-warning  { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+
+    /* ── Badge ── */
+    .badge {
+      font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 999px;
+    }
+    .badge-normal   { background: rgba(74,222,128,0.15);  color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+    .badge-warning  { background: rgba(251,191,36,0.15);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
     .badge-critical { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
 
     /* ── Confidence bar ── */
     .conf-bar-bg {
-      background: rgba(255,255,255,0.07);
+      background: var(--conf-bar-bg);
       border-radius: 999px; height: 6px; overflow: hidden;
     }
     .conf-bar-fill {
       height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, #63cab7, #3b9e8a);
+      background: linear-gradient(90deg, var(--accent-light), var(--accent));
       transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
     }
 
     /* ── Stat chip ── */
     .stat-chip {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--stat-chip-bg);
+      border: 1px solid var(--stat-chip-border);
       border-radius: 10px;
     }
-
-    /* ── Step indicator ── */
-    .step-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      transition: background 0.3s;
-    }
-    .step-dot.active { background: #63cab7; animation: pulse-ring 1.8s ease-out infinite; }
-    .step-dot.done   { background: #3b9e8a; }
+    .stat-chip .chip-label { color: var(--result-field-label); }
+    .stat-chip .chip-value { color: var(--result-label-text); }
 
     /* ── Image viewer ── */
     .img-viewer {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #000;
-      aspect-ratio: 1;
+      position: relative; border-radius: 12px;
+      overflow: hidden; background: #000; aspect-ratio: 1;
     }
     .img-viewer img {
       width: 100%; height: 100%;
-      object-fit: contain;
-      transition: opacity 0.3s ease;
+      object-fit: contain; transition: opacity 0.3s ease;
     }
     .img-toggle-btn {
-      font-family: 'Syne', sans-serif;
       font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 5px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: all 0.2s;
+      font-weight: 700; letter-spacing: 0.05em;
+      padding: 5px 12px; border-radius: 999px;
+      cursor: pointer; transition: all 0.2s;
     }
     .img-toggle-btn.active {
-      background: rgba(99,202,183,0.2);
-      color: #63cab7;
-      border: 1px solid rgba(99,202,183,0.4);
+      background: var(--icon-wrap-bg); color: var(--accent-light);
+      border: 1px solid var(--drop-hover-border);
     }
     .img-toggle-btn:not(.active) {
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.35);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--stat-chip-bg); color: var(--field-label);
+      border: 1px solid var(--stat-chip-border);
     }
     .img-toggle-btn:hover:not(.active) {
-      background: rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.6);
+      background: var(--input-bg); color: var(--text-second);
     }
+
+    /* ── Recommendation row ── */
+    .recommendation-row {
+      background: var(--rec-bg);
+      border: 1px solid var(--rec-border);
+    }
+    .recommendation-row p { color: var(--rec-text); }
+
+    /* ── Reset button ── */
+    .btn-reset {
+      background: var(--reset-btn-bg);
+      border: 1px solid var(--reset-btn-border);
+      color: var(--reset-btn-text);
+    }
+    .btn-reset:hover { opacity: 0.8; }
+
+    /* ── Error card ── */
+    .error-card {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      border-radius: 16px;
+    }
+    .error-icon-wrap { background: rgba(248,113,113,0.15); }
+    .error-retry-btn {
+      background: rgba(248,113,113,0.15);
+      color: #f87171;
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+
+    /* ── Placeholder ── */
+    .placeholder-title { color: var(--placeholder-text); }
+    .placeholder-sub   { color: var(--placeholder-sub); }
+
+    /* ── Loading ── */
+    .loading-ring { border: 2px solid var(--loading-ring); }
+    .loading-spinner { border: 2px solid transparent; border-top-color: var(--accent-light); animation: spin 0.9s linear infinite; }
+    .loading-text { color: var(--loading-text); }
+    .loading-sub  { color: var(--loading-sub); }
+
+    /* ── Result texts ── */
+    .result-label    { color: var(--result-label-text); }
+    .result-detail   { color: var(--result-detail); }
+    .result-ts       { color: var(--result-timestamp); }
+    .result-fl       { color: var(--result-field-label); }
+    .conf-label-text { color: var(--conf-label); }
+
+    /* ── Page texts ── */
+    .page-title    { color: var(--result-label-text); }
+    .page-subtitle { color: var(--page-subtitle); }
+    .field-label   { color: var(--field-label); }
+    .footer-note   { color: var(--input-placeholder); }
+
+    
+
+    /* ── Eğitime Git butonu — özel stil ── */
+    .btn-edu {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      transition: opacity 0.2s, transform 0.15s;
+      font-weight: 700; letter-spacing: 0.02em;
+      color: #fff;
+    }
+    .btn-edu:hover  { opacity: 0.88; transform: translateY(-1px); }
+    .btn-edu:active { transform: translateY(0); }
   </style>
 </head>
-<body class="min-h-screen flex" style="background: var(--bg-primary);">
+<body class="min-h-screen flex">
 
 <div id="AdminMenu"></div>
-<div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
 
+<div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
 <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full">
 
-
+  <!-- Page Header -->
+  <div class="mb-8 fade-up fade-up-1">
+    <p class="text-xs font-bold uppercase tracking-widest mb-1" style="  color:var(--accent-light); letter-spacing:0.2em;">
+      AI Radyoloji
+    </p>
+    <h1 class="text-2xl font-extrabold page-title" style="  letter-spacing:-0.02em;">
+      Beyin BT Analizi
+    </h1>
+    <p class="text-sm mt-1 page-subtitle">
+      Yapay zeka destekli kanama tespiti
+    </p>
+  </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+    <!-- ── SOL: Form ── -->
     <div class="space-y-5">
 
-      <!-- Patient ID -->
+      <!-- Hasta Seç -->
       <div class="fade-up fade-up-2">
-        <label class="block text-xs font-semibold mb-2 uppercase tracking-widest" style="font-family:'Syne',sans-serif; color:rgba(255,255,255,0.45);">
-          Hasta ID
-        </label>
-        <div class="relative">
-          <i class="fa-solid fa-user-injured absolute left-4 top-1/2 -translate-y-1/2 text-sm" style="color:rgba(99,202,183,0.6);"></i>
-          <input
-            id="patientId"
-            type="number"
-            placeholder="Örn: 42"
-            class="input-field w-full pl-11 pr-4 py-3 text-sm"
-          />
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold uppercase tracking-widest field-label" style=" ">
+            Hasta Seçimi
+          </label>
+          <span class="opt-badge">Opsiyonel</span>
         </div>
+        <div class="select-wrapper">
+          <i class="fa-solid fa-user-injured s-icon" style="color:var(--accent-light);"></i>
+          <select id="patientSelect" class="input-field w-full py-3 text-sm">
+            <option value=""> Hasta</option>
+          </select>
+          <i class="fa-solid fa-chevron-down s-arrow"></i>
+        </div>
+        <p id="patientLoadError" class="text-xs mt-1.5 hidden" style="color:rgba(248,113,113,0.8);">
+          <i class="fa-solid fa-circle-exclamation mr-1"></i>Hastalar yüklenemedi
+        </p>
       </div>
 
-      <!-- Drop zone -->
+      <!-- Drop Zone -->
       <div class="fade-up fade-up-3">
-        <label class="block text-xs font-semibold mb-2 uppercase tracking-widest" style="font-family:'Syne',sans-serif; color:rgba(255,255,255,0.45);">
+        <label class="block text-xs font-semibold mb-2 uppercase tracking-widest field-label" style=" ">
           Tomografi Görüntüsü
         </label>
 
@@ -245,28 +503,25 @@
           style="min-height:220px;"
           onclick="document.getElementById('fileInput').click()"
         >
-          <!-- Scan line overlay -->
           <div class="scan-line" id="scanLine" style="display:none;"></div>
-
-          <!-- Preview -->
           <img id="previewImg" alt="Önizleme"/>
 
-          <!-- Default state -->
+          <!-- Boş state -->
           <div id="dropDefault" class="flex flex-col items-center gap-3 text-center z-10">
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background:rgba(99,202,183,0.1); border:1px solid rgba(99,202,183,0.2);">
-              <i class="fa-solid fa-brain text-2xl" style="color:#63cab7;"></i>
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center drop-icon-wrap">
+              <i class="fa-solid fa-brain text-2xl" style="color:var(--accent-light);"></i>
             </div>
             <div>
-              <p class="text-sm font-medium" style="color:rgba(255,255,255,0.7);">Görüntüyü sürükleyin veya seçin</p>
-              <p class="text-xs mt-1" style="color:rgba(255,255,255,0.28);">PNG, JPG, DICOM desteklenir</p>
+              <p class="text-sm font-medium drop-title">Görüntüyü sürükleyin veya seçin</p>
+              <p class="text-xs mt-1 drop-sub">PNG, JPG, DICOM desteklenir</p>
             </div>
           </div>
 
-          <!-- Has-file state -->
+          <!-- Dosya seçili state -->
           <div id="dropHasFile" class="hidden flex-col items-center gap-2 text-center z-10">
-            <i class="fa-solid fa-circle-check text-xl" style="color:#63cab7;"></i>
-            <p id="fileName" class="text-xs font-medium" style="color:rgba(255,255,255,0.6);"></p>
-            <p class="text-xs" style="color:rgba(255,255,255,0.28);">Değiştirmek için tıklayın</p>
+            <i class="fa-solid fa-circle-check text-xl" style="color:var(--accent-light);"></i>
+            <p id="fileName" class="text-xs font-medium field-label"></p>
+            <p class="text-xs drop-sub">Değiştirmek için tıklayın</p>
           </div>
         </div>
 
@@ -274,148 +529,41 @@
       </div>
 
       <!-- Step dots -->
-      <div class="fade-up fade-up-4 flex items-center gap-2 px-1" id="stepDots">
+      <div class="fade-up fade-up-4 flex items-center gap-2 px-1">
         <div class="step-dot active" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
         <div class="step-dot" id="dot3"></div>
-        <span class="text-xs ml-1" id="stepLabel" style="color:rgba(255,255,255,0.3);">Hasta ID ve görüntü seçin</span>
+        <span class="text-xs ml-1" id="stepLabel">Görüntü seçin</span>
       </div>
 
       <!-- Submit -->
       <div class="fade-up fade-up-5">
-        <button id="submitBtn" class="btn-primary w-full py-3.5 rounded-xl text-white text-sm flex items-center justify-center gap-3" disabled>
+        <button id="submitBtn" class="btn-primary w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-3" disabled>
           <i class="fa-solid fa-magnifying-glass-chart"></i>
           Analizi Başlat
         </button>
-        <p class="text-xs text-center mt-2" style="color:rgba(255,255,255,0.2);">
+        <p class="text-xs text-center mt-2 footer-note">
           Sonuçlar hasta kaydına otomatik eklenir
+        </p>
+      </div>
+
+      <!-- Eğitime Git butonu -->
+      <div class="fade-up fade-up-6">
+        <button onclick="window.location.href='AiTrainAnalisyDetails.html'" class="btn-edu w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-3">
+          <i class="fa-solid fa-graduation-cap"></i>
+          Eğitime Git
+        </button>
+        <p class="text-xs text-center mt-2 footer-note">
+          Yapay zeka modelini eğitmek için eğitim sayfasına gidin
         </p>
       </div>
 
     </div>
 
-    <!-- ────────────── RIGHT: Result ────────────── -->
-    <div id="resultArea" class="hidden">
+    <!-- ── SAĞ: Sonuç / Placeholder ── -->
+    <div>
 
-      <!-- Loading state -->
-      <div id="resultLoading" class="hidden flex-col items-center justify-center gap-4 py-20 text-center">
-        <div class="relative w-20 h-20">
-          <div class="w-20 h-20 rounded-full" style="border:2px solid rgba(99,202,183,0.15);"></div>
-          <div class="absolute inset-0 rounded-full" style="border:2px solid transparent; border-top-color:#63cab7; animation:spin 0.9s linear infinite;"></div>
-          <i class="fa-solid fa-brain absolute inset-0 m-auto text-xl" style="color:rgba(99,202,183,0.5); line-height:80px;"></i>
-        </div>
-        <div>
-          <p class="text-sm font-semibold" style="font-family:'Syne',sans-serif; color:#f1f5f9;">Model çalışıyor…</p>
-          <p class="text-xs mt-1" style="color:rgba(255,255,255,0.3);">Görüntü işleniyor, lütfen bekleyin</p>
-        </div>
-      </div>
 
-      <!-- Result card -->
-      <div id="resultCard" class="hidden result-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);">
-
-        <!-- Card header -->
-        <div class="px-6 py-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(99,202,183,0.12);">
-              <i class="fa-solid fa-microscope text-sm" style="color:#63cab7;"></i>
-            </div>
-            <div>
-              <p class="text-sm font-bold" style="font-family:'Syne',sans-serif; color:#f1f5f9;">Analiz Sonucu</p>
-              <p id="resultTimestamp" class="text-xs" style="color:rgba(255,255,255,0.3);"></p>
-            </div>
-          </div>
-          <span id="resultBadge" class="badge"></span>
-        </div>
-
-        <!-- Main result -->
-        <div class="px-6 py-5">
-          <p class="text-xs uppercase tracking-widest font-semibold mb-2" style="font-family:'Syne',sans-serif; color:rgba(255,255,255,0.3);">Tespit</p>
-          <p id="resultLabel" class="text-2xl font-extrabold leading-tight mb-1" style="font-family:'Syne',sans-serif; color:#f1f5f9;"></p>
-          <p id="resultDetail" class="text-sm" style="color:rgba(255,255,255,0.5);"></p>
-        </div>
-
-        <!-- Confidence -->
-        <div class="px-6 pb-5">
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-xs font-semibold" style="color:rgba(255,255,255,0.4);">Model Güveni</p>
-            <p id="confValue" class="text-xs font-bold" style="font-family:'Syne',sans-serif; color:#63cab7;"></p>
-          </div>
-          <div class="conf-bar-bg">
-            <div id="confBar" class="conf-bar-fill" style="width:0%;"></div>
-          </div>
-        </div>
-
-        <!-- Image viewer -->
-        <div id="imageViewerWrap" class="hidden px-6 pb-5">
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-xs font-semibold uppercase tracking-widest" style="font-family:'Syne',sans-serif; color:rgba(255,255,255,0.3);">Görüntü</p>
-            <div class="flex gap-2">
-              <button id="btnOriginal" class="img-toggle-btn active" onclick="switchView('original')">Orijinal</button>
-              <button id="btnHeatmap"  class="img-toggle-btn"        onclick="switchView('heatmap')">Isı Haritası</button>
-            </div>
-          </div>
-          <div class="img-viewer">
-            <img id="viewerImg" src="" alt="Görüntü"/>
-            <div id="noHeatmapNote" class="hidden absolute inset-0 flex items-center justify-center">
-              <p class="text-xs px-4 py-2 rounded-lg" style="background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.5);">Isı haritası mevcut değil</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stats row -->
-        <div class="px-6 pb-5 grid grid-cols-3 gap-3">
-          <div class="stat-chip px-3 py-3 text-center">
-            <p class="text-xs mb-1" style="color:rgba(255,255,255,0.3);">Hasta ID</p>
-            <p id="statPatient" class="text-sm font-bold" style="font-family:'Syne',sans-serif; color:#f1f5f9;">—</p>
-          </div>
-          <div class="stat-chip px-3 py-3 text-center">
-            <p class="text-xs mb-1" style="color:rgba(255,255,255,0.3);">Analiz ID</p>
-            <p id="statAnalysis" class="text-sm font-bold" style="font-family:'Syne',sans-serif; color:#f1f5f9;">—</p>
-          </div>
-          <div class="stat-chip px-3 py-3 text-center">
-            <p class="text-xs mb-1" style="color:rgba(255,255,255,0.3);">Sınıf</p>
-            <p id="statClass" class="text-sm font-bold" style="font-family:'Syne',sans-serif; color:#f1f5f9;">—</p>
-          </div>
-        </div>
-
-        <!-- Recommendation -->
-        <div id="recommendationRow" class="hidden mx-6 mb-5 px-4 py-3 rounded-xl" style="background:rgba(248,113,113,0.07); border:1px solid rgba(248,113,113,0.2);">
-          <div class="flex gap-3">
-            <i class="fa-solid fa-triangle-exclamation mt-0.5 text-sm" style="color:#f87171;"></i>
-            <p class="text-xs leading-relaxed" style="color:rgba(248,113,113,0.85);" id="recommendationText"></p>
-          </div>
-        </div>
-
-        <!-- Action buttons -->
-        <div class="px-6 pb-6 flex gap-3">
-          <button onclick="resetForm()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); font-family:'Syne',sans-serif;">
-            <i class="fa-solid fa-rotate-left text-xs"></i> Yeni Analiz
-          </button>
-          <button onclick="goToPatient()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 btn-primary text-white">
-            <i class="fa-solid fa-user text-xs"></i> Hasta Sayfası
-          </button>
-        </div>
-      </div>
-
-      <!-- Error card -->
-      <div id="resultError" class="hidden rounded-2xl px-6 py-6" style="background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.2);">
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(248,113,113,0.15);">
-            <i class="fa-solid fa-xmark text-lg" style="color:#f87171;"></i>
-          </div>
-          <div>
-            <p class="text-sm font-bold mb-1" style="font-family:'Syne',sans-serif; color:#f1f5f9;">Analiz Başarısız</p>
-            <p id="errorMsg" class="text-sm" style="color:rgba(255,255,255,0.5);"></p>
-            <button onclick="resetForm()" class="mt-4 text-xs font-semibold py-2 px-4 rounded-lg transition-opacity hover:opacity-80" style="background:rgba(248,113,113,0.15); color:#f87171; border:1px solid rgba(248,113,113,0.3); font-family:'Syne',sans-serif;">
-              Tekrar Dene
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Right placeholder when no result -->
     <div id="resultPlaceholder" class="hidden lg:flex flex-col items-center justify-center gap-5 py-16 text-center fade-up fade-up-3">
       <div class="relative w-32 h-32">
         <!-- Concentric rings -->
@@ -427,8 +575,130 @@
         </div>
       </div>
       <div>
-        <p class="text-base font-bold" style="font-family:'Syne',sans-serif; color:rgba(255,255,255,0.3);">Sonuç Bekleniyor</p>
-        <p class="text-xs mt-1.5 max-w-xs" style="color:rgba(255,255,255,0.18);">Formu doldurun ve analizi başlatın. Yapay zeka kanama tespiti yapacak.</p>
+        <p class="text-base font-bold" style=" color: var(--result-label-text)">Sonuç Bekleniyor</p>
+        <p class="text-xs mt-1.5 max-w-xs" style="color: var(--result-label-text)">Formu doldurun ve analizi başlatın. Yapay zeka kanama tespiti yapacak.</p>
+      </div>
+    </div>
+
+      <!-- Result area -->
+      <div id="resultArea" class="hidden">
+
+        <!-- Loading -->
+        <div id="resultLoading" class="hidden gap-4 py-20 text-center">
+          <div class="relative w-20 h-20">
+            <div class="w-20 h-20 rounded-full loading-ring"></div>
+            <div class="absolute inset-0 rounded-full loading-spinner"></div>
+            <i class="fa-solid fa-brain absolute inset-0 m-auto text-xl" style="color:var(--accent-light); opacity:0.5; line-height:80px;"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold loading-text" style=" color: var(--result-label-text)"> Model çalışıyor…</p>
+            <p class="text-xs mt-1 loading-sub" style=" color: var(--result-label-text)">Görüntü işleniyor, lütfen bekleyin</p>
+          </div>
+        </div>
+
+        <!-- Result card -->
+        <div id="resultCard" class="hidden result-card">
+
+          <!-- Header -->
+          <div class="px-6 py-4 flex items-center justify-between result-card-header">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:var(--icon-wrap-bg);">
+                <i class="fa-solid fa-microscope text-sm" style="color:var(--accent-light);"></i>
+              </div>
+              <div>
+                <p class="text-sm font-bold result-label">Analiz Sonucu</p>
+                <p id="resultTimestamp" class="text-xs result-ts"></p>
+              </div>
+            </div>
+            <span id="resultBadge" class="badge"></span>
+          </div>
+
+          <!-- Tespit -->
+          <div class="px-6 py-5">
+            <p class="text-xs uppercase tracking-widest font-semibold mb-2 result-fl">Tespit</p>
+            <p id="resultLabel" class="text-2xl font-extrabold leading-tight mb-1 result-label"></p>
+            <p id="resultDetail" class="text-sm result-detail"></p>
+          </div>
+
+          <!-- Güven -->
+          <div class="px-6 pb-5">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-semibold conf-label-text">Model Güveni</p>
+              <p id="confValue" class="text-xs font-bold" style="  color:var(--accent-light);"></p>
+            </div>
+            <div class="conf-bar-bg">
+              <div id="confBar" class="conf-bar-fill" style="width:0%;"></div>
+            </div>
+          </div>
+
+          <!-- Görüntü viewer -->
+          <div id="imageViewerWrap" class="hidden px-6 pb-5">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-semibold uppercase tracking-widest result-fl" style=" ">Görüntü</p>
+              <div class="flex gap-2">
+                <button id="btnOriginal" class="img-toggle-btn active" onclick="switchView('original')">Orijinal</button>
+                <button id="btnHeatmap"  class="img-toggle-btn"        onclick="switchView('heatmap')">Isı Haritası</button>
+              </div>
+            </div>
+            <div class="img-viewer">
+              <img id="viewerImg" src="" alt="Görüntü"/>
+              <div id="noHeatmapNote" class="hidden absolute inset-0 flex items-center justify-center">
+                <p class="text-xs px-4 py-2 rounded-lg" style="background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.5);">Isı haritası mevcut değil</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="px-6 pb-5 grid grid-cols-3 gap-3">
+            <div class="stat-chip px-3 py-3 text-center">
+              <p class="text-xs mb-1 chip-label">Hasta</p>
+              <p id="statPatient" class="text-sm font-bold truncate chip-value" style=" ">—</p>
+            </div>
+            <div class="stat-chip px-3 py-3 text-center">
+              <p class="text-xs mb-1 chip-label">Analiz ID</p>
+              <p id="statAnalysis" class="text-sm font-bold chip-value" style=" ">—</p>
+            </div>
+            <div class="stat-chip px-3 py-3 text-center">
+              <p class="text-xs mb-1 chip-label">Sınıf</p>
+              <p id="statClass" class="text-sm font-bold chip-value" style=" ">—</p>
+            </div>
+          </div>
+
+          <!-- Uyarı -->
+          <div id="recommendationRow" class="hidden mx-6 mb-5 px-4 py-3 rounded-xl recommendation-row">
+            <div class="flex gap-3">
+              <i class="fa-solid fa-triangle-exclamation mt-0.5 text-sm" style="color:#f87171;"></i>
+              <p class="text-xs leading-relaxed" id="recommendationText"></p>
+            </div>
+          </div>
+
+          <!-- Aksiyonlar -->
+          <div class="px-6 pb-6 flex gap-3">
+            <button onclick="resetForm()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all btn-reset">
+              <i class="fa-solid fa-rotate-left text-xs"></i> Yeni Analiz
+            </button>
+            <button onclick="goToPatient()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 btn-primary">
+              <i class="fa-solid fa-user text-xs"></i> Hasta Sayfası
+            </button>
+          </div>
+        </div>
+
+        <!-- Error card -->
+        <div id="resultError" class="hidden error-card px-6 py-6">
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 error-icon-wrap">
+              <i class="fa-solid fa-xmark text-lg" style="color:#f87171;"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold mb-1 result-label">Analiz Başarısız</p>
+              <p id="errorMsg" class="text-sm result-detail"></p>
+              <button onclick="resetForm()" class="mt-4 text-xs font-semibold py-2 px-4 rounded-lg transition-opacity hover:opacity-80 error-retry-btn">
+                Tekrar Dene
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -436,48 +706,69 @@
 </main>
 
 <script>
-  // ── DOM refs ──
-  const patientIdInput = document.getElementById('patientId');
-  const fileInput      = document.getElementById('fileInput');
-  const dropZone       = document.getElementById('dropZone');
-  const dropDefault    = document.getElementById('dropDefault');
-  const dropHasFile    = document.getElementById('dropHasFile');
-  const fileNameEl     = document.getElementById('fileName');
-  const previewImg     = document.getElementById('previewImg');
-  const scanLine       = document.getElementById('scanLine');
-  const submitBtn      = document.getElementById('submitBtn');
 
+    document.addEventListener('DOMContentLoaded', async () => {
+     Theme.renderToggle('themeBtn');
+   const user = await getCurrentUser();
+  });
+
+
+  function updateThemeIcon(theme) {
+    const icon = document.getElementById('themeIcon');
+    if (!icon) return;
+    icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  }
+
+  // ── DOM refs ──
+  const patientSelect     = document.getElementById('patientSelect');
+  const fileInput         = document.getElementById('fileInput');
+  const dropZone          = document.getElementById('dropZone');
+  const dropDefault       = document.getElementById('dropDefault');
+  const dropHasFile       = document.getElementById('dropHasFile');
+  const fileNameEl        = document.getElementById('fileName');
+  const previewImg        = document.getElementById('previewImg');
+  const scanLine          = document.getElementById('scanLine');
+  const submitBtn         = document.getElementById('submitBtn');
   const resultArea        = document.getElementById('resultArea');
   const resultPlaceholder = document.getElementById('resultPlaceholder');
   const resultLoading     = document.getElementById('resultLoading');
   const resultCard        = document.getElementById('resultCard');
   const resultError       = document.getElementById('resultError');
-
-  const dot1      = document.getElementById('dot1');
-  const dot2      = document.getElementById('dot2');
-  const dot3      = document.getElementById('dot3');
+  const dot1 = document.getElementById('dot1');
+  const dot2 = document.getElementById('dot2');
+  const dot3 = document.getElementById('dot3');
   const stepLabel = document.getElementById('stepLabel');
 
-  let selectedFile  = null;
-  let lastPatientId = null;
+  let selectedFile   = null;
+  let lastPatientId  = null;
   let lastAnalysisId = null;
 
-  // ── Validation & step indicator ──
-  function updateState() {
-    const hasPatient = patientIdInput.value.trim() !== '';
-    const hasFile    = selectedFile !== null;
-
-    if (!hasPatient && !hasFile) {
-      setStep(1, 'Hasta ID ve görüntü seçin');
-    } else if (hasPatient && !hasFile) {
-      setStep(2, 'Tomografi görüntüsü seçin');
-    } else if (!hasPatient && hasFile) {
-      setStep(2, 'Hasta ID girin');
-    } else {
-      setStep(3, 'Analiz için hazır');
+  // ── Hastaları çek ──
+  async function loadPatients() {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/patients', { credentials: 'include' });
+      if (!res.ok) throw new Error();
+      const patients = await res.json();
+      patients.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `#${p.id} — ${p.full_name || p.name || 'İsimsiz'}`;
+        patientSelect.appendChild(opt);
+      });
+    } catch {
+      document.getElementById('patientLoadError').classList.remove('hidden');
     }
+  }
 
-    submitBtn.disabled = !(hasPatient && hasFile);
+  // ── Step & Validation ──
+  function updateState() {
+    const hasFile = selectedFile !== null;
+    if (!hasFile) {
+      setStep(1, 'Görüntü seçin');
+    } else {
+      setStep(2, 'Analiz için hazır');
+    }
+    submitBtn.disabled = !hasFile;
   }
 
   function setStep(n, label) {
@@ -487,18 +778,15 @@
     stepLabel.textContent = label;
   }
 
-  // ── File selection ──
+  // ── Dosya seçimi ──
   fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
-  patientIdInput.addEventListener('input', updateState);
 
   function handleFile(file) {
     if (!file) return;
     selectedFile = file;
-
-    // Preview
     const reader = new FileReader();
     reader.onload = e => {
-      previewImg.src    = e.target.result;
+      previewImg.src = e.target.result;
       previewImg.style.display = 'block';
       dropDefault.classList.add('hidden');
       dropHasFile.classList.remove('hidden');
@@ -523,44 +811,42 @@
     if (file && file.type.startsWith('image/')) handleFile(file);
   });
 
-  // ── Show result panel ──
   function showResult() {
     resultPlaceholder.classList.add('hidden');
+    resultPlaceholder.style.display = "none";
     resultArea.classList.remove('hidden');
-    resultArea.style.display = 'block';
   }
 
   // ── Submit ──
   submitBtn.addEventListener('click', async () => {
-    const patientId = patientIdInput.value.trim();
-    if (!patientId || !selectedFile) return;
-    lastPatientId = patientId;
+    if (!selectedFile) return;
+    resultPlaceholder.classList.add('hidden');  
+    const selectedPatientId = patientSelect.value || null;
+    lastPatientId = selectedPatientId;
 
     submitBtn.disabled = true;
     showResult();
     resultLoading.classList.remove('hidden');
-    resultLoading.style.display  = 'flex';
+    resultLoading.style.display = "none";
     resultCard.classList.add('hidden');
     resultError.classList.add('hidden');
-
+    resultCard.style.display = "block";
     const formData = new FormData();
     formData.append('file', selectedFile);
 
-    try {
-      const res = await fetch(`http://localhost:8000/api/v1/analyzeCreate?patient_id=${encodeURIComponent(patientId)}`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
-      });
+    let url = 'http://localhost:8000/api/v1/analyzeCreate';
+    if (selectedPatientId) {
+      url += `?patient_id=${encodeURIComponent(selectedPatientId)}`;
+    }
 
+    try {
+      const res = await fetch(url, { method: 'POST', credentials: 'include', body: formData });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Sunucu hatası.' }));
         throw new Error(err.detail || `HTTP ${res.status}`);
       }
-
       const data = await res.json();
       renderResult(data);
-
     } catch (err) {
       resultLoading.classList.add('hidden');
       resultError.classList.remove('hidden');
@@ -570,16 +856,14 @@
     }
   });
 
-  // ── Render result ──
+  // ── Sonuç render ──
   function renderResult(data) {
     resultLoading.classList.add('hidden');
     resultCard.classList.remove('hidden');
 
-    // Timestamp
     document.getElementById('resultTimestamp').textContent =
       new Date().toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
 
-    // Label & badge
     const prediction = data.prediction ?? data.result ?? data.label ?? 'Bilinmiyor';
     const confidence = typeof data.confidence === 'number' ? data.confidence : null;
     const analysisId = data.analysis_id ?? data.id ?? '—';
@@ -589,40 +873,34 @@
     const isCritical = /hemoraji|kanama|bleeding|hemorrhage|critical/i.test(prediction);
 
     document.getElementById('resultLabel').textContent = prediction;
-    document.getElementById('resultDetail').textContent =
-      isNormal
-        ? 'Görüntüde kanama bulgusu tespit edilmedi.'
-        : 'Görüntüde anormal bulgu tespit edildi. Klinik değerlendirme önerilir.';
+    document.getElementById('resultDetail').textContent = isNormal
+      ? 'Görüntüde kanama bulgusu tespit edilmedi.'
+      : 'Görüntüde anormal bulgu tespit edildi. Klinik değerlendirme önerilir.';
 
     const badge = document.getElementById('resultBadge');
     badge.textContent = isNormal ? 'Normal' : isCritical ? 'Kritik' : 'Uyarı';
     badge.className   = 'badge ' + (isNormal ? 'badge-normal' : isCritical ? 'badge-critical' : 'badge-warning');
 
-    // Confidence bar — backend zaten 0-100 arası gönderiyor
     if (confidence !== null) {
       const pct = confidence > 1 ? Math.round(confidence) : Math.round(confidence * 100);
       document.getElementById('confValue').textContent = pct + '%';
-      setTimeout(() => {
-        document.getElementById('confBar').style.width = pct + '%';
-      }, 80);
+      setTimeout(() => { document.getElementById('confBar').style.width = pct + '%'; }, 80);
     } else {
       document.getElementById('confValue').textContent = 'N/A';
     }
 
-    // Stats
-    document.getElementById('statPatient').textContent  = lastPatientId;
+    const selOpt = patientSelect.options[patientSelect.selectedIndex];
+    document.getElementById('statPatient').textContent = (selOpt && selOpt.value) ? selOpt.textContent : '—';
     document.getElementById('statAnalysis').textContent = analysisId;
-    document.getElementById('statClass').textContent    =
-      data.class_index !== undefined ? '#' + data.class_index : '—';
+    document.getElementById('statClass').textContent = data.class_index !== undefined ? '#' + data.class_index : '—';
 
-    // Image viewer
     const API_BASE = 'http://localhost:8000';
+    window._originalUrl = data.image_path   ? API_BASE + data.image_path   : null;
+    window._heatmapUrl  = data.heatmap_path ? API_BASE + data.heatmap_path : null;
+
     const imageViewerWrap = document.getElementById('imageViewerWrap');
     const viewerImg       = document.getElementById('viewerImg');
     const noHeatmapNote   = document.getElementById('noHeatmapNote');
-
-    window._originalUrl = data.image_path   ? API_BASE + data.image_path   : null;
-    window._heatmapUrl  = data.heatmap_path ? API_BASE + data.heatmap_path : null;
 
     if (window._originalUrl) {
       imageViewerWrap.classList.remove('hidden');
@@ -632,7 +910,6 @@
       noHeatmapNote.classList.add('hidden');
     }
 
-    // Recommendation
     const recRow = document.getElementById('recommendationRow');
     if (!isNormal) {
       recRow.classList.remove('hidden');
@@ -642,7 +919,6 @@
       recRow.classList.add('hidden');
     }
 
-    // Step dots → all done
     setStep(4, 'Analiz tamamlandı');
   }
 
@@ -673,7 +949,7 @@
   // ── Reset ──
   function resetForm() {
     selectedFile = null;
-    patientIdInput.value = '';
+    patientSelect.value = '';
     fileInput.value = '';
     previewImg.style.display = 'none';
     previewImg.src = '';
@@ -683,23 +959,19 @@
     dropZone.classList.remove('has-file');
     scanLine.style.display = 'none';
     resultArea.classList.add('hidden');
+    resultArea.style.display = '';
     resultPlaceholder.classList.remove('hidden');
     document.getElementById('confBar').style.width = '0%';
     updateState();
   }
 
-  // ── Navigate to patient page ──
   function goToPatient() {
     if (lastPatientId) window.location.href = `/patient.html?id=${lastPatientId}`;
   }
 
   // ── Init ──
-  updateState();
-  resultPlaceholder.classList.remove('hidden');
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof Theme !== 'undefined') Theme.renderToggle('themeBtn');
-  });
+  resetForm();
+  loadPatients();
 </script>
 
 <script src="MenuLoader.js"></script>

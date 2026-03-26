@@ -1,173 +1,324 @@
 <!DOCTYPE html>
-<html class="scroll-smooth" lang="tr">
+<html lang="tr">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta name="description" content="IKNET ile izin, vardiya, bordro ve saha takibini tek panelden yönetin."/>
-  <title>IKNET - İnsan Kaynakları Yönetim Yazılımı</title>
-  <link rel="stylesheet" href="Main.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            medBlue: '#0052CC',
-            medLight: '#E6F0FF',
-            "primary": "#1c74e9",
-            "background-light": "#f6f7f8",
-            "background-dark": "#111821",
-            "slate-heading": "#0e141b",
-            "slate-body": "#4d6e99"
-          },
-          fontFamily: {
-            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-          }
-        }
-      }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Yapay zeka destekli beyin BT analiz platformu - Klinik Karar Destek Sistemi" />
+  <title>AiMedicalSupport | Profesyonel Beyin BT Analizi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+   
+      background:
+        radial-gradient(1100px 520px at 80% -10%, rgba(99, 202, 183, 0.17), transparent 60%),
+        radial-gradient(900px 420px at 10% -20%, rgba(56, 189, 248, 0.1), transparent 55%),
+        #080f1a;
+      color: #e2e8f0;
+      scroll-behavior: smooth;
     }
-  </script>
 
+    .glass {
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 24px 70px rgba(2, 6, 23, 0.35);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .glass:hover {
+        border-color: rgba(99, 202, 183, 0.4);
+        transform: translateY(-4px);
+    }
+    .line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99, 202, 183, 0.4), transparent);
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid rgba(99, 202, 183, 0.35);
+      background: rgba(99, 202, 183, 0.08);
+      color: #9ee8d8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+    .btn-main {
+      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      color: #fff;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .btn-main:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 10px 20px -10px #63cab7; }
+    .btn-soft {
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(15, 23, 42, 0.42);
+      color: #e2e8f0;
+      transition: all 0.3s ease;
+    }
+    .btn-soft:hover { border-color: rgba(99, 202, 183, 0.5); background: rgba(99, 202, 183, 0.12); }
+    
+    .stat-card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    }
 
-<body class="bg-white text-slate-800">
-<div id="Header"></div>
+    .pulse-green {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(99, 202, 183, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(99, 202, 183, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(99, 202, 183, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div id="themeBtn" style="right: 16px; position: fixed; top: 14px; z-index: 1200;"></div>
 
-<section class="relative py-20 lg:py-32 overflow-hidden" data-purpose="hero-banner">
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-[#080f1a]/80 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <a href="HomePage.html" class="brand flex items-center gap-3 text-xl font-bold text-white tracking-tight">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/25 bg-emerald-300/10 text-emerald-300 shadow-[0_0_15px_rgba(99,202,183,0.2)]">
+            <i class="fa-solid fa-microchip"></i>
+        </span>
+        AiMedical<span class="text-emerald-300">Support</span>
+      </a>
+      <nav class="hidden items-center gap-6 md:flex">
+        <a class="text-sm font-medium text-slate-300 hover:text-emerald-300 transition-colors" href="AnalisyCreate.html">Yeni Analiz</a>
+        <a class="text-sm font-medium text-slate-300 hover:text-emerald-300 transition-colors" href="AnalityPage.html">Geçmiş Kayıtlar</a>
+        <div class="h-4 w-[1px] bg-white/10"></div>
+        <a class="btn-main rounded-full px-6 py-2 text-sm font-semibold !no-underline" href="LoginPage.html">Doktor Girişi</a>
+      </nav>
+    </div>
+  </header>
 
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="grid lg:grid-cols-2 gap-12 items-center">
-<div class="space-y-8">
-
-
-<h1 class="text-5xl lg:text-7xl font-bold text-slate-900 leading-tight">
-            Yapay Zeka ile <span class="text-medBlue">Tomografi</span> Analizi
+  <main class="mx-auto max-w-7xl px-6 pb-24 pt-12 md:pt-20">
+    
+    <section class="grid gap-12 lg:grid-cols-2 items-center">
+      <div class="space-y-8">
+        <div>
+          <span class="chip mb-4">v2.4 Derin Öğrenme Modülü Aktif</span>
+          <h1 class="text-5xl leading-[1.1] text-white md:text-7xl font-extrabold">
+            Nöroradyolojide <br/>
+            <span class="text-emerald-300">Yapay Zeka</span> Devrimi
           </h1>
-<p class="text-xl text-slate-600 max-w-lg leading-relaxed">
-            Hızlı, güvenilir ve detaylı tomografi okuma hizmeti. En gelişmiş algoritmalarımızla saniyeler içinde teşhis desteği alın.
+          <p class="mt-6 max-w-xl text-lg text-slate-400 leading-relaxed">
+            Acil servis ve radyoloji birimleri için optimize edilmiş, intrakraniyal kanamaları saniyeler içinde tespit eden yüksek hassasiyetli analiz platformu.
           </p>
-<div class="flex flex-col sm:flex-row gap-4 pt-4">
-<button class="px-8 py-4 bg-medBlue text-white rounded-xl font-bold text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300">
-              Tomografi Yükle
-            </button>
-<button class="px-8 py-4 bg-white text-slate-700 border-2 border-slate-200 rounded-xl font-bold text-lg hover:border-medBlue hover:text-medBlue transition-all duration-300">
-              Nasıl Çalışır?
-            </button>
-</div>
-</div>
-<div class="relative">
-<!-- Placeholder for Hero Image/Graphic -->
-<div class="bg-white p-4 rounded-3xl shadow-2xl border border-slate-100">
-<img alt="Tomografi Analiz Önizleme" class="rounded-2xl w-full h-auto" src="RadiologyImages/ornek vakalar beyin bt Berk AI/F_HEAD_20260308_203408.jpeg">
-</div>
+        </div>
+        
+        <div class="flex flex-wrap gap-4">
+          <a href="AnalisyCreate.html" class="btn-main rounded-2xl px-8 py-4 text-md font-bold !no-underline flex items-center gap-2">
+            <i class="fa-solid fa-plus-circle"></i> Hemen Analiz Başlat
+          </a>
+          <a href="#nasil-calisir" class="btn-soft rounded-2xl px-8 py-4 text-md font-bold !no-underline">
+            Sistemi İncele
+          </a>
+        </div>
 
-</div>
-</div>
-</div>
-</section>
-<!-- END: Hero Section -->
-<!-- BEGIN: Services Section -->
-<section class="py-24 bg-slate-50" data-purpose="services-grid" id="services">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="text-center mb-16">
-<h2 class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Analiz Sürecimiz</h2>
-<p class="text-lg text-slate-600 max-w-2xl mx-auto">Teknolojimiz, tıbbi görüntülemeyi her zamankinden daha hızlı ve kesin hale getirmek için tasarlandı.</p>
-</div>
-<div class="grid md:grid-cols-3 gap-8">
-<!-- Service 1: AI Analysis -->
-<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
-<div class="w-14 h-14 bg-medLight rounded-xl flex items-center justify-center mb-6">
-<svg class="w-8 h-8 text-medBlue" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<h3 class="text-xl font-bold text-slate-900 mb-3">Derin Öğrenme</h3>
-<p class="text-slate-600 leading-relaxed">
-            Milyonlarca vaka ile eğitilmiş yapay zeka modellerimiz, en küçük anomalileri bile tespit etmek üzere optimize edilmiştir.
-          </p>
-</div>
-<!-- Service 2: Medical Tech -->
-<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
-<div class="w-14 h-14 bg-medLight rounded-xl flex items-center justify-center mb-6">
-<svg class="w-8 h-8 text-medBlue" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.642.321a6 6 0 01-3.86.517l-2.388-.477a2 2 0 00-1.022.547l-1.168 1.168a2 2 0 00-.586 1.414v1.171a2 2 0 00.586 1.414l1.168 1.168a2 2 0 001.414.586h11.172a2 2 0 001.414-.586l1.168-1.168a2 2 0 00.586-1.414v-1.171a2 2 0 00-.586-1.414l-1.168-1.168zM12 13V3l8 4-8 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<h3 class="text-xl font-bold text-slate-900 mb-3">Tıbbi Hassasiyet</h3>
-<p class="text-slate-600 leading-relaxed">
-            DICOM standartlarına tam uyumlu altyapımız ile görüntü kalitesinden ödün vermeden analiz gerçekleştiriyoruz.
-          </p>
-</div>
-<!-- Service 3: Speed -->
-<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
-<div class="w-14 h-14 bg-medLight rounded-xl flex items-center justify-center mb-6">
-<svg class="w-8 h-8 text-medBlue" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<h3 class="text-xl font-bold text-slate-900 mb-3">Anlık Sonuçlar</h3>
-<p class="text-slate-600 leading-relaxed">
-            Normalde saatler süren manuel incelemeyi saniyelere indirerek klinik karar verme sürecinizi hızlandırıyoruz.
-          </p>
-</div>
-</div>
-</div>
-</section>
-<!-- END: Services Section -->
-<!-- BEGIN: Contact Section -->
-<section class="py-24 bg-white" data-purpose="contact-form" id="contact">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="max-w-4xl mx-auto bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
-<!-- Left Side: Info -->
-<div class="p-12 md:w-2/5 text-white bg-medBlue flex flex-col justify-between">
-<div>
-<h2 class="text-3xl font-bold mb-6">Bize Ulaşın</h2>
-<p class="text-blue-100 mb-8">Kurumsal çözümlerimiz ve entegrasyon süreçleri hakkında bilgi almak için formu doldurabilirsiniz.</p>
-</div>
-<div class="space-y-4">
-<div class="flex items-center gap-3">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-<span>info@ai-tomografi.com</span>
-</div>
-<div class="flex items-center gap-3">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-<span>İstanbul, Türkiye</span>
-</div>
-</div>
-</div>
-<!-- Right Side: Form -->
-<div class="p-12 md:w-3/5 bg-white">
-<form class="space-y-6">
-<div class="grid grid-cols-2 gap-4">
-<div class="space-y-2">
-<label class="text-sm font-semibold text-slate-700" for="name">İsim</label>
-<input class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="name" placeholder="Adınız" type="text"/>
-</div>
-<div class="space-y-2">
-<label class="text-sm font-semibold text-slate-700" for="email">E-posta</label>
-<input class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="email" placeholder="E-posta adresiniz" type="email"/>
-</div>
-</div>
-<div class="space-y-2">
-<label class="text-sm font-semibold text-slate-700" for="subject">Konu</label>
-<select class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="subject">
-<option>Hizmetler Hakkında Bilgi</option>
-<option>Teknik Destek</option>
-<option>Kurumsal Ortaklık</option>
-</select>
-</div>
-<div class="space-y-2">
-<label class="text-sm font-semibold text-slate-700" for="message">Mesaj</label>
-<textarea class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-medBlue focus:border-medBlue transition-all" id="message" placeholder="Size nasıl yardımcı olabiliriz?" rows="4"></textarea>
-</div>
-<button class="w-full bg-medBlue text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100" type="submit">
-              Mesaj Gönder
-            </button>
-</form>
-</div>
-</div>
-</div>
-</section>
+        <div class="grid grid-cols-3 gap-6 pt-4">
+            <div>
+                <p class="text-3xl font-bold text-white">99.2%</p>
+                <p class="text-xs text-slate-500 uppercase font-bold tracking-tighter">Hassasiyet</p>
+            </div>
+            <div class="border-l border-white/10 pl-6">
+                <p class="text-3xl font-bold text-white">&lt;2sn</p>
+                <p class="text-xs text-slate-500 uppercase font-bold tracking-tighter">Analiz Süresi</p>
+            </div>
+            <div class="border-l border-white/10 pl-6">
+                <p class="text-3xl font-bold text-white">JSON</p>
+                <p class="text-xs text-slate-500 uppercase font-bold tracking-tighter">Export Format</p>
+            </div>
+        </div>
+      </div>
 
+      <div class="relative">
+        <div class="absolute -inset-4 bg-emerald-500/10 blur-3xl rounded-full"></div>
+        <div class="glass relative rounded-[2.5rem] p-4 overflow-hidden border-white/20">
+          <div class="mb-4 flex items-center justify-between px-4 pt-2">
+            <div class="flex items-center gap-2">
+                <span class="h-3 w-3 rounded-full bg-red-500 pulse-green"></span>
+                <span class="text-xs font-mono text-emerald-300">CANLI ANALİZ SİSTEMİ</span>
+            </div>
+            <span class="text-[10px] font-mono text-slate-500">DICOM_THREAD_ID: 8829</span>
+          </div>
+          <div class="relative overflow-hidden rounded-2xl bg-black">
+            <img src="RadiologyImages/ornek vakalar beyin bt Berk AI/F_HEAD_20260308_203408.jpeg" alt="Beyin BT" class="h-[400px] w-full object-cover opacity-80" />
+            <div class="absolute inset-0 border-[1px] border-emerald-500/20 pointer-events-none"></div>
+            <div class="absolute top-10 left-10 h-20 w-20 border-l-2 border-t-2 border-emerald-400"></div>
+            <div class="absolute bottom-10 right-10 h-20 w-20 border-r-2 border-b-2 border-emerald-400"></div>
+          </div>
+          
+          <div class="mt-6 grid grid-cols-2 gap-4">
+            <div class="stat-card rounded-2xl border border-white/5 p-4">
+              <p class="text-[10px] uppercase text-slate-500 font-bold">Patoloji Olasılığı</p>
+              <div class="mt-2 flex items-end justify-between">
+                <span class="text-2xl font-bold text-white">%94</span>
+                <span class="text-[10px] text-emerald-400 mb-1"><i class="fa-solid fa-arrow-up"></i> Yüksek</span>
+              </div>
+            </div>
+            <div class="stat-card rounded-2xl border border-white/5 p-4">
+              <p class="text-[10px] uppercase text-slate-500 font-bold">Önerilen Aksiyon</p>
+              <p class="mt-2 text-sm font-semibold text-emerald-300">Acil Konsültasyon</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div id="Footer"></div>
-</body><script src="MenuLoader.js"></script></html>
+    <div class="line my-24"></div>
+
+    <section id="nasil-calisir" class="space-y-12">
+        <div class="text-center space-y-4">
+            <h2 class="text-3xl md:text-5xl font-bold text-white">Klinik İş Akışınızı Optimize Edin</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto italic">Radyologların yükünü azaltmak ve gözden kaçabilecek detayları yakalamak için tasarlandı.</p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          <article class="glass rounded-3xl p-8 space-y-4 relative group">
+            <div class="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-300 text-xl group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-upload"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white">Hızlı Veri Girişi</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">DICOM dosyalarını veya yüksek çözünürlüklü kesitleri sisteme yükleyin. Hasta kimliksizleştirme protokollerine tam uyum.</p>
+            <ul class="text-[11px] space-y-2 text-slate-500 font-semibold uppercase tracking-wider">
+                <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Çoklu Dosya Desteği</li>
+                <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Metadata Temizleme</li>
+            </ul>
+          </article>
+
+          <article class="glass rounded-3xl p-8 space-y-4 relative group">
+            <div class="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-xl group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white">AI Derin Analiz</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">Özel eğitilmiş CNN modellerimiz kanama tipini (Epidural, Subdural, IPH vb.) ve hacmini saniyeler içinde hesaplar.</p>
+            <ul class="text-[11px] space-y-2 text-slate-500 font-semibold uppercase tracking-wider">
+                <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Lezyon Segmentasyonu</li>
+                <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Ödem Tespiti</li>
+            </ul>
+          </article>
+
+          <article class="glass rounded-3xl p-8 space-y-4 relative group">
+            <div class="h-12 w-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-xl group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-file-export"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white">Yapısal Raporlama</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">Analiz sonuçlarını PACS sistemlerine entegre edilebilir JSON formatında veya detaylı PDF raporu olarak dışa aktarın.</p>
+            <ul class="text-[11px] space-y-2 text-slate-500 font-semibold uppercase tracking-wider">
+                <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> JSON / XML Çıktısı</li>
+                <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> Klinik Not Entegrasyonu</li>
+            </ul>
+          </article>
+        </div>
+    </section>
+
+    <section class="mt-24 glass rounded-[3rem] p-8 md:p-16 border-emerald-500/10">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+            <div class="space-y-6">
+                <span class="chip">Teknik Kapasite</span>
+                <h2 class="text-4xl font-bold text-white">Hangi Bulguları Tespit Ediyoruz?</h2>
+                <div class="space-y-4">
+                    <div class="flex gap-4 items-start">
+                        <div class="mt-1 text-emerald-400"><i class="fa-solid fa-circle-dot"></i></div>
+                        <div>
+                            <h4 class="text-white font-bold">İntrakraniyal Hemoraji (ICH)</h4>
+                            <p class="text-sm text-slate-400">Akut ve subakut dönemdeki tüm kanama odaklarının tespiti.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="mt-1 text-emerald-400"><i class="fa-solid fa-circle-dot"></i></div>
+                        <div>
+                            <h4 class="text-white font-bold">Midline Shift (Orta Hat Kayması)</h4>
+                            <p class="text-sm text-slate-400">Kitle etkisine bağlı beyin dokusu yer değiştirmesinin milimetrik ölçümü.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="mt-1 text-emerald-400"><i class="fa-solid fa-circle-dot"></i></div>
+                        <div>
+                            <h4 class="text-white font-bold">Kırık ve Kemik Yapı Analizi</h4>
+                            <p class="text-sm text-slate-400">Kalvaryum kırıklarının ve lineer çatlakların otomatik taranması.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-[#0f172a] rounded-3xl p-8 border border-white/5">
+                <h4 class="text-emerald-300 font-mono text-sm mb-6">// Analiz Çıktısı (Örnek JSON)</h4>
+                <pre class="text-[12px] text-slate-300 leading-relaxed font-mono">
+{
+  "analysis_id": "BT-2026-X99",
+  "findings": {
+    "hemorrhage": true,
+    "type": "Subdural",
+    "confidence_score": 0.982,
+    "location": "Right Temporal",
+    "volume_ml": 14.5
+  },
+  "midline_shift": "2.1mm",
+  "urgent_status": "HIGH_PRIORITY"
+}
+                </pre>
+            </div>
+        </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-white/10 bg-[#04080f] py-12">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="grid md:grid-cols-4 gap-12 mb-12">
+          <div class="col-span-2 space-y-4">
+            <a href="#" class="brand text-2xl font-bold text-white tracking-tight">
+                AiMedical<span class="text-emerald-300">Support</span>
+            </a>
+            <p class="text-slate-400 text-sm max-w-sm">
+                Geleceğin sağlık teknolojilerini bugünün klinik ihtiyaçlarıyla birleştiriyoruz. Yapay zeka destekli analiz platformumuzla hayat kurtaran kararlara destek oluyoruz.
+            </p>
+          </div>
+          <div class="space-y-4">
+              <h4 class="text-white font-bold">Hızlı Erişim</h4>
+              <ul class="text-slate-500 text-sm space-y-2">
+                  <li><a href="#" class="hover:text-emerald-300 transition-colors">Ana Sayfa</a></li>
+                  <li><a href="AnalisyCreate.html" class="hover:text-emerald-300 transition-colors">Analiz Oluştur</a></li>
+                  <li><a href="AnalityPage.html" class="hover:text-emerald-300 transition-colors">Arşiv</a></li>
+              </ul>
+          </div>
+          <div class="space-y-4">
+              <h4 class="text-white font-bold">Destek</h4>
+              <ul class="text-slate-500 text-sm space-y-2">
+                  <li><a href="#" class="hover:text-emerald-300 transition-colors">Dokümantasyon</a></li>
+                  <li><a href="#" class="hover:text-emerald-300 transition-colors">API Erişimi</a></li>
+                  <li><a href="#" class="hover:text-emerald-300 transition-colors">İletişim</a></li>
+              </ul>
+          </div>
+      </div>
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/5 pt-8">
+        <div class="text-sm text-slate-500">
+            © 2026 AiMedicalSupport. Tüm hakları saklıdır.
+        </div>
+        <div class="flex gap-6 text-slate-400">
+            <a href="#" class="hover:text-white"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="#" class="hover:text-white"><i class="fa-brands fa-github"></i></a>
+            <a href="#" class="hover:text-white"><i class="fa-brands fa-twitter"></i></a>
+        </div>
+      </div>
+      <div class="mt-8 text-center">
+          <p class="text-[10px] text-slate-600 uppercase tracking-widest">Bu platform bir Karar Destek Sistemidir (CDSS). Tanı koyma yetkisi sadece doktora aittir.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="Template.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Theme && typeof Theme.renderToggle === 'function') {
+        Theme.renderToggle('themeBtn');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -230,15 +230,7 @@
       z-index: 1200;
       backdrop-filter: blur(3px);
     }
-    .modal-panel {
-      width: min(760px, 100%);
-      max-height: 90vh;
-      overflow: auto;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      box-shadow: 0 30px 80px rgba(2, 6, 23, 0.42);
-    }
+  
     .detail-item {
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -302,6 +294,8 @@
         <article class="metric"><p class="metric-label">Ortalama Güven</p><p id="metricAverage" class="metric-number">0%</p><p class="metric-sub">Model güven ortalaması</p></article>
         <article class="metric"><p class="metric-label">Kritik Bulgular</p><p id="metricCritical" class="metric-number">0</p><p class="metric-sub">Acil yorum önerilir</p></article>
         <article class="metric"><p class="metric-label">Son 24 Saat</p><p id="metricRecent" class="metric-number">0</p><p class="metric-sub">Yeni analiz sayısı</p></article>
+          <article onclick="window.location.href='AnalisyCreate.html'"  class="metric"><p class="metric-label">Yeni Analiz Oluşur</p><p  class="metric-number"><i class="fa fa-plus" aria-hidden="true"></i></p><p class="metric-sub">Yeni Analiz Oluştur</p></article>
+           <article onclick="window.location.href='AnalisyCreate.html'"  class="metric"><p class="metric-label">Yeni Analiz Oluşur</p><p  class="metric-number"><i class="fa fa-minus" aria-hidden="true"></i></p><p class="metric-sub">Seçili Analizleri Sil</p></article>
       </section>
 
       <section class="panel mt-4 p-4">
@@ -369,46 +363,12 @@
     </div>
   </main>
 
-  <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-panel">
-      <div class="px-4 py-3 border-b" style="border-color: var(--border);">
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Analiz Detayı</p>
-            <h3 id="modalTitle" class="hero-title text-lg">Kayıt</h3>
-          </div>
-          <button id="closeDetailBtn" class="btn-lite !px-3 !py-2" type="button"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-      </div>
-      <div class="p-4 grid gap-3">
-        <div class="flex flex-wrap items-center gap-2">
-          <span id="modalResultBadge" class="status status-warning">Uyarı</span>
-          <span id="modalConfidence" class="text-sm font-semibold" style="color: var(--text-muted);">Güven: -</span>
-          <span id="modalCreatedAt" class="text-sm font-semibold" style="color: var(--text-muted);">Tarih: -</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div class="detail-item"><p class="detail-k">Analiz ID</p><p id="modalAnalysisId" class="detail-v">-</p></div>
-          <div class="detail-item"><p class="detail-k">Hasta</p><p id="modalPatient" class="detail-v">-</p></div>
-          <div class="detail-item"><p class="detail-k">Doktor</p><p id="modalDoctor" class="detail-v">-</p></div>
-          <div class="detail-item"><p class="detail-k">Ham Sonuç</p><p id="modalResultRaw" class="detail-v">-</p></div>
-        </div>
-        <div class="detail-item">
-          <p class="detail-k">Ek Bilgiler</p>
-          <pre id="modalRawJson">{}</pre>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script src="MenuLoader.js"></script>
   <script src="AdminMenuOptions.js"></script>
   <script src="Template.js"></script>
 
   <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-     Theme.renderToggle('themeBtn');
-   const user = await getCurrentUser();
-  });
     (function () {
       "use strict";
 
@@ -508,7 +468,7 @@
           }, 3200);
         }
       }
-
+         
       function setLoading(loading) {
         el.refreshBtn.disabled = loading;
         el.exportCsvBtn.disabled = loading;
@@ -545,7 +505,7 @@
             </tr>
           `;
           return;
-        }
+        } 
 
         el.analysesBody.innerHTML = list
           .map((a) => {
@@ -574,9 +534,9 @@
                   <div class="text-xs" style="color: var(--text-muted);">${timeAgo(a.createdAt)}</div>
                 </td>
                 <td>
-                  <button class="btn-lite !text-xs !px-3 !py-2" type="button" data-action="detail" data-id="${escapeHtml(a.id)}">
+                  <a class="btn-lite !text-xs !px-3 !py-2" type="button" href="AiTrainAnalisyDetails.html?id=${a.id}">
                     <i class="fa-solid fa-eye"></i> Detay
-                  </button>
+                  </a>
                 </td>
               </tr>
             `;
@@ -702,15 +662,10 @@
         el.modalResultBadge.innerHTML = `<i class="fa-solid ${s.icon}"></i>${s.label}`;
         el.modalRawJson.textContent = JSON.stringify(a.raw, null, 2);
 
-        el.detailModal.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
+   
       }
 
-      function closeDetail() {
-        el.detailModal.classList.add("hidden");
-        document.body.style.overflow = "";
-      }
-
+ 
       function toCsvSafe(value) {
         const v = String(value ?? "");
         return /[",;\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
@@ -772,14 +727,9 @@
           openDetail(btn.dataset.id);
         });
 
-        el.closeDetailBtn.addEventListener("click", closeDetail);
-        el.detailModal.addEventListener("click", (event) => {
-          if (event.target === el.detailModal) closeDetail();
-        });
 
-        document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape" && !el.detailModal.classList.contains("hidden")) closeDetail();
-        });
+
+  
       }
 
       function initElements() {
@@ -788,7 +738,6 @@
           "searchInput", "statusFilter", "doctorFilter", "dateFrom", "dateTo",
           "refreshBtn", "clearFiltersBtn", "exportCsvBtn", "actionMessage",
           "fetchError", "tableLoadingHint", "resultCount", "analysesBody",
-          "detailModal", "closeDetailBtn", "modalTitle", "modalResultBadge", "modalConfidence",
           "modalCreatedAt", "modalAnalysisId", "modalPatient", "modalDoctor", "modalResultRaw", "modalRawJson"
         ].forEach((id) => {
           el[id] = pick(id);

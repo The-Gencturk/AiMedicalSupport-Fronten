@@ -14,31 +14,7 @@
       background: var(--bg-primary);
       color: var(--text-second);
     }
-    .page-shell {
-      max-width: 1320px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-      position: relative;
-      isolation: isolate;
-    }
-    .page-shell::before {
-      content: "";
-      position: absolute;
-      inset: -20% 0 auto;
-      height: 420px;
-      background:
-        radial-gradient(700px 260px at 10% 10%, rgba(99, 202, 183, 0.17), transparent 70%),
-        radial-gradient(600px 260px at 90% 20%, rgba(59, 158, 138, 0.13), transparent 70%);
-      z-index: -1;
-      pointer-events: none;
-    }
-    .hero-title,
-    .metric-number,
-    .chip,
-    .badge-id,
-    .panel-title {
-
-    }
+  
     .hero {
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -306,12 +282,7 @@
       overflow: auto;
       font-size: 0.8rem;
     }
-    @media (max-width: 1024px) {
-      .page-shell { padding-top: 5rem; }
-    }
-    @media (max-width: 640px) {
-      .page-shell { padding-left: 0.8rem; padding-right: 0.8rem; }
-    }
+
   </style>
 </head>
 <body class="min-h-screen flex">
@@ -467,65 +438,13 @@
 
       const models = [
         {
-          id: "M-001",
-          name: "HemorrhageNet",
-          version: "v4.2.1",
-          domain: "Beyin BT",
-          status: "prod",
-          accuracy: 94.6,
-          latency: 128,
-          updatedAt: "2026-03-22T09:20:00",
-          owner: "AI Core Team",
-          notes: "Canli model. Son calibration 22 Mart 2026.",
-          config: { input_size: 512, batch: 16, augment: true, threshold: 0.58 }
-        },
-        {
-          id: "M-002",
-          name: "HemorrhageNet",
-          version: "v4.3.0-rc1",
-          domain: "Beyin BT",
-          status: "stage",
-          accuracy: 95.1,
-          latency: 141,
-          updatedAt: "2026-03-24T11:45:00",
-          owner: "Model Ops",
-          notes: "Staging candidate. Canary icin hazir.",
-          config: { input_size: 640, batch: 12, augment: true, threshold: 0.56 }
-        },
-        {
-          id: "M-003",
-          name: "ThoraxFinder",
-          version: "v2.8.4",
-          domain: "Toraks BT",
-          status: "train",
-          accuracy: 91.8,
-          latency: 166,
-          updatedAt: "2026-03-23T17:05:00",
-          owner: "Thorax Lab",
-          notes: "Epoch 38/60 devam ediyor.",
-          config: { input_size: 512, batch: 8, augment: true, threshold: 0.52 }
-        },
-        {
-          id: "M-004",
-          name: "NeuroAssist",
-          version: "v1.9.7",
-          domain: "MR Flare",
-          status: "arch",
-          accuracy: 88.9,
-          latency: 189,
-          updatedAt: "2026-02-17T10:10:00",
-          owner: "Archive",
-          notes: "Yerini v2 serisine birakti.",
-          config: { input_size: 384, batch: 6, augment: false, threshold: 0.5 }
-        },
-        {
           id: "M-005",
-          name: "BleedWatch",
-          version: "v3.6.0",
+          name: "TestTraning",
+          version: "v1.0.0",
           domain: "Beyin BT",
           status: "stage",
-          accuracy: 93.2,
-          latency: 135,
+          accuracy: 0,
+          latency:  ,
           updatedAt: "2026-03-21T15:32:00",
           owner: "Emergency AI",
           notes: "Acil vaka odakli konfigurasyon.",
