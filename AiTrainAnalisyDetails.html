@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -249,13 +249,13 @@
       <section class="hero">
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 class="text-2xl md:text-3xl" >Beyin BT Etiketleme Stüdyosu</h1>
+            <h1 class="text-2xl md:text-3xl" >Radyoloji Etiketleme Studyo</h1>
             <p class="mt-2 text-sm md:text-base" style="color: var(--text-muted);">
-              Yapay zeka egitimi icin kanama var/yok, kanama tipi ve siddet etiketini tek ekranda girin.
+              Yapay zeka egitimi icin bulgu var/yok, bulgu tipi ve siddet etiketini tek ekranda girin.
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <span class="chip"><i class="fa-solid fa-brain"></i> CT Labeling</span>
+            <span class="chip"><i class="fa-solid fa-stethoscope"></i> Organ Labeling</span>
             <span class="chip" id="chipUpdated">Hazir</span>
           </div>
         </div>
@@ -271,50 +271,51 @@
           <div class="space-y-3">
             <div>
               <label class="f-label" for="caseLabel">Label</label>
-              <input id="caseLabel" class="f-input" type="text" placeholder="Orn: CT-2026-0042 / Epidural kanama supheli" />
+              <input id="caseLabel" class="f-input" type="text" placeholder="Orn: CT-2026-0042 / Organ bulgu etiketi" />
               <p class="help-text">Bu alan API'de <code>label</code> olarak gonderilir.</p>
             </div>
 
             <div>
-              <span class="f-label">Kanama Durumu</span>
+              <span class="f-label">Bulgu Durumu</span>
               <div class="radio-grid">
                 <label class="radio-card" id="cardBleedingNo" for="isBleedingNo">
                   <input class="hidden-input" id="isBleedingNo" name="isBleeding" type="radio" value="false" checked />
                   <i class="fa-solid fa-circle-check"></i>
-                  <span>Kanama Yok</span>
+                  <span>Bulgu Yok</span>
                 </label>
                 <label class="radio-card" id="cardBleedingYes" for="isBleedingYes">
                   <input class="hidden-input" id="isBleedingYes" name="isBleeding" type="radio" value="true" />
                   <i class="fa-solid fa-triangle-exclamation"></i>
-                  <span>Kanama Var</span>
+                  <span>Bulgu Var</span>
                 </label>
               </div>
             </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-  <div>
-    <label class="f-label" for="bleedingType">Kanama Türü</label>
-    <select id="bleedingType" class="f-select" disabled>
-      <option value="none">Yok</option>
-      <option value="epidural">Epidural</option>
-      <option value="subdural">Subdural</option>
-      <option value="subaraknoid">Subaraknoid</option> 
-      <option value="intraparenkimal">Intraparenkimal</option>
-      <option value="intraventrikuler">Intraventrikuler</option>
-      <option value="diger">Diğer</option>
-    </select>
-  </div>
+            <div>
+              <label class="f-label" for="bleedingType">Bulgu Turu</label>
+              <select id="bleedingType" class="f-select" disabled>
+                <option value="none">Yok</option>
+                <option value="hemorrhage">Hemorrhage</option>
+                <option value="nodule">Nodule</option>
+                <option value="mass">Mass</option>
+                <option value="fracture">Fracture</option>
+                <option value="effusion">Effusion</option>
+                <option value="infiltration">Infiltration</option>
+                <option value="other">Diger</option>
+              </select>
+            </div>
 
-  <div>
-    <label class="f-label" for="severity">Şiddet</label>
-    <select id="severity" class="f-select">
-      <option value="none">Yok</option>
-      <option value="hafif">Hafif</option>
-      <option value="orta">Orta</option>
-      <option value="ciddi">Ciddi</option>
-    </select>
-  </div>
-</div>  
+            <div>
+              <label class="f-label" for="severity">Siddet</label>
+              <select id="severity" class="f-select">
+                <option value="none">Yok</option>
+                <option value="hafif">Hafif</option>
+                <option value="orta">Orta</option>
+                <option value="ciddi">Ciddi</option>
+              </select>
+            </div>
+          </div>  
 
             <div>
               <label class="f-label" for="note">Klinik Not</label>
@@ -326,7 +327,7 @@
 
             <button id="submitBtn" class="btn-main" type="button">
               <i class="fa-solid fa-paper-plane"></i>
-              Eğitimi Ver
+              EÄŸitimi Ver
             </button>
           </div>
         </section>
@@ -335,11 +336,11 @@
         <section class="panel space-y-3">
           <span class="chip" id="confChip" style="display:none;">
 
-  <i class="fa-solid fa-chart-line"></i> Güven: <span id="confValue">0</span>%
+  <i class="fa-solid fa-chart-line"></i> GÃ¼ven: <span id="confValue">0</span>%
 </span>
 
 <div id="confDisplay" class="text-xs font-bold px-2 py-1 rounded hidden" style="background: rgba(99, 202, 183, 0.2); color: var(--accent);">
-  AI Güven Skoru: %<span id="confValue">0</span>
+  AI GÃ¼ven Skoru: %<span id="confValue">0</span>
 </div>
           <h2 class="text-base" style=" font-weight:700;">Canli Kontrol</h2>
           
@@ -400,7 +401,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     chipUpdated:      document.getElementById("chipUpdated"),
     btnShowOriginal:  document.getElementById("btnShowOriginal"),
     btnShowHeatmap:   document.getElementById("btnShowHeatmap"),
-    // Confidence elementleri
     confValue:        document.getElementById("confValue"),
     confChip:         document.getElementById("confChip")
   };
@@ -411,76 +411,87 @@ document.addEventListener('DOMContentLoaded', async () => {
     analysisId: null
   };
 
-  // ─── VERİ YÜKLEME (GET) ──────────────────────────────────────────────
+  function normalizeSeverity(value) {
+    const v = String(value ?? "").trim().toLowerCase();
+    if (!v || v === "none") return "none";
+    if (v === "hafif" || v === "mild") return "hafif";
+    if (v === "orta" || v === "moderate") return "orta";
+    if (v === "ciddi" || v === "severe" || v === "critical") return "ciddi";
+    return "ciddi";
+  }
+
+  // â”€â”€â”€ VERÄ° YÃœKLEME (GET) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function loadAnalysisData() {
     
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id'); 
     
     if (!id) {
-        console.warn("URL'de 'id' parametresi bulunamadı.");
+        console.warn("URL'de 'id' parametresi bulunamadÄ±.");
         return;
     }
 
-    if (refs.chipUpdated) refs.chipUpdated.textContent = 'Veri yükleniyor...';
+    if (refs.chipUpdated) refs.chipUpdated.textContent = 'Veri yÃ¼kleniyor...';
 
     try {
       const response = await fetch(`${Ap}/api/v1/analyses/${id}`, { credentials: 'include' });
-      if (!response.ok) throw new Error("API hatası: " + response.status);
+      if (!response.ok) throw new Error("API hatasÄ±: " + response.status);
       
       const data = await response.json();
       
-      // State güncelleme
+      // State gÃ¼ncelleme
       state.analysisId = data.id;
       state.currentImagePath = data.image_path;
       state.currentHeatmapPath = data.heatmap_path;
 
       populateForm(data);
     } catch (error) {
-      console.error("Yükleme Hatası:", error);
-      if (refs.chipUpdated) refs.chipUpdated.textContent = 'Yükleme başarısız';
+      console.error("YÃ¼kleme HatasÄ±:", error);
+      if (refs.chipUpdated) refs.chipUpdated.textContent = 'YÃ¼kleme baÅŸarÄ±sÄ±z';
     }
   }
 
   function populateForm(data) {
     if (refs.caseLabel) refs.caseLabel.value = data.label || `Analiz-${data.id}`;
     
-    // Confidence (Güven Skoru) Yazdırma
+    // Confidence (GÃ¼ven Skoru) YazdÄ±rma
     if (data.confidence !== undefined && refs.confValue) {
       refs.confValue.textContent = Math.round(data.confidence);
       if (refs.confChip) refs.confChip.style.display = 'inline-flex';
     }
 
-    // Kanama Durumu (is_bleeding boolean gelmeli)
-    if (data.is_bleeding) {
+    // Bulgu Durumu (yeni: has_finding, eski: is_bleeding)
+    const hasFinding = Boolean(data.has_finding ?? data.is_bleeding ?? false);
+    if (hasFinding) {
       refs.isBleedingYes.checked = true;
     } else {
       refs.isBleedingNo.checked = true;
     }
 
-    if (refs.bleedingType) refs.bleedingType.value = data.bleeding_type || "none";
+    const findingType = data.finding_type ?? data.bleeding_type ?? "none";
+    if (refs.bleedingType) refs.bleedingType.value = findingType;
     
-    // Şiddet Ayarı
-    if (refs.severity && data.is_bleeding) {
+    // Siddet Ayari
+    if (refs.severity && hasFinding) {
       const c = data.confidence || 0;
-      refs.severity.value = c >= 90 ? 'critical' : c >= 75 ? 'severe' : c >= 55 ? 'moderate' : 'mild';
+      refs.severity.value = normalizeSeverity(data.severity || (c >= 85 ? 'ciddi' : c >= 55 ? 'orta' : 'hafif'));
     }
 
-    // Görüntü seçimi: Isı haritası varsa onu göster
+    // GÃ¶rÃ¼ntÃ¼ seÃ§imi: IsÄ± haritasÄ± varsa onu gÃ¶ster
     switchImage(state.currentHeatmapPath ? 'heatmap' : 'original');
     
     syncBleedingUI();
     updateStatusChip(data);
   }
 
-  // ─── RESİM YÖNETİMİ ──────────────────────────────────────────────────
+  // â”€â”€â”€ RESÄ°M YÃ–NETÄ°MÄ° â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function switchImage(type) {
     if (!refs.previewImg) return;
 
     const path = (type === 'heatmap') ? state.currentHeatmapPath : state.currentImagePath;
     
     if (path) {
-      // API'den gelen yolun tam URL'e dönüştürülmesi
+      // API'den gelen yolun tam URL'e dÃ¶nÃ¼ÅŸtÃ¼rÃ¼lmesi
       const fullUrl = path.startsWith('http') ? path : `${Ap}${path.startsWith('/') ? '' : '/'}${path}`;
       
       refs.previewImg.src = fullUrl;
@@ -488,32 +499,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (refs.previewPlaceholder) refs.previewPlaceholder.classList.add('hidden');
     }
 
-    // Aktif buton görseli
+    // Aktif buton gÃ¶rseli
     if (refs.btnShowOriginal && refs.btnShowHeatmap) {
       refs.btnShowOriginal.style.border = (type === 'original') ? "2px solid var(--accent)" : "1px solid var(--border)";
       refs.btnShowHeatmap.style.border = (type === 'heatmap') ? "2px solid var(--accent)" : "1px solid var(--border)";
     }
   }
 
-  // ─── VERİ GÖNDERME (POST) ───────────────────────────────────────────
+  // â”€â”€â”€ VERÄ° GÃ–NDERME (POST) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function submitPayload() {
-  // 1. URL'deki ID'yi tam sayıya (Integer) çeviriyoruz
+  // 1. URL'deki ID'yi tam sayÄ±ya (Integer) Ã§eviriyoruz
   const urlParams = new URLSearchParams(window.location.search);
   const rawId = urlParams.get('id');
-  const analysis_id = parseInt(rawId); // String'den Number'a çevir
+  const analysis_id = parseInt(rawId); // String'den Number'a Ã§evir
 
   if (isNaN(analysis_id)) {
-    alert("Geçersiz Analiz ID!");
+    alert("GeÃ§ersiz Analiz ID!");
     return;
   }
 
-  // 2. Payload oluşturma (Backend büyük ihtimalle body içinde tekrar ID istemiyor)
+  // 2. Payload olusturma (Yeni review schema)
   const isBleeding = refs.isBleedingYes.checked;
+  const normalizedSeverity = normalizeSeverity(refs.severity.value);
   const payload = {
-    // analysis_id: analysis_id, // EĞER 422 devam ederse bu satırı silip dene!
-    is_bleeding:   isBleeding,
-    bleeding_type: isBleeding ? refs.bleedingType.value : "none",
-    severity:      isBleeding ? refs.severity.value : "none",
+    has_finding:   isBleeding,
+    finding_type:  isBleeding ? refs.bleedingType.value : "none",
+    severity:      isBleeding ? normalizedSeverity : "none",
     label:         refs.caseLabel.value.trim(),
     note:          refs.note.value.trim()
   };
@@ -534,13 +545,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (response.ok) {
       if (refs.responsePreview) refs.responsePreview.textContent = JSON.stringify(result, null, 2);
-      alert("Etiket başarıyla kaydedildi.");
+      alert("Etiket baÅŸarÄ±yla kaydedildi.");
     } else {
-      // 422 hatasının detayını konsolda görmek için:
-      console.error("Doğrulama Hatası (422):", result);
+      // 422 hatasÄ±nÄ±n detayÄ±nÄ± konsolda gÃ¶rmek iÃ§in:
+      console.error("DoÄŸrulama HatasÄ± (422):", result);
       
-      // Eğer Pydantic hatası gelirse (msg ve loc içerir), daha net mesaj gösterir:
-      const errorMsg = result.detail ? JSON.stringify(result.detail) : "Kayıt sırasında hata oluştu.";
+      // EÄŸer Pydantic hatasÄ± gelirse (msg ve loc iÃ§erir), daha net mesaj gÃ¶sterir:
+      const errorMsg = result.detail ? JSON.stringify(result.detail) : "KayÄ±t sÄ±rasÄ±nda hata oluÅŸtu.";
       throw new Error(errorMsg);
     }
   } catch (error) {
@@ -551,7 +562,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 }
 
-  // ─── DİĞER FONKSİYONLAR ─────────────────────────────────────────────
+  // â”€â”€â”€ DÄ°ÄER FONKSÄ°YONLAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function syncBleedingUI() {
     const isBleeding = refs.isBleedingYes.checked;
     refs.cardBleedingNo.classList.toggle("active", !isBleeding);
@@ -563,14 +574,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         refs.severity.value = "none";
     }
     
-    // Canlı JSON önizleme
+    // Canli JSON onizleme
     if (refs.payloadPreview) {
       refs.payloadPreview.textContent = JSON.stringify({
         analysis_id: state.analysisId,
-        is_bleeding: isBleeding,
-        bleeding_type: isBleeding ? refs.bleedingType.value : null,
-        severity: refs.severity.value,
-        label: refs.caseLabel.value
+        has_finding: isBleeding,
+        finding_type: isBleeding ? refs.bleedingType.value : "none",
+        severity: isBleeding ? normalizeSeverity(refs.severity.value) : "none",
+        label: refs.caseLabel.value,
+        note: refs.note.value
       }, null, 2);
     }
   }
@@ -593,7 +605,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     refs.submitBtn.addEventListener("click", submitPayload);
     refs.resetBtn.addEventListener("click", () => {
-        if(confirm("Formu sıfırlamak istediğinize emin misiniz?")) location.reload();
+        if(confirm("Formu sÄ±fÄ±rlamak istediÄŸinize emin misiniz?")) location.reload();
     });
 
     if (window.Theme && typeof window.Theme.renderToggle === 'function') {
@@ -610,3 +622,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   <script src="Template.js"></script>
 </body>
 </html>
+

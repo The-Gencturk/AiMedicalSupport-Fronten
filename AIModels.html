@@ -305,10 +305,10 @@
       </section>
 
       <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <article class="metric"><p class="metric-label">Toplam Model</p><p id="metricTotal" class="metric-number">0</p><p class="metric-sub">Kayitli model sayisi</p></article>
+        <article class="metric"><p class="metric-label">Toplam Model</p><p id="metricTotal" class="metric-number">2</p><p class="metric-sub">Kayitli model sayisi</p></article>
         <article class="metric"><p class="metric-label">Prod Surum</p><p id="metricProd" class="metric-number">0</p><p class="metric-sub">Canli ortamda aktif</p></article>
-        <article class="metric"><p class="metric-label">Ortalama Dogruluk</p><p id="metricAccuracy" class="metric-number">0%</p><p class="metric-sub">Filtrelenmis modeller</p></article>
-        <article class="metric"><p class="metric-label">Ortalama Latency</p><p id="metricLatency" class="metric-number">0 ms</p><p class="metric-sub">P95 tahmini cevap</p></article>
+        <article class="metric"><p class="metric-label">Ortalama Dogruluk</p><p id="metricAccuracy" class="metric-number">71%</p><p class="metric-sub"> modeller</p></article>
+        <article class="metric"><p class="metric-label">Ortalama Latency</p><p id="metricLatency" class="metric-number">-</p><p class="metric-sub">Hız</p></article>
       </section>
 
       <section class="panel mt-4 p-4">
@@ -328,18 +328,17 @@
             </select>
           </div>
           <div>
-            <label for="domainFilter" class="f-label">Klinik Domain</label>
+            <label for="domainFilter" class="f-label">Domain</label>
             <select id="domainFilter" class="f-input">
               <option value="all">Tum domainler</option>
-              <option value="Beyin BT">Beyin BT</option>
-              <option value="Toraks BT">Toraks BT</option>
-              <option value="MR Flare">MR Flare</option>
             </select>
           </div>
+   
           <div class="flex items-end">
             <button id="refreshBtn" class="btn-main w-full" type="button"><i class="fa-solid fa-rotate-right"></i> Yenile</button>
           </div>
         </div>
+        <p id="fetchError" class="toast error mt-2 hidden"></p>
         <p id="actionMessage" class="toast mt-3"></p>
       </section>
 
@@ -369,6 +368,7 @@
             <tbody id="modelsBody"></tbody>
           </table>
         </div>
+        <p id="tableLoadingHint" class="px-4 py-3 text-xs hidden" style="color: var(--text-muted);">Model listesi yukleniyor...</p>
       </section>
 
       <section class="panel mt-4 p-4">
@@ -436,19 +436,33 @@
     (function () {
       "use strict";
 
-      const models = [
+      const API_ENDPOINT = window.localStorage.getItem("AI_MODELS_API_ENDPOINT") || "http://localhost:8000/api/v1/models";
+      const fallbackModels = [
         {
           id: "M-005",
-          name: "TestTraning",
+          name: "BeyinModeli",
           version: "v1.0.0",
           domain: "Beyin BT",
           status: "stage",
-          accuracy: 0,
-          latency:  ,
+          accuracy: 71,
+          latency: 144,
           updatedAt: "2026-03-21T15:32:00",
           owner: "Emergency AI",
           notes: "Acil vaka odakli konfigurasyon.",
           config: { input_size: 512, batch: 10, augment: true, threshold: 0.61 }
+        },
+        {
+          id: "M-006",
+          name: "AkcigerModeli",
+          version: "v2.1.0",
+          domain: "Toraks",
+          status: "prod",
+          accuracy: 84,
+          latency: 92,
+          updatedAt: "2026-03-26T11:10:00",
+          owner: "Thorax AI",
+          notes: "Canli ortamda aktif model.",
+          config: { input_size: 512, batch: 16, augment: false, threshold: 0.72 }
         }
       ];
 
@@ -460,8 +474,10 @@
       };
 
       const state = {
-        all: [...models],
-        filtered: [...models]
+        all: [],
+        filtered: [],
+        timer: null,
+        lastUpdated: null
       };
 
       const el = {};
@@ -477,9 +493,91 @@
       }
 
       function formatDate(raw) {
-        const d = new Date(raw);
+        const d = raw instanceof Date ? raw : new Date(raw);
         if (Number.isNaN(d.getTime())) return "Tarih yok";
         return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+      }
+
+      function parseDate(raw) {
+        if (!raw) return null;
+        const d = new Date(raw);
+        return Number.isNaN(d.getTime()) ? null : d;
+      }
+
+      function toPercent(value) {
+        if (value === null || value === undefined || value === "") return 0;
+        const n = Number(value);
+        if (!Number.isFinite(n)) return 0;
+        const normalized = n <= 1 ? n * 100 : n;
+        return Math.max(0, Math.min(100, normalized));
+      }
+
+      function toMs(value) {
+        if (value === null || value === undefined || value === "") return 0;
+        if (typeof value === "number" && Number.isFinite(value)) return Math.max(0, value);
+        const raw = String(value).trim().toLowerCase();
+        if (!raw) return 0;
+        if (raw.endsWith("ms")) {
+          const ms = Number(raw.replace("ms", "").trim());
+          return Number.isFinite(ms) ? Math.max(0, ms) : 0;
+        }
+        if (raw.endsWith("s")) {
+          const s = Number(raw.slice(0, -1).trim());
+          return Number.isFinite(s) ? Math.max(0, s * 1000) : 0;
+        }
+        const n = Number(raw);
+        return Number.isFinite(n) ? Math.max(0, n) : 0;
+      }
+
+      function normalizeStatus(value) {
+        const v = String(value ?? "").toLowerCase();
+        if (/prod|production|live|aktif/.test(v)) return "prod";
+        if (/train|training|egitim/.test(v)) return "train";
+        if (/arch|archive/.test(v)) return "arch";
+        return "stage";
+      }
+
+      function normalizeModel(item) {
+        if (!item || typeof item !== "object") return null;
+        return {
+          id: String(item.id ?? item.model_id ?? item.modelId ?? "N/A"),
+          name: item.name ?? item.model_name ?? item.modelName ?? "Model",
+          version: item.version ?? item.model_version ?? item.modelVersion ?? "v1.0.0",
+          domain: item.domain ?? item.specialty ?? item.category ?? "Genel",
+          status: normalizeStatus(item.status ?? item.environment ?? item.stage),
+          accuracy: toPercent(item.accuracy ?? item.score ?? item.metric_accuracy ?? item.metrics?.accuracy),
+          latency: toMs(item.latency ?? item.avg_latency_ms ?? item.metrics?.latency_ms),
+          updatedAt: parseDate(item.updated_at ?? item.updatedAt ?? item.created_at ?? item.timestamp) || new Date(),
+          owner: item.owner ?? item.team ?? item.created_by ?? "Bilinmiyor",
+          notes: item.notes ?? item.description ?? "Not yok",
+          config: item.config && typeof item.config === "object" ? item.config : {}
+        };
+      }
+
+      function setLoading(loading) {
+        el.refreshBtn.disabled = loading;
+        el.clearFiltersBtn.disabled = loading;
+        el.startRolloutBtn.disabled = loading;
+        el.tableLoadingHint.classList.toggle("hidden", !loading);
+        if (!loading) return;
+
+        el.modelsBody.innerHTML = Array.from({ length: 5 }, () => `
+          <tr>
+            <td colspan="7" style="padding: 0.72rem 1rem;">
+              <div style="height: 0.82rem; border-radius: 999px; background: rgba(99, 202, 183, 0.16);"></div>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      function renderError(message) {
+        if (!message) {
+          el.fetchError.classList.add("hidden");
+          el.fetchError.textContent = "";
+          return;
+        }
+        el.fetchError.textContent = message;
+        el.fetchError.classList.remove("hidden");
       }
 
       function renderRows(list) {
@@ -527,16 +625,25 @@
         el.metricTotal.textContent = String(total);
         el.metricProd.textContent = String(prodCount);
         el.metricAccuracy.textContent = `${Math.round(avgAcc)}%`;
-        el.metricLatency.textContent = `${Math.round(avgLat)} ms`;
+        el.metricLatency.textContent = total ? `${Math.round(avgLat)} ms` : "-";
         el.resultCount.textContent = `${total} model`;
-        el.headerUpdatedAt.textContent = `Son guncelleme: ${new Intl.DateTimeFormat("tr-TR", { dateStyle: "short", timeStyle: "short" }).format(new Date())}`;
+        el.headerUpdatedAt.textContent = `Son guncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henuz yok"}`;
+      }
+
+      function updateDomainFilter() {
+        const current = el.domainFilter.value;
+        const domains = [...new Set(state.all.map((m) => m.domain).filter(Boolean))].sort((a, b) => a.localeCompare(b, "tr"));
+        el.domainFilter.innerHTML = ['<option value="all">Tum domainler</option>', ...domains.map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`)].join("");
+        if (domains.includes(current)) el.domainFilter.value = current;
       }
 
       function populateRolloutModels() {
+        const current = el.rolloutModel.value;
         const candidates = state.all.filter((m) => m.status === "stage" || m.status === "train");
-        el.rolloutModel.innerHTML = candidates
+        el.rolloutModel.innerHTML = ['<option value="">Model secin</option>', ...candidates
           .map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)} ${escapeHtml(m.version)} (${escapeHtml(m.domain)})</option>`)
-          .join("");
+        ].join("");
+        if (candidates.some((m) => m.id === current)) el.rolloutModel.value = current;
       }
 
       function updateRolloutHint() {
@@ -573,8 +680,15 @@
       }
 
       function showMessage(text, isError) {
+        clearTimeout(state.timer);
         el.actionMessage.textContent = text || "";
         el.actionMessage.classList.toggle("error", Boolean(isError));
+        if (text) {
+          state.timer = setTimeout(() => {
+            el.actionMessage.textContent = "";
+            el.actionMessage.classList.remove("error");
+          }, 3200);
+        }
       }
 
       function openDetail(id) {
@@ -606,11 +720,54 @@
         document.body.style.overflow = "";
       }
 
+      async function loadModels() {
+        setLoading(true);
+        renderError("");
+
+        try {
+          const res = await fetch(API_ENDPOINT, {
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
+          });
+          if (!res.ok) throw new Error(`Veri alinamadi (HTTP ${res.status})`);
+
+          const payload = await res.json();
+          const rawList = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload.items)
+            ? payload.items
+            : Array.isArray(payload.results)
+            ? payload.results
+            : Array.isArray(payload.data)
+            ? payload.data
+            : Array.isArray(payload.models)
+            ? payload.models
+            : [];
+
+          state.all = rawList.map(normalizeModel).filter(Boolean);
+          state.lastUpdated = new Date();
+          updateDomainFilter();
+          populateRolloutModels();
+          applyFilters();
+          showMessage("Model listesi guncellendi.", false);
+        } catch (error) {
+          state.all = fallbackModels.map(normalizeModel).filter(Boolean);
+          state.lastUpdated = new Date();
+          updateDomainFilter();
+          populateRolloutModels();
+          applyFilters();
+          renderError(error?.message || "Model listesi yuklenemedi.");
+          showMessage("API erisimi basarisiz. Ornek veri gosteriliyor.", true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
       function initElements() {
         [
           "headerUpdatedAt", "metricTotal", "metricProd", "metricAccuracy", "metricLatency",
           "searchInput", "statusFilter", "domainFilter", "refreshBtn", "clearFiltersBtn",
-          "resultCount", "modelsBody", "actionMessage", "rolloutModel", "rolloutPercent",
+          "resultCount", "modelsBody", "actionMessage", "fetchError", "tableLoadingHint", "rolloutModel", "rolloutPercent",
           "rolloutPercentLabel", "rolloutHint", "startRolloutBtn", "detailModal", "closeDetailBtn",
           "modalTitle", "modalStatus", "modalLatency", "modalAccuracy", "modalModelId", "modalVersion",
           "modalOwner", "modalDomain", "modalNotes", "modalConfig"
@@ -626,8 +783,7 @@
         el.domainFilter.addEventListener("change", doFilter);
 
         el.refreshBtn.addEventListener("click", () => {
-          applyFilters();
-          showMessage("Model listesi guncellendi.", false);
+          loadModels();
         });
 
         el.clearFiltersBtn.addEventListener("click", () => {
@@ -670,10 +826,8 @@
 
       function init() {
         initElements();
-        populateRolloutModels();
-        applyFilters();
-        updateRolloutHint();
         initEvents();
+        loadModels().finally(updateRolloutHint);
 
         if (window.Theme && typeof window.Theme.renderToggle === "function") {
           window.Theme.renderToggle("themeBtn");

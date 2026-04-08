@@ -491,8 +491,29 @@
         </p>
       </div>
 
-      <!-- Drop Zone -->
       <div class="fade-up fade-up-3">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold uppercase tracking-widest field-label">Tanilama Tipi</label>
+          <span class="opt-badge">Otomatik</span>
+        </div>
+        <div class="select-wrapper">
+          <i class="fa-solid fa-layer-group s-icon" style="color:var(--accent-light);"></i>
+          <select id="scanTypeSelect" class="input-field w-full py-3 text-sm">
+            <option value="brain">Brain</option>
+            <option value="lung">Lung</option>
+            <option value="abdomen">Abdomen</option>
+          </select>
+          <i class="fa-solid fa-chevron-down s-arrow"></i>
+        </div>
+        <div id="predictApiInfo" class="mt-2 text-xs rounded-lg p-3 stat-chip">
+          <p id="predictInfo" style="color:var(--text-muted);">Tarama tipi: henuz tahmin edilmedi</p>
+          <p id="predictMeta" class="mt-1" style="color:var(--text-muted);">API sonucu bekleniyor</p>
+          <p id="predictCandidates" class="mt-1" style="color:var(--text-muted);"></p>
+        </div>
+      </div>
+
+      <!-- Drop Zone -->
+      <div class="fade-up fade-up-4">
         <label class="block text-xs font-semibold mb-2 uppercase tracking-widest field-label" style=" ">
           Tomografi Görüntüsü
         </label>
@@ -529,15 +550,14 @@
       </div>
 
       <!-- Step dots -->
-      <div class="fade-up fade-up-4 flex items-center gap-2 px-1">
+      <div class="fade-up fade-up-5 flex items-center gap-2 px-1">
         <div class="step-dot active" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
         <div class="step-dot" id="dot3"></div>
         <span class="text-xs ml-1" id="stepLabel">Görüntü seçin</span>
       </div>
-
       <!-- Submit -->
-      <div class="fade-up fade-up-5">
+      <div class="fade-up fade-up-6">
         <button id="submitBtn" class="btn-primary w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-3" disabled>
           <i class="fa-solid fa-magnifying-glass-chart"></i>
           Analizi Başlat
@@ -707,9 +727,14 @@
 
 <script>
 
+    const API_BASE = window.localStorage.getItem('API_BASE_URL') || 'http://localhost:8000';
+    const API_ROOT = `${API_BASE}/api/v1`;
+
     document.addEventListener('DOMContentLoaded', async () => {
      Theme.renderToggle('themeBtn');
-   const user = await getCurrentUser();
+     if (typeof getCurrentUser === 'function') {
+       await getCurrentUser();
+     }
   });
 
 
@@ -738,15 +763,20 @@
   const dot2 = document.getElementById('dot2');
   const dot3 = document.getElementById('dot3');
   const stepLabel = document.getElementById('stepLabel');
+  const scanTypeSelect = document.getElementById('scanTypeSelect');
+  const predictInfo = document.getElementById('predictInfo');
+  const predictMeta = document.getElementById('predictMeta');
+  const predictCandidates = document.getElementById('predictCandidates');
 
   let selectedFile   = null;
   let lastPatientId  = null;
   let lastAnalysisId = null;
+  let predictedScanType = 'brain';
 
   // ── Hastaları çek ──
   async function loadPatients() {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/patients', { credentials: 'include' });
+      const res = await fetch(`${API_ROOT}/patients`, { credentials: 'include' });
       if (!res.ok) throw new Error();
       const patients = await res.json();
       patients.forEach(p => {
@@ -781,6 +811,124 @@
   // ── Dosya seçimi ──
   fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
 
+  function normalizePredictedType(raw) {
+    const v = String(raw ?? '').trim().toLowerCase();
+    if (!v) return null;
+    if (v.includes('brain') || v.includes('head') || v.includes('beyin')) return 'brain';
+    if (v.includes('chest') || v.includes('lung') || v.includes('thorax') || v.includes('toraks')) return 'lung';
+    if (v.includes('abdo')) return 'abdomen';
+    return v;
+  }
+
+  function setScanTypeOptions(availableTypes = []) {
+    const normalized = availableTypes
+      .map((t) => normalizePredictedType(t))
+      .filter((t, i, arr) => t && arr.indexOf(t) === i);
+
+    if (!normalized.length) return;
+
+    const current = scanTypeSelect.value;
+    scanTypeSelect.innerHTML = normalized
+      .map((t) => `<option value="${t}">${t.toUpperCase()}</option>`)
+      .join('');
+
+    if (normalized.includes(current)) scanTypeSelect.value = current;
+    else scanTypeSelect.value = normalized[0];
+  }
+
+  async function predictScanType(file) {
+    if (!file) {
+      predictInfo.textContent = 'Once goruntu secin';
+      predictMeta.textContent = 'Dosya secilmeden tahmin yapilamaz';
+      predictCandidates.textContent = '';
+      return;
+    }
+    predictInfo.textContent = 'Tarama tipi tahmin ediliyor...';
+    predictMeta.textContent = 'API yaniti bekleniyor...';
+    predictCandidates.textContent = '';
+    try {
+      const predictEndpoints = [
+        `${API_ROOT}/Organ/analyzePredict`
+      ];
+
+      let json = null;
+      let usedEndpoint = '';
+      let lastError = null;
+
+      for (const endpoint of predictEndpoints) {
+        const attemptFd = new FormData();
+        attemptFd.append('file', file);
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            credentials: 'include',
+            body: attemptFd
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            const msg = err?.detail || `HTTP ${res.status}`;
+            if (res.status === 404) {
+              lastError = new Error(`${msg} @ ${endpoint}`);
+              continue;
+            }
+            throw new Error(`${msg} @ ${endpoint}`);
+          }
+
+          json = await res.json();
+          usedEndpoint = endpoint;
+          break;
+        } catch (e) {
+          lastError = e;
+        }
+      }
+
+      if (!json) {
+        throw lastError || new Error('Tahmin endpointi bulunamadi');
+      }
+      const data = json?.data && typeof json.data === 'object' ? json.data : {};
+      const rawType = data.suggested_scan_type ?? data.scan_type ?? data.scanType ?? data.prediction ?? data.label ?? null;
+      const rawScore = data.confidence ?? data.calibrated_confidence ?? data.score ?? data.probability ?? null;
+      const rawConfidence = data.raw_confidence ?? null;
+      const processTime = json?.process_time ?? data.process_time ?? data.processTime ?? null;
+      const success = Boolean(json?.success);
+      const message = data.message ?? '';
+      const topGap = data.top_gap ?? null;
+      const needsManualReview = Boolean(data.needs_manual_review);
+      const autoDetected = Boolean(data.auto_detected);
+      const availableTypes = Array.isArray(data.available_types) ? data.available_types : [];
+      const candidates = Array.isArray(data.candidates) ? data.candidates : [];
+
+      setScanTypeOptions(availableTypes);
+      const nextType = normalizePredictedType(rawType);
+      if (nextType) {
+        predictedScanType = nextType;
+        if (Array.from(scanTypeSelect.options).some((o) => o.value === nextType)) {
+          scanTypeSelect.value = nextType;
+        }
+      }
+
+      let scoreText = '';
+      if (typeof rawScore === 'number' && Number.isFinite(rawScore)) {
+        const pct = rawScore <= 1 ? Math.round(rawScore * 100) : Math.round(rawScore);
+        scoreText = ` (%${pct})`;
+      }
+
+      predictInfo.textContent = nextType
+        ? `Tarama tipi: ${nextType}${scoreText}${needsManualReview ? ' (manuel kontrol onerilir)' : ''}`
+        : 'Tarama tipi tahmin edildi ama okunamadi';
+      predictMeta.textContent = `${message || 'Tahmin alindi'} | Süre: ${processTime ?? '-'} sn`;
+      predictCandidates.textContent = candidates.length
+        ? `Bulgular: ${candidates.map((c) => `${normalizePredictedType(c.scan_type) ?? c.scan_type} %${c.calibrated_confidence ?? '-'}`).join(' | ')}${autoDetected ? ' | auto_detected: true' : ''}`
+        : '';
+    } catch (err) {
+      predictedScanType = 'brain';
+      predictInfo.textContent = 'Tarama tipi tahmini alinamadi, varsayilan: brain';
+      predictMeta.textContent = err?.message || 'Tahmin hatasi';
+      predictCandidates.textContent = '';
+    }
+  }
+
   function handleFile(file) {
     if (!file) return;
     selectedFile = file;
@@ -799,6 +947,7 @@
     };
     reader.readAsDataURL(file);
     updateState();
+    predictScanType(file);
   }
 
   // ── Drag & drop ──
@@ -834,9 +983,10 @@
     const formData = new FormData();
     formData.append('file', selectedFile);
 
-    let url = 'http://localhost:8000/api/v1/analyzeCreate';
+    const selectedScanType = scanTypeSelect?.value || predictedScanType || 'brain';
+    let url = `${API_ROOT}/analyzeCreate?scan_type=${encodeURIComponent(selectedScanType)}`;
     if (selectedPatientId) {
-      url += `?patient_id=${encodeURIComponent(selectedPatientId)}`;
+      url += `&patient_id=${encodeURIComponent(selectedPatientId)}`;
     }
 
     try {
@@ -894,7 +1044,6 @@
     document.getElementById('statAnalysis').textContent = analysisId;
     document.getElementById('statClass').textContent = data.class_index !== undefined ? '#' + data.class_index : '—';
 
-    const API_BASE = 'http://localhost:8000';
     window._originalUrl = data.image_path   ? API_BASE + data.image_path   : null;
     window._heatmapUrl  = data.heatmap_path ? API_BASE + data.heatmap_path : null;
 
@@ -962,6 +1111,11 @@
     resultArea.style.display = '';
     resultPlaceholder.classList.remove('hidden');
     document.getElementById('confBar').style.width = '0%';
+    predictInfo.textContent = 'Tarama tipi: henuz tahmin edilmedi';
+    predictMeta.textContent = 'API sonucu bekleniyor';
+    predictCandidates.textContent = '';
+    predictedScanType = 'brain';
+    if (scanTypeSelect) scanTypeSelect.value = 'brain';
     updateState();
   }
 
@@ -970,6 +1124,12 @@
   }
 
   // ── Init ──
+  if (scanTypeSelect) {
+    scanTypeSelect.addEventListener('change', () => {
+      predictedScanType = scanTypeSelect.value || 'brain';
+      predictInfo.textContent = `Tarama tipi: ${predictedScanType} (manuel secim)`;
+    });
+  }
   resetForm();
   loadPatients();
 </script>
