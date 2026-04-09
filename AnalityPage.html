@@ -217,6 +217,13 @@
       font-size: 0.82rem;
       white-space: nowrap;
     }
+    .row-select,
+    .select-all {
+      width: 16px;
+      height: 16px;
+      accent-color: #3b9e8a;
+      cursor: pointer;
+    }
     .toast { min-height: 1.1rem; color: var(--text-muted); font-size: 0.8rem; }
     .toast.error { color: #ef4444; }
     .modal-backdrop {
@@ -292,10 +299,10 @@
       <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="metric"><p class="metric-label">Toplam Analiz</p><p id="metricTotal" class="metric-number">0</p><p class="metric-sub">Filtrelenmiş kayıtlar</p></article>
         <article class="metric"><p class="metric-label">Ortalama Güven</p><p id="metricAverage" class="metric-number">0%</p><p class="metric-sub">Model güven ortalaması</p></article>
-        <article class="metric"><p class="metric-label">Kritik Bulgular</p><p id="metricCritical" class="metric-number">0</p><p class="metric-sub">Acil yorum önerilir</p></article>
+    
         <article class="metric"><p class="metric-label">Son 24 Saat</p><p id="metricRecent" class="metric-number">0</p><p class="metric-sub">Yeni analiz sayısı</p></article>
           <article onclick="window.location.href='AnalisyCreate.html'"  class="metric"><p class="metric-label">Yeni Analiz Oluşur</p><p  class="metric-number"><i class="fa fa-plus" aria-hidden="true"></i></p><p class="metric-sub">Yeni Analiz Oluştur</p></article>
-           <article onclick="window.location.href='AnalisyCreate.html'"  class="metric"><p class="metric-label">Yeni Analiz Oluşur</p><p  class="metric-number"><i class="fa fa-minus" aria-hidden="true"></i></p><p class="metric-sub">Seçili Analizleri Sil</p></article>
+      
       </section>
 
       <section class="panel mt-4 p-4">
@@ -330,6 +337,8 @@
           <button id="refreshBtn" class="btn-main" type="button"><i class="fa-solid fa-rotate-right"></i> Yenile</button>
           <button id="clearFiltersBtn" class="btn-lite" type="button"><i class="fa-solid fa-filter-circle-xmark"></i> Filtreleri Temizle</button>
           <button id="exportCsvBtn" class="btn-lite" type="button"><i class="fa-solid fa-file-csv"></i> CSV Dışa Aktar</button>
+          <button id="bulkDeleteBtn" class="btn-lite" type="button" disabled><i class="fa-solid fa-trash-can"></i> Seçilileri Sil</button>
+          <span id="selectedCount" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">0 seçili</span>
           <p id="actionMessage" class="toast ml-auto"></p>
         </div>
       </section>
@@ -347,6 +356,7 @@
           <table>
             <thead>
               <tr>
+                <th><input id="selectAll" class="select-all" type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Analiz ID</th>
                 <th>Hasta</th>
                 <th>Doktor</th>
@@ -373,11 +383,13 @@
       "use strict";
 
       const API_ENDPOINT = "http://localhost:8000/api/v1/analyses";
+      const BULK_DELETE_ENDPOINT = "http://localhost:8000/api/v1/analyses/BulkDelete";
       const state = {
         analyses: [],
         filtered: [],
         lastUpdated: null,
-        timer: null
+        timer: null,
+        selectedIds: new Set()
       };
 
       const el = {};
@@ -472,13 +484,14 @@
       function setLoading(loading) {
         el.refreshBtn.disabled = loading;
         el.exportCsvBtn.disabled = loading;
+        el.bulkDeleteBtn.disabled = loading || !state.selectedIds.size;
         el.tableLoadingHint.classList.toggle("hidden", !loading);
 
         if (!loading) return;
 
         const placeholders = Array.from({ length: 6 }, () => `
           <tr>
-            <td colspan="7" style="padding: 0.72rem 1rem;">
+            <td colspan="8" style="padding: 0.72rem 1rem;">
               <div style="height: 0.82rem; border-radius: 999px; background: rgba(99, 202, 183, 0.16);"></div>
             </td>
           </tr>
@@ -501,9 +514,10 @@
         if (!list.length) {
           el.analysesBody.innerHTML = `
             <tr>
-              <td colspan="7" style="padding: 1.2rem 1rem; text-align:center; color: var(--text-muted);">Eşleşen analiz bulunamadı.</td>
+              <td colspan="8" style="padding: 1.2rem 1rem; text-align:center; color: var(--text-muted);">Eşleşen analiz bulunamadı.</td>
             </tr>
           `;
+          syncSelectionUi();
           return;
         } 
 
@@ -515,6 +529,15 @@
 
             return `
               <tr>
+                <td>
+                  <input
+                    class="row-select"
+                    type="checkbox"
+                    data-id="${escapeHtml(a.id)}"
+                    ${state.selectedIds.has(String(a.id)) ? "checked" : ""}
+                    aria-label="#A-${escapeHtml(a.id)} seç"
+                  />
+                </td>
                 <td><span class="badge-id">#A-${escapeHtml(a.id)}</span></td>
                 <td><div class="font-semibold">${escapeHtml(a.patient)}</div></td>
                 <td>${escapeHtml(a.doctor)}</td>
@@ -542,6 +565,8 @@
             `;
           })
           .join("");
+
+        syncSelectionUi();
       }
 
       function updateMetrics(list) {
@@ -551,12 +576,26 @@
         const critical = list.filter((a) => classifyResult(a.result).key === "critical").length;
         const recent = list.filter((a) => a.createdAt && Date.now() - a.createdAt.getTime() <= 24 * 60 * 60 * 1000).length;
 
-        el.metricTotal.textContent = String(total);
-        el.metricAverage.textContent = `${Math.round(avg)}%`;
-        el.metricCritical.textContent = String(critical);
-        el.metricRecent.textContent = String(recent);
-        el.resultCount.textContent = `${total} kayıt`;
-        el.headerUpdatedAt.textContent = `Son güncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henüz yok"}`;
+        if (el.metricTotal) el.metricTotal.textContent = String(total);
+        if (el.metricAverage) el.metricAverage.textContent = `${Math.round(avg)}%`;
+        if (el.metricCritical) el.metricCritical.textContent = String(critical);
+        if (el.metricRecent) el.metricRecent.textContent = String(recent);
+        if (el.resultCount) el.resultCount.textContent = `${total} kayıt`;
+        if (el.headerUpdatedAt) el.headerUpdatedAt.textContent = `Son güncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henüz yok"}`;
+      }
+
+      function syncSelectionUi() {
+        const visibleIds = state.filtered.map((a) => String(a.id));
+        const selectedVisibleCount = visibleIds.filter((id) => state.selectedIds.has(id)).length;
+        const hasVisible = visibleIds.length > 0;
+
+        if (el.selectedCount) el.selectedCount.textContent = `${state.selectedIds.size} seçili`;
+        if (el.bulkDeleteBtn) el.bulkDeleteBtn.disabled = !state.selectedIds.size;
+
+        if (el.selectAll) {
+          el.selectAll.checked = hasVisible && selectedVisibleCount === visibleIds.length;
+          el.selectAll.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+        }
       }
       function updateDoctorFilter() {
         const current = el.doctorFilter.value;
@@ -593,6 +632,22 @@
         updateMetrics(state.filtered);
       }
 
+      function toggleRowSelection(id, checked) {
+        const key = String(id);
+        if (checked) state.selectedIds.add(key);
+        else state.selectedIds.delete(key);
+        syncSelectionUi();
+      }
+
+      function toggleSelectAll(checked) {
+        state.filtered.forEach((a) => {
+          const key = String(a.id);
+          if (checked) state.selectedIds.add(key);
+          else state.selectedIds.delete(key);
+        });
+        renderRows(state.filtered);
+      }
+
       function sortByDate(list) {
         return list.sort((a, b) => {
           const ta = a.createdAt ? a.createdAt.getTime() : -Infinity;
@@ -627,6 +682,8 @@
             : [];
 
           state.analyses = sortByDate(rawList.map(normalizeAnalysis).filter(Boolean));
+          const validIds = new Set(state.analyses.map((a) => String(a.id)));
+          state.selectedIds = new Set([...state.selectedIds].filter((id) => validIds.has(id)));
           state.lastUpdated = new Date();
           updateDoctorFilter();
           applyFilters();
@@ -634,6 +691,7 @@
         } catch (error) {
           state.analyses = [];
           state.filtered = [];
+          state.selectedIds.clear();
           renderRows([]);
           updateMetrics([]);
           renderError(error?.message || "Analiz listesi yüklenemedi.");
@@ -708,41 +766,105 @@
         applyFilters();
         setMessage("Filtreler temizlendi.", false);
       }
+      
+    async function bulkDeleteSelected() {
+  if (!state.selectedIds.size) {
+    setMessage("Silinecek kayıt seçilmedi.", true);
+    return;
+  }
+
+  if (!BULK_DELETE_ENDPOINT) {
+    setMessage("Toplu silme API adresi tanımlı değil.", true);
+    return;
+  }
+
+  const selectedIds = [...state.selectedIds].map(id => Number(id));
+
+
+  setTimeout(async () => {
+    const approved = window.confirm(`${selectedIds.length} kayıt silinecek. Onaylıyor musunuz?`);
+    if (!approved) return;
+
+    el.bulkDeleteBtn.disabled = true;
+    console.log(selectedIds, typeof selectedIds[0]);
+    try {
+      const res = await fetch(BULK_DELETE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ analysis_ids: selectedIds })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Toplu silme başarısız (HTTP ${res.status})`);
+      }
+
+      state.selectedIds.clear();
+      setMessage(`${selectedIds.length} kayıt başarıyla silindi.`, false);
+
+      // 🔥 bloklamaz
+      loadAnalyses();
+
+    } catch (error) {
+      setMessage(error?.message || "Toplu silme işlemi başarısız.", true);
+      syncSelectionUi();
+    }
+
+  }, 0);
+}
 
       function initEvents() {
-        const doFilter = () => applyFilters();
-        el.searchInput.addEventListener("input", doFilter);
-        el.statusFilter.addEventListener("change", doFilter);
-        el.doctorFilter.addEventListener("change", doFilter);
-        el.dateFrom.addEventListener("change", doFilter);
-        el.dateTo.addEventListener("change", doFilter);
+  const doFilter = () => applyFilters();
 
-        el.refreshBtn.addEventListener("click", loadAnalyses);
-        el.clearFiltersBtn.addEventListener("click", clearFilters);
-        el.exportCsvBtn.addEventListener("click", exportCsv);
+  if (el.searchInput) el.searchInput.addEventListener("input", doFilter);
+  if (el.statusFilter) el.statusFilter.addEventListener("change", doFilter);
+  if (el.doctorFilter) el.doctorFilter.addEventListener("change", doFilter);
+  if (el.dateFrom) el.dateFrom.addEventListener("change", doFilter);
+  if (el.dateTo) el.dateTo.addEventListener("change", doFilter);
 
-        el.analysesBody.addEventListener("click", (event) => {
-          const btn = event.target.closest("button[data-action='detail']");
-          if (!btn) return;
-          openDetail(btn.dataset.id);
-        });
+  if (el.refreshBtn) el.refreshBtn.addEventListener("click", loadAnalyses);
+  if (el.clearFiltersBtn) el.clearFiltersBtn.addEventListener("click", clearFilters);
+  if (el.exportCsvBtn) el.exportCsvBtn.addEventListener("click", exportCsv);
+  if (el.bulkDeleteBtn) el.bulkDeleteBtn.addEventListener("click", bulkDeleteSelected);
+  if (el.bulkDeleteCard) el.bulkDeleteCard.addEventListener("click", bulkDeleteSelected);
+  if (el.selectAll) el.selectAll.addEventListener("change", (event) => toggleSelectAll(event.target.checked));
 
+  if (el.analysesBody) {
+    el.analysesBody.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-action='detail']");
+      if (!btn) return;
+      openDetail(btn.dataset.id);
+    });
 
-
-  
-      }
+    el.analysesBody.addEventListener("change", (event) => {
+      const checkbox = event.target.closest(".row-select");
+      if (!checkbox) return;
+      toggleRowSelection(checkbox.dataset.id, checkbox.checked);
+    });
+  }
+}
 
       function initElements() {
-        [
-          "headerUpdatedAt", "metricTotal", "metricAverage", "metricCritical", "metricRecent",
-          "searchInput", "statusFilter", "doctorFilter", "dateFrom", "dateTo",
-          "refreshBtn", "clearFiltersBtn", "exportCsvBtn", "actionMessage",
-          "fetchError", "tableLoadingHint", "resultCount", "analysesBody",
-          "modalCreatedAt", "modalAnalysisId", "modalPatient", "modalDoctor", "modalResultRaw", "modalRawJson"
-        ].forEach((id) => {
-          el[id] = pick(id);
-        });
-      }
+  [
+    "headerUpdatedAt", "metricTotal", "metricAverage",
+    "metricCritical", "metricRecent",
+    "searchInput", "statusFilter", "doctorFilter",
+    "dateFrom", "dateTo",
+    "refreshBtn", "clearFiltersBtn", "exportCsvBtn",
+    "bulkDeleteBtn", "selectedCount", "selectAll",
+    "bulkDeleteCard", "actionMessage",
+    "fetchError", "tableLoadingHint", "resultCount",
+    "analysesBody"
+  ].forEach((id) => {
+    const element = pick(id); // ✅ BURASI ŞART
+
+    if (!element) {
+      console.warn("ELEMENT BULUNAMADI:", id);
+    }
+
+    el[id] = element; // ✅ artık var
+  });
+}
 
       function init() {
         initElements();
