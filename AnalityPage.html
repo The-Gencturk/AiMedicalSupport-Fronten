@@ -226,6 +226,21 @@
     }
     .toast { min-height: 1.1rem; color: var(--text-muted); font-size: 0.8rem; }
     .toast.error { color: #ef4444; }
+    .pager {
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.8rem 1rem;
+      background: var(--bg-card);
+    }
+    .pager-info {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -358,7 +373,8 @@
               <tr>
                 <th><input id="selectAll" class="select-all" type="checkbox" aria-label="Tümünü seç" /></th>
                 <th>Analiz ID</th>
-                <th>Hasta</th>
+                <th>ORGAN</th>
+                <th>Durum</th>
                 <th>Doktor</th>
                 <th>Sonuç</th>
                 <th>Güven</th>
@@ -368,6 +384,17 @@
             </thead>
             <tbody id="analysesBody"></tbody>
           </table>
+        </div>
+        <div class="pager">
+          <span id="paginationInfo" class="pager-info">Sayfa 1</span>
+          <div class="flex items-center gap-2">
+            <button id="prevPageBtn" class="btn-lite !text-xs !px-3 !py-2" type="button">
+              <i class="fa-solid fa-chevron-left"></i> Önceki
+            </button>
+            <button id="nextPageBtn" class="btn-lite !text-xs !px-3 !py-2" type="button">
+              Sonraki <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -389,7 +416,13 @@
         filtered: [],
         lastUpdated: null,
         timer: null,
-        selectedIds: new Set()
+        selectedIds: new Set(),
+        pagination: {
+          currentPage: 1,
+          pageSize: 20,
+          totalCount: null,
+          hasNext: false
+        }
       };
 
       const el = {};
@@ -431,7 +464,8 @@
         if (!item || typeof item !== "object") return null;
         return {
           id: item.id ?? item.analysis_id ?? item.analysisId ?? "N/A",
-          patient: item.patient_name ?? item.patientName ?? item.patient?.name ?? item.patient?.full_name ?? "Bilinmiyor",
+          organ: item.scan_type ?? item.scan_type ?? "Bilinmiyor",
+          patient: item.status ?? item.status ?? item.scan_type ?? "Bilinmiyor",
           doctor: item.doctor_name ?? item.doctorName ?? item.doctor?.name ?? item.doctor?.full_name ?? "Bilinmiyor",
           result: item.result ?? item.prediction ?? item.label ?? item.status ?? "Bilinmiyor",
           confidence: toPercent(item.confidence ?? item.score ?? item.probability ?? null),
@@ -485,6 +519,8 @@
         el.refreshBtn.disabled = loading;
         el.exportCsvBtn.disabled = loading;
         el.bulkDeleteBtn.disabled = loading || !state.selectedIds.size;
+        if (el.prevPageBtn) el.prevPageBtn.disabled = loading || state.pagination.currentPage <= 1;
+        if (el.nextPageBtn) el.nextPageBtn.disabled = loading || !state.pagination.hasNext;
         el.tableLoadingHint.classList.toggle("hidden", !loading);
 
         if (!loading) return;
@@ -538,7 +574,9 @@
                     aria-label="#A-${escapeHtml(a.id)} seç"
                   />
                 </td>
+   
                 <td><span class="badge-id">#A-${escapeHtml(a.id)}</span></td>
+               <td><span class="font-semibold">${escapeHtml(a.organ)}</span></td>
                 <td><div class="font-semibold">${escapeHtml(a.patient)}</div></td>
                 <td>${escapeHtml(a.doctor)}</td>
                 <td>
@@ -630,6 +668,7 @@
 
         renderRows(state.filtered);
         updateMetrics(state.filtered);
+        updatePaginationUi();
       }
 
       function toggleRowSelection(id, checked) {
@@ -656,12 +695,43 @@
         });
       }
 
-      async function loadAnalyses() {
+      function parseHeaderInt(headers, key) {
+        const v = headers.get(key);
+        const n = Number(v);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      }
+
+      function updatePaginationUi() {
+        const page = state.pagination.currentPage;
+        const size = state.pagination.pageSize;
+        const total = state.pagination.totalCount;
+        const start = state.filtered.length ? (page - 1) * size + 1 : 0;
+        const end = state.filtered.length ? (page - 1) * size + state.filtered.length : 0;
+        const totalText = Number.isFinite(total) ? `${start}-${end} / ${total}` : `${start}-${end}`;
+
+        if (el.paginationInfo) {
+          el.paginationInfo.textContent = `Sayfa ${page} • ${totalText}`;
+        }
+        if (el.prevPageBtn) {
+          el.prevPageBtn.disabled = page <= 1;
+        }
+        if (el.nextPageBtn) {
+          el.nextPageBtn.disabled = !state.pagination.hasNext;
+        }
+      }
+
+      async function loadAnalyses(page = state.pagination.currentPage) {
         setLoading(true);
         renderError("");
 
+        const requestedPage = Math.max(1, Number(page) || 1);
+        const params = new URLSearchParams({
+          page: String(requestedPage),
+          page_size: String(state.pagination.pageSize)
+        });
+
         try {
-          const res = await fetch(API_ENDPOINT, {
+          const res = await fetch(`${API_ENDPOINT}?${params}`, {
             headers: { "Content-Type": "application/json" },
             credentials: "include"
           });
@@ -681,19 +751,36 @@
             ? payload.analyses
             : [];
 
+          const currentHeader = parseHeaderInt(res.headers, "x-current-page");
+          const sizeHeader = parseHeaderInt(res.headers, "x-page-size");
+          const totalHeader =
+            parseHeaderInt(res.headers, "x-total-count") ??
+            parseHeaderInt(res.headers, "x-total-items") ??
+            parseHeaderInt(res.headers, "x-total");
+
+          state.pagination.currentPage = currentHeader || requestedPage;
+          state.pagination.pageSize = sizeHeader || state.pagination.pageSize;
+          state.pagination.totalCount = totalHeader ?? state.pagination.totalCount;
+
           state.analyses = sortByDate(rawList.map(normalizeAnalysis).filter(Boolean));
           const validIds = new Set(state.analyses.map((a) => String(a.id)));
           state.selectedIds = new Set([...state.selectedIds].filter((id) => validIds.has(id)));
+          state.pagination.hasNext = Number.isFinite(state.pagination.totalCount)
+            ? state.pagination.currentPage * state.pagination.pageSize < state.pagination.totalCount
+            : state.analyses.length >= state.pagination.pageSize;
           state.lastUpdated = new Date();
           updateDoctorFilter();
           applyFilters();
+          updatePaginationUi();
           setMessage("Analiz listesi güncellendi.", false);
         } catch (error) {
           state.analyses = [];
           state.filtered = [];
           state.selectedIds.clear();
+          state.pagination.hasNext = false;
           renderRows([]);
           updateMetrics([]);
+          updatePaginationUi();
           renderError(error?.message || "Analiz listesi yüklenemedi.");
           setMessage("Yükleme başarısız. Tekrar deneyin.", true);
         } finally {
@@ -735,9 +822,10 @@
           return;
         }
 
-        const headers = ["analiz_id", "hasta", "doktor", "sonuc", "guven", "tarih"];
+        const headers = ["analiz_id", "Durum", "doktor", "sonuc", "guven", "tarih"];
         const rows = state.filtered.map((a) => [
           a.id,
+          a.organ,
           a.patient,
           a.doctor,
           a.result,
@@ -813,7 +901,7 @@
   }, 0);
 }
 
-      function initEvents() {
+function initEvents() {
   const doFilter = () => applyFilters();
 
   if (el.searchInput) el.searchInput.addEventListener("input", doFilter);
@@ -828,6 +916,18 @@
   if (el.bulkDeleteBtn) el.bulkDeleteBtn.addEventListener("click", bulkDeleteSelected);
   if (el.bulkDeleteCard) el.bulkDeleteCard.addEventListener("click", bulkDeleteSelected);
   if (el.selectAll) el.selectAll.addEventListener("change", (event) => toggleSelectAll(event.target.checked));
+  if (el.prevPageBtn) {
+    el.prevPageBtn.addEventListener("click", () => {
+      if (state.pagination.currentPage <= 1) return;
+      loadAnalyses(state.pagination.currentPage - 1);
+    });
+  }
+  if (el.nextPageBtn) {
+    el.nextPageBtn.addEventListener("click", () => {
+      if (!state.pagination.hasNext) return;
+      loadAnalyses(state.pagination.currentPage + 1);
+    });
+  }
 
   if (el.analysesBody) {
     el.analysesBody.addEventListener("click", (event) => {
@@ -854,7 +954,7 @@
     "bulkDeleteBtn", "selectedCount", "selectAll",
     "bulkDeleteCard", "actionMessage",
     "fetchError", "tableLoadingHint", "resultCount",
-    "analysesBody"
+    "analysesBody", "paginationInfo", "prevPageBtn", "nextPageBtn"
   ].forEach((id) => {
     const element = pick(id); // ✅ BURASI ŞART
 
