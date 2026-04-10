@@ -340,7 +340,7 @@
               <select id="careFilter" class="f-input">
               <option value="all">Tümü</option>
               <option value="Beklemede">Beklemede</option>
-              <option value="KotrolEdil">Kotrol Edildi</option>
+              <option value="Kontrol Edildi">Kontrol Edildi</option>
               <option value="Eğitildi">Eğitildi</option>
             </select>
           </div>
@@ -614,7 +614,7 @@
       }
 
       function updateMetrics(list) {
-        const total = list.length;
+        const total = state.pagination.totalCount;
         const confs = list.map((a) => a.confidence).filter((c) => typeof c === "number");
         const avg = confs.length ? confs.reduce((sum, c) => sum + c, 0) / confs.length : 0;
         const critical = list.filter((a) => classifyResult(a.result).key === "critical").length;
@@ -729,7 +729,7 @@
       async function loadAnalyses(page = state.pagination.currentPage) {
         setLoading(true);
         renderError("");
-
+       
         const requestedPage = Math.max(1, Number(page) || 1);
         const params = new URLSearchParams({
           page: String(requestedPage),
@@ -756,6 +756,8 @@
             : Array.isArray(payload.analyses)
             ? payload.analyses
             : [];
+          const totalAnalsiy = parseHeaderInt(res.headers, "x-total-analyses"); 
+          state.pagination.totalCount = totalAnalsiy ?? rawList.length;
 
           const currentHeader = parseHeaderInt(res.headers, "x-current-page");
           const sizeHeader = parseHeaderInt(res.headers, "x-page-size");
@@ -880,7 +882,7 @@
     if (!approved) return;
 
     el.bulkDeleteBtn.disabled = true;
-    console.log(selectedIds, typeof selectedIds[0]);
+
     try {
       const res = await fetch(BULK_DELETE_ENDPOINT, {
         method: "POST",
