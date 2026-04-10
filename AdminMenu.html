@@ -66,6 +66,18 @@ body {
 #Menu.menu-closed {
   transform: translateX(-240px);
 }
+  
+ @media (max-width: 1024px) {
+  main { margin-left: 0; }
+  
+  #Menu { 
+    transform: translateX(-240px);  /* default kapalı */
+  }
+  
+  #Menu:not(.menu-closed) { 
+    transform: translateX(0);       /* menu-closed yoksa aç */
+  }
+}
 
 /* BaÅŸlÄ±k alanÄ± */
 .menu-header {

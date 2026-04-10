@@ -72,7 +72,7 @@
       border-radius: 50%;
       top: -45px;
       right: -45px;
-      background: rgba(99, 202, 183, 0.14);
+      background: var(--metric-articet);
     }
     .metric-label {
       color: var(--text-muted);
@@ -285,7 +285,7 @@
       font-size: 0.8rem;
     }
     @media (max-width: 1024px) {
-      .page-shell { padding-top: 5rem; }
+      .page-shell { padding-top: 1rem; }
     }
     @media (max-width: 640px) {
       .page-shell { padding-left: 0.8rem; padding-right: 0.8rem; }
@@ -304,17 +304,13 @@
             <h1 class="hero-title text-2xl md:text-3xl">Analiz Yönetimi</h1>
             <p class="mt-2 text-sm md:text-base" style="color: var(--text-muted);">Tüm analizleri arayın, filtreleyin ve detayları tek panelden yönetin.</p>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="chip">Canlı Takip</span>
-            <span id="headerUpdatedAt" class="chip">Henüz güncellenmedi</span>
-          </div>
+         
         </div>
       </section>
 
       <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="metric"><p class="metric-label">Toplam Analiz</p><p id="metricTotal" class="metric-number">0</p><p class="metric-sub">Filtrelenmiş kayıtlar</p></article>
         <article class="metric"><p class="metric-label">Ortalama Güven</p><p id="metricAverage" class="metric-number">0%</p><p class="metric-sub">Model güven ortalaması</p></article>
-    
         <article class="metric"><p class="metric-label">Son 24 Saat</p><p id="metricRecent" class="metric-number">0</p><p class="metric-sub">Yeni analiz sayısı</p></article>
           <article onclick="window.location.href='AnalisyCreate.html'"  class="metric"><p class="metric-label">Yeni Analiz Oluşur</p><p  class="metric-number"><i class="fa fa-plus" aria-hidden="true"></i></p><p class="metric-sub">Yeni Analiz Oluştur</p></article>
       
@@ -340,13 +336,19 @@
             <select id="doctorFilter" class="f-input"><option value="all">Tüm doktorlar</option></select>
           </div>
           <div>
-            <label for="dateFrom" class="f-label">Başlangıç</label>
-            <input id="dateFrom" class="f-input" type="date" />
+            <label for="careFilter" class="f-label">Bakım</label>
+              <select id="careFilter" class="f-input">
+              <option value="all">Tümü</option>
+              <option value="Beklemede">Beklemede</option>
+              <option value="KotrolEdil">Kotrol Edildi</option>
+              <option value="Eğitildi">Eğitildi</option>
+            </select>
           </div>
           <div>
-            <label for="dateTo" class="f-label">Bitiş</label>
-            <input id="dateTo" class="f-input" type="date" />
+              <label for="dateTo" class="f-label">Gün</label>
+              <input id="dateTo" class="f-input" type="date" />
           </div>
+          
         </div>
         <div class="mt-3 flex flex-wrap items-center gap-2">
           <button id="refreshBtn" class="btn-main" type="button"><i class="fa-solid fa-rotate-right"></i> Yenile</button>
@@ -406,6 +408,10 @@
   <script src="Template.js"></script>
 
   <script>
+      document.addEventListener('DOMContentLoaded', () => {
+     Theme.renderToggle('themeBtn');
+  });
+
     (function () {
       "use strict";
 
@@ -616,7 +622,7 @@
 
         if (el.metricTotal) el.metricTotal.textContent = String(total);
         if (el.metricAverage) el.metricAverage.textContent = `${Math.round(avg)}%`;
-        if (el.metricCritical) el.metricCritical.textContent = String(critical);
+        
         if (el.metricRecent) el.metricRecent.textContent = String(recent);
         if (el.resultCount) el.resultCount.textContent = `${total} kayıt`;
         if (el.headerUpdatedAt) el.headerUpdatedAt.textContent = `Son güncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henüz yok"}`;
@@ -645,8 +651,8 @@
       function applyFilters() {
         const term = el.searchInput.value.trim().toLowerCase();
         const status = el.statusFilter.value;
+        const care = el.careFilter.value;
         const doctor = el.doctorFilter.value;
-        const from = el.dateFrom.value;
         const to = el.dateTo.value;
 
         state.filtered = state.analyses.filter((a) => {
@@ -656,13 +662,13 @@
           }
           if (status !== "all" && classifyResult(a.result).key !== status) return false;
           if (doctor !== "all" && a.doctor !== doctor) return false;
-
-          if (from || to) {
-            const rowDate = dateInputValue(a.createdAt);
-            if (!rowDate) return false;
-            if (from && rowDate < from) return false;
-            if (to && rowDate > to) return false;
+          if (care !== "all" && a.patient !== care) return false;
+          if (to) {
+            const toDate = new Date(to);
+            toDate.setHours(23, 59, 59, 999);
+            if (!a.createdAt || a.createdAt > toDate) return false;
           }
+     
           return true;
         });
 
@@ -848,8 +854,8 @@
       function clearFilters() {
         el.searchInput.value = "";
         el.statusFilter.value = "all";
+        el.careFilter.value = "all";
         el.doctorFilter.value = "all";
-        el.dateFrom.value = "";
         el.dateTo.value = "";
         applyFilters();
         setMessage("Filtreler temizlendi.", false);
@@ -906,15 +912,15 @@ function initEvents() {
 
   if (el.searchInput) el.searchInput.addEventListener("input", doFilter);
   if (el.statusFilter) el.statusFilter.addEventListener("change", doFilter);
+  if (el.careFilter) el.careFilter.addEventListener("change", doFilter);
   if (el.doctorFilter) el.doctorFilter.addEventListener("change", doFilter);
-  if (el.dateFrom) el.dateFrom.addEventListener("change", doFilter);
   if (el.dateTo) el.dateTo.addEventListener("change", doFilter);
 
   if (el.refreshBtn) el.refreshBtn.addEventListener("click", loadAnalyses);
   if (el.clearFiltersBtn) el.clearFiltersBtn.addEventListener("click", clearFilters);
   if (el.exportCsvBtn) el.exportCsvBtn.addEventListener("click", exportCsv);
   if (el.bulkDeleteBtn) el.bulkDeleteBtn.addEventListener("click", bulkDeleteSelected);
-  if (el.bulkDeleteCard) el.bulkDeleteCard.addEventListener("click", bulkDeleteSelected);
+
   if (el.selectAll) el.selectAll.addEventListener("change", (event) => toggleSelectAll(event.target.checked));
   if (el.prevPageBtn) {
     el.prevPageBtn.addEventListener("click", () => {
@@ -947,12 +953,12 @@ function initEvents() {
       function initElements() {
   [
     "headerUpdatedAt", "metricTotal", "metricAverage",
-    "metricCritical", "metricRecent",
-    "searchInput", "statusFilter", "doctorFilter",
-    "dateFrom", "dateTo",
+     "metricRecent",
+    "searchInput", "statusFilter", "doctorFilter","careFilter",
+    "dateTo",
     "refreshBtn", "clearFiltersBtn", "exportCsvBtn",
     "bulkDeleteBtn", "selectedCount", "selectAll",
-    "bulkDeleteCard", "actionMessage",
+     "actionMessage",
     "fetchError", "tableLoadingHint", "resultCount",
     "analysesBody", "paginationInfo", "prevPageBtn", "nextPageBtn"
   ].forEach((id) => {

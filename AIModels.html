@@ -124,6 +124,7 @@
       background: var(--bg-primary);
       color: var(--text-second);
     }
+    
     .btn-lite:hover {
       border-color: rgba(99, 202, 183, 0.4);
       background: rgba(99, 202, 183, 0.08);
@@ -171,7 +172,7 @@
       font-size: 0.82rem;
       white-space: nowrap;
     }
-    .status {
+        .status {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
@@ -184,24 +185,9 @@
       border: 1px solid transparent;
       white-space: nowrap;
     }
-    .status-prod { color: #16a34a; background: rgba(34, 197, 94, 0.14); border-color: rgba(34, 197, 94, 0.3); }
-    .status-stage { color: #2563eb; background: rgba(37, 99, 235, 0.14); border-color: rgba(37, 99, 235, 0.3); }
-    .status-train { color: #d97706; background: rgba(217, 119, 6, 0.14); border-color: rgba(217, 119, 6, 0.3); }
-    .status-arch { color: #94a3b8; background: rgba(148, 163, 184, 0.15); border-color: rgba(148, 163, 184, 0.25); }
-    .score-track {
-      width: 150px;
-      max-width: 100%;
-      height: 6px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(148, 163, 184, 0.25);
-      margin-top: 0.3rem;
-    }
-    .score-bar {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #63cab7, #3b9e8a);
-    }
+    .status-active { color: #16a34a; background: rgba(34, 197, 94, 0.14); border-color: rgba(217 255 0 / 0.51); }
+    .status-nonactive { color: #F6091D; background: rgba(255 0 0 / 0.21); border-color: rgba(235 37 37 / 0.3); }
+
     .rollout-track {
       appearance: none;
       width: 100%;
@@ -359,8 +345,8 @@
                 <th>Model</th>
                 <th>Domain</th>
                 <th>Durum</th>
-                <th>Dogruluk</th>
-                <th>Latency</th>
+                <th>Model Yolu</th>
+ 
                 <th>Son Guncelleme</th>
                 <th>Eylem</th>
               </tr>
@@ -371,7 +357,7 @@
         <p id="tableLoadingHint" class="px-4 py-3 text-xs hidden" style="color: var(--text-muted);">Model listesi yukleniyor...</p>
       </section>
 
-      <section class="panel mt-4 p-4">
+      <section class="panel mt-4 p-4 hidden">
         <div class="flex flex-col gap-4 xl:flex-row xl:items-end">
           <div class="xl:w-1/3">
             <label for="rolloutModel" class="f-label">Canary Model</label>
@@ -436,41 +422,14 @@
     (function () {
       "use strict";
 
-      const API_ENDPOINT = window.localStorage.getItem("AI_MODELS_API_ENDPOINT") || "http://localhost:8000/api/v1/models";
-      const fallbackModels = [
-        {
-          id: "M-005",
-          name: "BeyinModeli",
-          version: "v1.0.0",
-          domain: "Beyin BT",
-          status: "stage",
-          accuracy: 71,
-          latency: 144,
-          updatedAt: "2026-03-21T15:32:00",
-          owner: "Emergency AI",
-          notes: "Acil vaka odakli konfigurasyon.",
-          config: { input_size: 512, batch: 10, augment: true, threshold: 0.61 }
-        },
-        {
-          id: "M-006",
-          name: "AkcigerModeli",
-          version: "v2.1.0",
-          domain: "Toraks",
-          status: "prod",
-          accuracy: 84,
-          latency: 92,
-          updatedAt: "2026-03-26T11:10:00",
-          owner: "Thorax AI",
-          notes: "Canli ortamda aktif model.",
-          config: { input_size: 512, batch: 16, augment: false, threshold: 0.72 }
-        }
-      ];
+      const API_ENDPOINT = window.localStorage.getItem("AI_MODELS_API_ENDPOINT") || "http://localhost:8000/api/v1/Organ/GetAll";
+     
+    
+
 
       const statusMap = {
-        prod: { cls: "status-prod", label: "Production", icon: "fa-circle-check" },
-        stage: { cls: "status-stage", label: "Staging", icon: "fa-flask" },
-        train: { cls: "status-train", label: "Training", icon: "fa-gears" },
-        arch: { cls: "status-arch", label: "Archive", icon: "fa-box-archive" }
+        true: { cls: "status-active", label: "Aktif", icon: "fa-circle-check" },
+        false: { cls: "status-nonactive", label: "Aktif Değil", icon: "fa-dot-circle" }
       };
 
       const state = {
@@ -543,14 +502,14 @@
           id: String(item.id ?? item.model_id ?? item.modelId ?? "N/A"),
           name: item.name ?? item.model_name ?? item.modelName ?? "Model",
           version: item.version ?? item.model_version ?? item.modelVersion ?? "v1.0.0",
-          domain: item.domain ?? item.specialty ?? item.category ?? "Genel",
-          status: normalizeStatus(item.status ?? item.environment ?? item.stage),
-          accuracy: toPercent(item.accuracy ?? item.score ?? item.metric_accuracy ?? item.metrics?.accuracy),
-          latency: toMs(item.latency ?? item.avg_latency_ms ?? item.metrics?.latency_ms),
-          updatedAt: parseDate(item.updated_at ?? item.updatedAt ?? item.created_at ?? item.timestamp) || new Date(),
+          domain: item.display_name ?? item.specialty ?? item.category ?? "Genel",
+          status: item.is_active ?? "bilinmiyor",
+          updatedAt: parseDate(item.created_at ?? item.created_at ?? item.created_at ?? item.created_at) || new Date(),
           owner: item.owner ?? item.team ?? item.created_by ?? "Bilinmiyor",
           notes: item.notes ?? item.description ?? "Not yok",
-          config: item.config && typeof item.config === "object" ? item.config : {}
+          config: item.config && typeof item.config === "object" ? item.config : {},
+          modelpath: item.model_path ?? "bilinmiyor",
+
         };
       }
 
@@ -599,12 +558,11 @@
                 <div class="text-xs" style="color: var(--text-muted);">${escapeHtml(m.version)} - #${escapeHtml(m.id)}</div>
               </td>
               <td>${escapeHtml(m.domain)}</td>
-              <td><span class="status ${st.cls}"><i class="fa-solid ${st.icon}"></i>${st.label}</span></td>
+              <td><span class="status ${st.cls}"><i class="fa-solid ${st.icon}"> </i>${st.label}</span></td>
               <td>
-                <div class="text-xs">${Math.round(m.accuracy)}%</div>
-                <div class="score-track"><div class="score-bar" style="width:${Math.max(0, Math.min(100, m.accuracy))}%"></div></div>
+                <div class="text-xs">${escapeHtml(m.modelpath)}</div>
               </td>
-              <td>${Math.round(m.latency)} ms</td>
+           
               <td>${formatDate(m.updatedAt)}</td>
               <td>
                 <button class="btn-lite !text-xs !px-3 !py-2" type="button" data-action="detail" data-id="${escapeHtml(m.id)}">
@@ -619,13 +577,10 @@
       function updateMetrics(list) {
         const total = list.length;
         const prodCount = list.filter((m) => m.status === "prod").length;
-        const avgAcc = total ? list.reduce((sum, m) => sum + m.accuracy, 0) / total : 0;
-        const avgLat = total ? list.reduce((sum, m) => sum + m.latency, 0) / total : 0;
 
         el.metricTotal.textContent = String(total);
         el.metricProd.textContent = String(prodCount);
-        el.metricAccuracy.textContent = `${Math.round(avgAcc)}%`;
-        el.metricLatency.textContent = total ? `${Math.round(avgLat)} ms` : "-";
+     
         el.resultCount.textContent = `${total} model`;
         el.headerUpdatedAt.textContent = `Son guncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henuz yok"}`;
       }
@@ -696,18 +651,17 @@
         if (!model) {
           showMessage("Detay acilacak model bulunamadi.", true);
           return;
-        }
+        } 
 
         const st = statusMap[model.status] || statusMap.stage;
         el.modalTitle.textContent = `${model.name} ${model.version}`;
-        el.modalStatus.className = `status ${st.cls}`;
-        el.modalStatus.innerHTML = `<i class="fa-solid ${st.icon}"></i>${st.label}`;
-        el.modalLatency.textContent = `Latency: ${Math.round(model.latency)} ms`;
-        el.modalAccuracy.textContent = `Dogruluk: ${model.accuracy.toFixed(1)}%`;
+        el.modalStatus.className = `status ${st.is_active}`;
+        el.modalStatus.innerHTML = ``;
+        el.modalAccuracy.textContent = `Model Yolu: ${st.model_path} ?? bilgi yok`;
         el.modalModelId.textContent = `#${model.id}`;
         el.modalVersion.textContent = model.version;
         el.modalOwner.textContent = model.owner;
-        el.modalDomain.textContent = model.domain;
+        el.modalDomain.textContent = `#${model.display_name}`;
         el.modalNotes.textContent = model.notes;
         el.modalConfig.textContent = JSON.stringify(model.config, null, 2);
 
@@ -729,7 +683,7 @@
             headers: { "Content-Type": "application/json" },
             credentials: "include"
           });
-          if (!res.ok) throw new Error(`Veri alinamadi (HTTP ${res.status})`);
+          if (!res.ok) throw new Error(`Veri alinamadi (HTTP ${res.is_active})`);
 
           const payload = await res.json();
           const rawList = Array.isArray(payload)
@@ -751,13 +705,13 @@
           applyFilters();
           showMessage("Model listesi guncellendi.", false);
         } catch (error) {
-          state.all = fallbackModels.map(normalizeModel).filter(Boolean);
+         
           state.lastUpdated = new Date();
           updateDomainFilter();
           populateRolloutModels();
           applyFilters();
           renderError(error?.message || "Model listesi yuklenemedi.");
-          showMessage("API erisimi basarisiz. Ornek veri gosteriliyor.", true);
+          showMessage("API erisimi basarisiz.", true);
         } finally {
           setLoading(false);
         }
@@ -765,7 +719,7 @@
 
       function initElements() {
         [
-          "headerUpdatedAt", "metricTotal", "metricProd", "metricAccuracy", "metricLatency",
+          "headerUpdatedAt", "metricTotal", "metricProd", "metricAccuracy",,
           "searchInput", "statusFilter", "domainFilter", "refreshBtn", "clearFiltersBtn",
           "resultCount", "modelsBody", "actionMessage", "fetchError", "tableLoadingHint", "rolloutModel", "rolloutPercent",
           "rolloutPercentLabel", "rolloutHint", "startRolloutBtn", "detailModal", "closeDetailBtn",
