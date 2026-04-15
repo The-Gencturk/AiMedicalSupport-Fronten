@@ -612,9 +612,10 @@
 
         syncSelectionUi();
       }
+ 
 
       function updateMetrics(list) {
-        const total = state.pagination.totalCount;
+        const total = state.pagination.totalCount ?? "N/A";
         const confs = list.map((a) => a.confidence).filter((c) => typeof c === "number");
         const avg = confs.length ? confs.reduce((sum, c) => sum + c, 0) / confs.length : 0;
         const critical = list.filter((a) => classifyResult(a.result).key === "critical").length;

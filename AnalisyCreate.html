@@ -560,7 +560,7 @@
 
       <!-- Eğitime Git butonu -->
       <div class="fade-up fade-up-6">
-        <button onclick="window.location.href='AiTrainAnalisyDetails.html?id={id}'" class="btn-edu w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-3">
+        <button onclick="gototrainpage()" class="btn-edu w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-3">
           <i class="fa-solid fa-graduation-cap"></i>
           Eğitime Git
         </button>
@@ -920,6 +920,11 @@
     }
   }
 
+
+  function gototrainpage() {
+    let analysisId = document.getElementById('statAnalysis').textContent || lastAnalysisId || '';
+    window.location.href = `AiTrainAnalisyDetails.html?id=${analysisId}`;
+  }
   function handleFile(file) {
     if (!file) return;
     selectedFile = file;
