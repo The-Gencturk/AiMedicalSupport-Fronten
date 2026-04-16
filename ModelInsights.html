@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Insights</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+</head>
+<body class="min-h-screen flex" style="background: var(--bg-primary); color: var(--text-second);">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
+
+  <main class="flex-1 overflow-y-auto">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+      <section class="rounded-2xl border p-4 md:p-5" style="border-color: var(--border); background: var(--bg-card);">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end">
+          <div class="flex-1">
+            <h1 class="text-2xl md:text-3xl font-bold">Model Insights</h1>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Metrics, training history, versions ve rollback islemlerini yonetin.</p>
+          </div>
+          <div>
+            <label class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);" for="scanTypeInput">Scan Type</label>
+            <input id="scanTypeInput" class="mt-1 w-full rounded-xl border px-3 py-2" style="border-color: var(--border); background: var(--bg-primary);" type="text" value="Lung" />
+          </div>
+          <div class="flex items-end">
+            <button id="loadBtn" class="rounded-xl px-4 py-2 font-semibold text-white" style="background: linear-gradient(135deg, #63cab7, #3b9e8a);" type="button">
+              <i class="fa-solid fa-rotate-right"></i> Yukle
+            </button>
+          </div>
+        </div>
+        <p id="message" class="text-xs mt-3" style="color: var(--text-muted);"></p>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mt-4">
+        <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+          <p class="text-xs uppercase font-semibold" style="color: var(--text-muted);">Accuracy</p>
+          <p id="metricAccuracy" class="text-2xl font-bold mt-1">-</p>
+        </article>
+        <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+          <p class="text-xs uppercase font-semibold" style="color: var(--text-muted);">Loss</p>
+          <p id="metricLoss" class="text-2xl font-bold mt-1">-</p>
+        </article>
+        <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+          <p class="text-xs uppercase font-semibold" style="color: var(--text-muted);">F1</p>
+          <p id="metricF1" class="text-2xl font-bold mt-1">-</p>
+        </article>
+        <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+          <p class="text-xs uppercase font-semibold" style="color: var(--text-muted);">Feedback Sample</p>
+          <p id="metricSample" class="text-2xl font-bold mt-1">-</p>
+        </article>
+      </section>
+
+      <section class="rounded-2xl border mt-4" style="border-color: var(--border); background: var(--bg-card);">
+        <div class="p-4 border-b" style="border-color: var(--border);">
+          <h2 class="font-semibold">Model Versions</h2>
+        </div>
+        <div class="overflow-auto">
+          <table class="w-full min-w-[760px]">
+            <thead>
+              <tr class="text-left text-xs uppercase" style="color: var(--text-muted);">
+                <th class="px-4 py-2">Name</th>
+                <th class="px-4 py-2">Modified</th>
+                <th class="px-4 py-2">Size</th>
+                <th class="px-4 py-2">Active</th>
+                <th class="px-4 py-2">Action</th>
+              </tr>
+            </thead>
+            <tbody id="versionsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border mt-4" style="border-color: var(--border); background: var(--bg-card);">
+        <div class="p-4 border-b" style="border-color: var(--border);">
+          <h2 class="font-semibold">Training History</h2>
+        </div>
+        <div class="overflow-auto">
+          <table class="w-full min-w-[860px]">
+            <thead>
+              <tr class="text-left text-xs uppercase" style="color: var(--text-muted);">
+                <th class="px-4 py-2">Time</th>
+                <th class="px-4 py-2">Analysis</th>
+                <th class="px-4 py-2">Doctor</th>
+                <th class="px-4 py-2">Finding</th>
+                <th class="px-4 py-2">Samples</th>
+                <th class="px-4 py-2">Success</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="MenuLoader.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      const API_ROOT = "http://localhost:8000/api/v1/models";
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+
+      const fmtNum = (v, d = 3) => (typeof v === "number" && Number.isFinite(v) ? String(Number(v.toFixed(d))) : "-");
+      const fmtPct = (v) => (typeof v === "number" && Number.isFinite(v) ? `${Math.round((v <= 1 ? v * 100 : v) * 10) / 10}%` : "-");
+      const fmtDate = (v) => {
+        const d = new Date(v);
+        return Number.isNaN(d.getTime()) ? "-" : new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+      };
+      const esc = (v) => String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+
+      function msg(text, isErr) {
+        el.message.textContent = text || "";
+        el.message.style.color = isErr ? "#ef4444" : "var(--text-muted)";
+      }
+
+      async function fetchJson(url, options) {
+        const r = await fetch(url, options);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }
+
+      function renderMetrics(data) {
+        el.metricAccuracy.textContent = fmtPct(data?.accuracy);
+        el.metricLoss.textContent = fmtNum(data?.loss, 4);
+        el.metricF1.textContent = fmtPct(data?.f1_score);
+        el.metricSample.textContent = String(data?.offline_feedback_metrics?.sample_count ?? "-");
+      }
+
+      function renderVersions(list, scanType) {
+        if (!Array.isArray(list) || !list.length) {
+          el.versionsBody.innerHTML = '<tr><td class="px-4 py-3" colspan="5">Kayit yok</td></tr>';
+          return;
+        }
+        el.versionsBody.innerHTML = list.map((v) => `
+          <tr class="border-t" style="border-color: var(--border);">
+            <td class="px-4 py-2">${esc(v.name)}</td>
+            <td class="px-4 py-2">${esc(fmtDate(v.modified_at_utc))}</td>
+            <td class="px-4 py-2">${esc(v.size_bytes)}</td>
+            <td class="px-4 py-2">${v.is_active ? "Evet" : "Hayir"}</td>
+            <td class="px-4 py-2">
+              <button class="rounded-lg px-3 py-1 text-xs border disabled:opacity-50" style="border-color: var(--border);" data-action="rollback" data-backup="${esc(v.name)}" ${v.can_rollback ? "" : "disabled"}>
+                Rollback
+              </button>
+            </td>
+          </tr>
+        `).join("");
+
+        el.versionsBody.querySelectorAll("button[data-action='rollback']").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const backupName = btn.dataset.backup;
+            if (!backupName) return;
+            const ok = window.confirm(`${backupName} surumune rollback yapilsin mi?`);
+            if (!ok) return;
+            btn.disabled = true;
+            try {
+              const payload = await fetchJson(`${API_ROOT}/${scanType}/rollback`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ backup_name: backupName })
+              });
+              msg(`Rollback basarili: ${typeof payload === "string" ? payload : "islem tamamlandi"}`, false);
+              await loadAll();
+            } catch (e) {
+              msg(`Rollback hatasi: ${e.message}`, true);
+              btn.disabled = false;
+            }
+          });
+        });
+      }
+
+      function renderHistory(events) {
+        if (!Array.isArray(events) || !events.length) {
+          el.historyBody.innerHTML = '<tr><td class="px-4 py-3" colspan="6">Kayit yok</td></tr>';
+          return;
+        }
+        el.historyBody.innerHTML = events.map((ev) => `
+          <tr class="border-t" style="border-color: var(--border);">
+            <td class="px-4 py-2">${esc(fmtDate(ev.timestamp_utc))}</td>
+            <td class="px-4 py-2">#${esc(ev.analysis_id)}</td>
+            <td class="px-4 py-2">#${esc(ev.doctor_id)}</td>
+            <td class="px-4 py-2">${esc(ev.finding_type ?? "-")}</td>
+            <td class="px-4 py-2">${esc(ev.samples_used ?? "-")}</td>
+            <td class="px-4 py-2">${ev.success ? "Basarili" : "Hatali"}</td>
+          </tr>
+        `).join("");
+      }
+
+      async function loadAll() {
+        const scanType = (el.scanTypeInput.value || "").trim() || "Lung";
+        msg("Veriler yukleniyor...", false);
+        el.loadBtn.disabled = true;
+        try {
+          const [metrics, versions, history] = await Promise.all([
+            fetchJson(`${API_ROOT}/${encodeURIComponent(scanType)}/metrics?sample_limit=100`, { credentials: "include" }),
+            fetchJson(`${API_ROOT}/${encodeURIComponent(scanType)}/versions?limit=50`, { credentials: "include" }),
+            fetchJson(`${API_ROOT}/${encodeURIComponent(scanType)}/training-history?limit=50`, { credentials: "include" })
+          ]);
+          renderMetrics(metrics);
+          renderVersions(versions?.versions, scanType);
+          renderHistory(history?.events);
+          msg("Veriler guncellendi.", false);
+        } catch (e) {
+          renderMetrics(null);
+          renderVersions([], scanType);
+          renderHistory([]);
+          msg(`Yukleme basarisiz: ${e.message}`, true);
+        } finally {
+          el.loadBtn.disabled = false;
+        }
+      }
+
+      function init() {
+        ["scanTypeInput", "loadBtn", "message", "metricAccuracy", "metricLoss", "metricF1", "metricSample", "versionsBody", "historyBody"].forEach((id) => {
+          el[id] = pick(id);
+        });
+        el.loadBtn.addEventListener("click", loadAll);
+        if (window.Theme && typeof window.Theme.renderToggle === "function") window.Theme.renderToggle("themeBtn");
+        loadAll();
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+</html>

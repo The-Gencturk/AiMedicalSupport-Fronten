@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hasta Detayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-screen flex" style="background: var(--bg-primary); color: var(--text-second);">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 30px; position: fixed; top: 15px; z-index: 1300;"></div>
+
+  <main class="flex-1 p-4 md:p-8">
+    <a href="Patients.html" class="inline-flex items-center gap-2 text-sm mb-4"
+       style="color: var(--text-muted);">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Hasta listesine dön</span>
+    </a>
+
+    <div id="errorBox" class="hidden mb-4 rounded-xl border px-4 py-3 text-sm"
+         style="border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); color: #fecaca;">
+    </div>
+
+    <section class="rounded-2xl border mb-4 p-4 md:p-5"
+             style="border-color: var(--border); background: var(--bg-card);">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <p id="patientIdText" class="text-xs font-semibold uppercase tracking-wider"
+             style="color: var(--text-muted);">#P-?</p>
+          <h1 id="patientName" class="text-2xl md:text-3xl font-bold mt-1">Hasta</h1>
+          <p id="patientSubtitle" class="text-sm mt-1" style="color: var(--text-muted);"></p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="statusBadge"
+                class="px-2 py-1 rounded-full text-[11px] font-semibold bg-slate-700 text-slate-100">
+            -
+          </span>
+          <span id="genderBadge"
+                class="px-2 py-1 rounded-full text-[11px] font-semibold"
+                style="border: 1px solid var(--border);">
+            -
+          </span>
+          <span id="bloodBadge"
+                class="px-2 py-1 rounded-full text-[11px] font-semibold"
+                style="border: 1px solid var(--border);">
+            -
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <article class="rounded-2xl border p-4 md:p-5 lg:col-span-2"
+               style="border-color: var(--border); background: var(--bg-card);">
+        <h2 class="text-sm font-semibold uppercase tracking-wider mb-3"
+            style="color: var(--text-muted);">Temel Bilgiler</h2>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div>
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">TC No</dt>
+            <dd id="f_tc" class="mt-1 font-semibold">-</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Doğum Tarihi</dt>
+            <dd id="f_birth" class="mt-1 font-semibold">-</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Telefon</dt>
+            <dd id="f_phone" class="mt-1 font-semibold">-</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">E-posta</dt>
+            <dd id="f_email" class="mt-1 font-semibold break-all">-</dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Adres</dt>
+            <dd id="f_address" class="mt-1 font-semibold break-words">-</dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Notlar</dt>
+            <dd id="f_notes" class="mt-1 font-semibold break-words">-</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="rounded-2xl border p-4 md:p-5"
+               style="border-color: var(--border); background: var(--bg-card);">
+        <h2 class="text-sm font-semibold uppercase tracking-wider mb-3"
+            style="color: var(--text-muted);">Kayıt Bilgileri</h2>
+        <dl class="space-y-2 text-sm">
+          <div class="flex items-center justify-between gap-3">
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Hasta ID</dt>
+            <dd id="meta_id" class="font-semibold">-</dd>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <dt class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">Oluşturma</dt>
+            <dd id="meta_created" class="font-semibold text-right">-</dd>
+          </div>
+        </dl>
+      </article>
+    </section>
+  </main>
+
+  <script src="MenuLoader.js"></script>
+  <script src="auth.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const API_ROOT = "http://localhost:8000/api/v1/Patient";
+
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+      const esc = (v) =>
+        String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+
+      const fmtDate = (v) => {
+        if (!v) return "-";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return v;
+        return new Intl.DateTimeFormat("tr-TR", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }).format(d);
+      };
+
+      const normalizeGender = (g) => {
+        if (!g) return "-";
+        const v = String(g).toLowerCase();
+        if (v === "erkek") return "Erkek";
+        if (v === "kadın") return "Kadın";
+        if (v === "diğer") return "Diğer";
+        return g;
+      };
+
+      const getPatientIdFromQuery = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("patient_id") || params.get("id");
+      };
+
+      const showError = (text) => {
+        if (!el.errorBox) return;
+        if (!text) {
+          el.errorBox.textContent = "";
+          el.errorBox.classList.add("hidden");
+          return;
+        }
+        el.errorBox.textContent = text;
+        el.errorBox.classList.remove("hidden");
+      };
+
+      const fillText = (id, v) => {
+        const node = pick(id);
+        if (!node) return;
+        node.textContent = v ?? "-";
+      };
+
+      const renderPatient = (p) => {
+        const idText = `#P-${p.id}`;
+        fillText("patientIdText", idText);
+        fillText("patientName", p.full_name ?? "-");
+        fillText(
+          "patientSubtitle",
+          p.tc_no ? `TC: ${p.tc_no}` : "Temel hasta bilgileri"
+        );
+
+        const active = Boolean(p.is_active);
+        if (el.statusBadge) {
+          el.statusBadge.textContent = active ? "Aktif" : "Pasif";
+          el.statusBadge.className = active
+            ? "px-2 py-1 rounded-full text-[11px] font-semibold bg-green-100 text-green-700"
+            : "px-2 py-1 rounded-full text-[11px] font-semibold bg-red-100 text-red-700";
+        }
+
+        if (el.genderBadge) {
+          el.genderBadge.textContent = normalizeGender(p.gender);
+        }
+
+        if (el.bloodBadge) {
+          el.bloodBadge.textContent = p.blood_type ?? "-";
+        }
+
+        fillText("f_tc", p.tc_no ?? "-");
+        fillText("f_birth", p.birth_date ?? "-");
+        fillText("f_phone", p.phone ?? "-");
+        fillText("f_email", p.email ?? "-");
+        fillText("f_address", p.address ?? "-");
+        fillText("f_notes", p.notes ?? "-");
+
+        fillText("meta_id", idText);
+        fillText("meta_created", fmtDate(p.created_at));
+      };
+
+      const loadPatient = async () => {
+        const id = getPatientIdFromQuery();
+        if (!id) {
+          showError("patient_id parametresi eksik.");
+          return;
+        }
+        try {
+          showError("");
+          const res = await fetch(`${API_ROOT}/${encodeURIComponent(id)}`, {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          renderPatient(data);
+        } catch (e) {
+          showError(e.message || "Hasta bilgileri alınamadı.");
+        }
+      };
+
+      const init = () => {
+        ["errorBox", "patientIdText", "patientName", "patientSubtitle",
+         "statusBadge", "genderBadge", "bloodBadge",
+         "f_tc", "f_birth", "f_phone", "f_email", "f_address", "f_notes",
+         "meta_id", "meta_created"].forEach((id) => {
+          el[id] = pick(id);
+        });
+
+        if (window.Theme && typeof window.Theme.renderToggle === "function") {
+          window.Theme.renderToggle("themeBtn");
+        }
+
+        loadPatient();
+      };
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+</html>
+

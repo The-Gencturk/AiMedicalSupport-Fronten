@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Feed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+</head>
+<body class="min-h-screen flex" style="background: var(--bg-primary); color: var(--text-second);">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
+
+  <main class="flex-1 overflow-y-auto">
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+      <section class="rounded-2xl border p-4 md:p-5" style="border-color: var(--border); background: var(--bg-card);">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold">Community Feed</h1>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Paylasilan analizleri goruntuleyin, begenin ve yorum yonetin.</p>
+          </div>
+          <div class="flex items-end gap-2">
+            <div>
+              <label for="pageSizeInput" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Page Size</label>
+              <input id="pageSizeInput" class="mt-1 rounded-xl border px-3 py-2 w-24" style="border-color: var(--border); background: var(--bg-primary);" type="number" min="1" max="100" value="10" />
+            </div>
+            <button id="refreshBtn" class="rounded-xl px-4 py-2 font-semibold text-white" style="background: linear-gradient(135deg, #63cab7, #3b9e8a);" type="button">
+              <i class="fa-solid fa-rotate-right"></i> Yenile
+            </button>
+          </div>
+        </div>
+        <p id="message" class="text-xs mt-3" style="color: var(--text-muted);"></p>
+      </section>
+
+      <section id="feedList" class="mt-4 grid gap-3"></section>
+
+      <section class="mt-4 flex items-center justify-between">
+        <button id="prevBtn" class="rounded-lg border px-3 py-2 text-sm" style="border-color: var(--border);" type="button">
+          <i class="fa-solid fa-chevron-left"></i> Onceki
+        </button>
+        <span id="pagerInfo" class="text-sm" style="color: var(--text-muted);">Sayfa 1</span>
+        <button id="nextBtn" class="rounded-lg border px-3 py-2 text-sm" style="border-color: var(--border);" type="button">
+          Sonraki <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <script src="MenuLoader.js"></script>
+  <script src="auth.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      const API_ROOT = "http://localhost:8000/api/v1/community";
+      const state = { page: 1, pageSize: 10, total: 0, items: [], currentUser: null };
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+      const esc = (v) => String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+      const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=63cab7&color=ffffff&name=User";
+      const fmtDate = (v) => {
+        const d = new Date(v);
+        return Number.isNaN(d.getTime()) ? "-" : new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+      };
+
+      function msg(text, isErr) {
+        el.message.textContent = text || "";
+        el.message.style.color = isErr ? "#ef4444" : "var(--text-muted)";
+      }
+
+      async function fetchJson(url, options) {
+        const r = await fetch(url, options);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }
+
+      function toArray(v) {
+        if (Array.isArray(v)) return v;
+        if (Array.isArray(v?.items)) return v.items;
+        if (Array.isArray(v?.data)) return v.data;
+        if (Array.isArray(v?.results)) return v.results;
+        if (Array.isArray(v?.comments)) return v.comments;
+        return [];
+      }
+
+      function fallbackAvatar(name) {
+        return `https://ui-avatars.com/api/?background=63cab7&color=ffffff&name=${encodeURIComponent(name || "User")}`;
+      }
+
+      function pickProfileImage(entity) {
+        const profile = entity?.profile ?? entity?.avatar ?? entity?.profile_image ?? entity?.image ?? entity?.photo_url ?? entity?.photo;
+        if (!profile) {
+          const name = entity?.full_name ?? entity?.name ?? entity?.username ?? entity?.doctor_name ?? "User";
+          return fallbackAvatar(name);
+        }
+        return profile;
+      }
+
+      function normalizeComment(comment, postId) {
+        if (!comment || typeof comment !== "object") return null;
+        const author = comment.user ?? comment.author ?? comment.owner ?? {};
+        const authorName =
+          comment.user_name ??
+          comment.author_name ??
+          author.full_name ??
+          author.name ??
+          author.username ??
+          "Kullanici";
+
+        return {
+          id: comment.id ?? comment.comment_id ?? comment.commentId,
+          postId,
+          text: comment.text ?? comment.content ?? comment.comment ?? "",
+          created_at: comment.created_at ?? comment.timestamp ?? comment.date ?? null,
+          user_id: comment.user_id ?? author.id ?? author.user_id ?? null,
+          user_name: authorName,
+          profile: pickProfileImage({ ...author, full_name: authorName })
+        };
+      }
+
+      function normalizePost(item, detail) {
+        const merged = { ...(item || {}), ...(detail || {}) };
+        const owner = merged.user ?? merged.author ?? merged.owner ?? {};
+        const comments = [
+          ...toArray(merged.comments),
+          ...toArray(detail?.comments)
+        ]
+          .map((comment) => normalizeComment(comment, merged.id ?? merged.post_id))
+          .filter(Boolean);
+
+        const uniqueComments = [];
+        const seen = new Set();
+        comments.forEach((comment) => {
+          const key = String(comment.id ?? `${comment.user_name}-${comment.text}-${comment.created_at}`);
+          if (seen.has(key)) return;
+          seen.add(key);
+          uniqueComments.push(comment);
+        });
+
+        return {
+          raw: merged,
+          id: merged.id ?? merged.post_id ?? "-",
+          analysis_id: merged.analysis_id ?? merged.analysisId ?? "-",
+          created_at: merged.created_at ?? merged.timestamp ?? merged.date ?? null,
+          text: merged.text ?? merged.content ?? merged.note ?? merged.caption ?? "",
+          owner_name:
+            merged.user_name ??
+            merged.author_name ??
+            owner.full_name ??
+            owner.name ??
+            owner.username ??
+            "Topluluk Kullanıcısı",
+          owner_profile: pickProfileImage(owner),
+          like_count: Number(
+            merged.like_count ??
+            merged.likes_count ??
+            merged.likesCount ??
+            toArray(merged.likes).length ??
+            0
+          ) || 0,
+          comment_count: Number(
+            merged.comment_count ??
+            merged.comments_count ??
+            merged.commentsCount ??
+            uniqueComments.length
+          ) || uniqueComments.length,
+          is_liked: Boolean(
+            merged.is_liked ??
+            merged.isLiked ??
+            merged.liked_by_me ??
+            merged.likedByMe
+          ),
+          comments: uniqueComments
+        };
+      }
+
+      async function loadPostDetail(postId) {
+        try {
+          return await fetchJson(`${API_ROOT}/${encodeURIComponent(postId)}`, { credentials: "include" });
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function canDeleteComment(comment) {
+        const currentId = state.currentUser?.id;
+        if (!currentId || !comment?.user_id) return false;
+        return String(currentId) === String(comment.user_id);
+      }
+
+      function renderFeed() {
+        if (!state.items.length) {
+          el.feedList.innerHTML = `
+            <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+              Kayit bulunamadi.
+            </article>
+          `;
+          return;
+        }
+
+        el.feedList.innerHTML = state.items.map((item) => `
+          <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-3">
+                <img
+                  src="${esc(item.owner_profile || DEFAULT_AVATAR)}"
+                  alt="${esc(item.owner_name)}"
+                  class="w-11 h-11 rounded-full object-cover border"
+                  style="border-color: var(--border); background: var(--bg-primary);"
+                  onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'"
+                />
+                <div>
+                  <p class="font-semibold">${esc(item.owner_name)}</p>
+                  <p class="text-xs" style="color: var(--text-muted);">Post #${esc(item.id)} - Analiz #${esc(item.analysis_id)}</p>
+                </div>
+              </div>
+              <p class="text-xs" style="color: var(--text-muted);">${esc(fmtDate(item.created_at))}</p>
+            </div>
+            <p class="mt-3 text-sm">${esc(item.text)}</p>
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <button data-like-btn="${esc(item.id)}" class="rounded-lg border px-3 py-2 text-sm" style="border-color: var(--border);" type="button">
+                <i class="fa-${item.is_liked ? "solid" : "regular"} fa-heart"></i>
+                <span>${esc(item.is_liked ? "Begenildi" : "Begen")}</span>
+                <span class="text-xs" style="color: var(--text-muted);">(${esc(item.like_count)})</span>
+              </button>
+              <span class="text-xs" style="color: var(--text-muted);">
+                ${esc(item.comment_count)} yorum
+              </span>
+            </div>
+            <div class="mt-4 rounded-xl border p-3" style="border-color: var(--border); background: var(--bg-primary);">
+              <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Yorumlar</p>
+              <div class="mt-3 space-y-3">
+                ${item.comments.length ? item.comments.map((comment) => `
+                  <div class="flex items-start gap-3">
+                    <img
+                      src="${esc(comment.profile || DEFAULT_AVATAR)}"
+                      alt="${esc(comment.user_name)}"
+                      class="w-9 h-9 rounded-full object-cover border"
+                      style="border-color: var(--border); background: var(--bg-card);"
+                      onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-start justify-between gap-2">
+                        <div>
+                          <p class="text-sm font-semibold">${esc(comment.user_name)}</p>
+                          <p class="text-xs" style="color: var(--text-muted);">${esc(fmtDate(comment.created_at))}</p>
+                        </div>
+                        ${canDeleteComment(comment) ? `
+                          <button
+                            data-comment-delete="${esc(item.id)}"
+                            data-comment-id="${esc(comment.id)}"
+                            class="rounded-lg border px-2 py-1 text-xs"
+                            style="border-color: rgba(239, 68, 68, 0.35); color: #ef4444;"
+                            type="button"
+                          >
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        ` : ""}
+                      </div>
+                      <p class="mt-1 text-sm break-words">${esc(comment.text)}</p>
+                    </div>
+                  </div>
+                `).join("") : `
+                  <p class="text-sm" style="color: var(--text-muted);">Henuz yorum yok.</p>
+                `}
+              </div>
+            </div>
+            <div class="mt-3 flex gap-2">
+              <input data-comment-input="${esc(item.id)}" class="rounded-lg border px-3 py-2 text-sm flex-1" style="border-color: var(--border); background: var(--bg-primary);" type="text" placeholder="Yorum yaz..." />
+              <button data-comment-btn="${esc(item.id)}" class="rounded-lg border px-3 py-2 text-sm" style="border-color: var(--border);" type="button">Yorum Ekle</button>
+            </div>
+          </article>
+        `).join("");
+
+        el.feedList.querySelectorAll("button[data-like-btn]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const postId = btn.dataset.likeBtn;
+            btn.disabled = true;
+            try {
+              await fetchJson(`${API_ROOT}/${encodeURIComponent(postId)}/like`, {
+                method: "POST",
+                credentials: "include"
+              });
+              msg("Begeni durumu guncellendi.", false);
+              await loadFeed();
+            } catch (e) {
+              msg(`Begeni guncellenemedi: ${e.message}`, true);
+            } finally {
+              btn.disabled = false;
+            }
+          });
+        });
+
+        el.feedList.querySelectorAll("button[data-comment-btn]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const postId = btn.dataset.commentBtn;
+            const input = el.feedList.querySelector(`input[data-comment-input="${postId}"]`);
+            const text = (input?.value || "").trim();
+            if (!text) {
+              msg("Yorum bos olamaz.", true);
+              return;
+            }
+            btn.disabled = true;
+            try {
+              await fetchJson(`${API_ROOT}/${encodeURIComponent(postId)}/comment`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ text })
+              });
+              msg("Yorum eklendi.", false);
+              input.value = "";
+              await loadFeed();
+            } catch (e) {
+              msg(`Yorum eklenemedi: ${e.message}`, true);
+            } finally {
+              btn.disabled = false;
+            }
+          });
+        });
+
+        el.feedList.querySelectorAll("button[data-comment-delete]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const postId = btn.dataset.commentDelete;
+            const commentId = btn.dataset.commentId;
+            if (!commentId) {
+              msg("Yorum ID bulunamadi.", true);
+              return;
+            }
+            if (!window.confirm("Bu yorumu silmek istiyor musunuz?")) return;
+            btn.disabled = true;
+            try {
+              await fetchJson(`${API_ROOT}/${encodeURIComponent(postId)}/comment/${encodeURIComponent(commentId)}`, {
+                method: "DELETE",
+                credentials: "include"
+              });
+              msg("Yorum silindi.", false);
+              await loadFeed();
+            } catch (e) {
+              msg(`Yorum silinemedi: ${e.message}`, true);
+            } finally {
+              btn.disabled = false;
+            }
+          });
+        });
+      }
+
+      function renderPager() {
+        const start = state.items.length ? (state.page - 1) * state.pageSize + 1 : 0;
+        const end = state.items.length ? start + state.items.length - 1 : 0;
+        el.pagerInfo.textContent = `Sayfa ${state.page} • ${start}-${end} / ${state.total}`;
+        el.prevBtn.disabled = state.page <= 1;
+        el.nextBtn.disabled = state.page * state.pageSize >= state.total;
+      }
+
+      async function loadFeed() {
+        msg("Feed yukleniyor...", false);
+        el.refreshBtn.disabled = true;
+        try {
+          const payload = await fetchJson(`${API_ROOT}/feed?page=${state.page}&page_size=${state.pageSize}`, { credentials: "include" });
+          const rawItems = Array.isArray(payload?.items)
+            ? payload.items
+            : Array.isArray(payload)
+            ? payload
+            : [];
+          const detailList = await Promise.all(
+            rawItems.map((item) => loadPostDetail(item?.id ?? item?.post_id))
+          );
+          state.page = Number(payload?.page ?? state.page);
+          state.pageSize = Number(payload?.page_size ?? state.pageSize);
+          state.total = Number(payload?.total ?? rawItems.length);
+          state.items = rawItems.map((item, index) => normalizePost(item, detailList[index]));
+          renderFeed();
+          renderPager();
+          msg("Feed guncellendi.", false);
+        } catch (e) {
+          state.items = [];
+          state.total = 0;
+          renderFeed();
+          renderPager();
+          msg(`Feed alinamadi: ${e.message}`, true);
+        } finally {
+          el.refreshBtn.disabled = false;
+        }
+      }
+
+      async function init() {
+        ["feedList", "message", "refreshBtn", "pageSizeInput", "prevBtn", "nextBtn", "pagerInfo"].forEach((id) => {
+          el[id] = pick(id);
+        });
+        el.refreshBtn.addEventListener("click", () => {
+          const val = Number(el.pageSizeInput.value);
+          state.pageSize = Number.isFinite(val) ? Math.max(1, Math.min(100, val)) : 10;
+          state.page = 1;
+          loadFeed();
+        });
+        el.prevBtn.addEventListener("click", () => {
+          if (state.page <= 1) return;
+          state.page -= 1;
+          loadFeed();
+        });
+        el.nextBtn.addEventListener("click", () => {
+          if (state.page * state.pageSize >= state.total) return;
+          state.page += 1;
+          loadFeed();
+        });
+        if (typeof window.getCurrentUser === "function") {
+          try {
+            state.currentUser = await window.getCurrentUser();
+          } catch (_) {
+            state.currentUser = null;
+          }
+        }
+        if (window.Theme && typeof window.Theme.renderToggle === "function") window.Theme.renderToggle("themeBtn");
+        loadFeed();
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+</html>

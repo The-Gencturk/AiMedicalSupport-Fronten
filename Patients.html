@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hasta Listesi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-screen flex" style="background: var(--bg-primary); color: var(--text-second);">
+  <div id="AdminMenu"></div>
+  <div id="themeBtn" style="right: 30px; position: fixed; top: 15px; z-index: 1300;"></div>
+
+  <main class="flex-1 p-4 md:p-8">
+    <header class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Hasta Listesi</h1>
+        <p class="text-sm mt-1" style="color: var(--text-muted);">
+          Hastaları listeleyin, yeni hasta ekleyin ve detay sayfasına geçin.
+        </p>
+      </div>
+      <button id="openCreateModalBtn" class="rounded-xl px-4 py-2 text-sm font-semibold text-white"
+              style="background: linear-gradient(135deg, #63cab7, #3b9e8a);">
+        <i class="fa-solid fa-user-plus mr-1"></i> Yeni Hasta
+      </button>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      <div class="rounded-2xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+        <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Toplam Hasta</p>
+        <p id="metricTotalPatients" class="mt-2 text-2xl font-bold">0</p>
+      </div>
+      <div class="rounded-2xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+        <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Aktif</p>
+        <p id="metricActivePatients" class="mt-2 text-2xl font-bold">0</p>
+      </div>
+      <div class="rounded-2xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+        <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Son 24 Saat</p>
+        <p id="metricRecentPatients" class="mt-2 text-2xl font-bold">0</p>
+      </div>
+      <div class="rounded-2xl border p-4 flex items-center justify-between gap-3"
+           style="border-color: var(--border); background: var(--bg-card);">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Sayfalama</p>
+          <p id="metricPagingInfo" class="mt-2 text-sm" style="color: var(--text-second);">-</p>
+        </div>
+        <div class="flex items-end gap-2">
+          <div>
+            <label for="pageSizeInput" class="block text-[11px] font-semibold uppercase tracking-wider"
+                   style="color: var(--text-muted);">Sayfa Boyutu</label>
+            <input id="pageSizeInput" type="number" min="1" max="100" value="10"
+                   class="mt-1 w-20 rounded-xl border px-3 py-1.5 text-sm"
+                   style="border-color: var(--border); background: var(--bg-primary);" />
+          </div>
+          <button id="refreshBtn" type="button"
+                  class="rounded-xl px-3 py-2 text-xs font-semibold"
+                  style="border: 1px solid var(--border); background: var(--bg-primary);">
+            <i class="fa-solid fa-rotate-right mr-1"></i> Yenile
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border" style="border-color: var(--border); background: var(--bg-card);">
+      <div class="px-4 py-3 flex flex-wrap items-center gap-3">
+        <div class="relative flex-1 min-w-[180px] max-w-md">
+          <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs"
+             style="color: var(--text-muted);"></i>
+          <input id="searchInput" type="search" placeholder="Hasta, TC, e-posta ara..."
+                 class="w-full rounded-xl border pl-8 pr-3 py-2 text-sm"
+                 style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);" />
+        </div>
+        <select id="activeFilter"
+                class="rounded-xl border px-3 py-2 text-sm"
+                style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);">
+          <option value="all">Tümü</option>
+          <option value="active">Sadece aktif</option>
+          <option value="inactive">Sadece pasif</option>
+        </select>
+        <select id="genderFilter"
+                class="rounded-xl border px-3 py-2 text-sm"
+                style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);">
+          <option value="all">Tüm cinsiyetler</option>
+          <option value="erkek">Erkek</option>
+          <option value="kadın">Kadın</option>
+          <option value="diğer">Diğer</option>
+        </select>
+        <button id="clearFiltersBtn" type="button"
+                class="ml-auto rounded-xl border px-3 py-2 text-xs font-semibold"
+                style="border-color: var(--border); background: var(--bg-primary);">
+          <i class="fa-solid fa-filter-circle-xmark mr-1"></i> Filtreleri Temizle
+        </button>
+      </div>
+
+      <div id="listError" class="hidden mx-4 mb-2 rounded-lg border px-3 py-2 text-xs"
+           style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); color: #ef4444;"></div>
+
+      <div class="overflow-auto border-t" style="border-color: var(--border);">
+        <table class="w-full min-w-[900px] border-collapse text-sm">
+          <thead>
+            <tr style="background: rgba(99, 202, 183, 0.08); color: var(--text-muted);">
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">ID</th>
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">Ad Soyad</th>
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">TC</th>
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">Cinsiyet</th>
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">Kan Grubu</th>
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">Durum</th>
+              <th class="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider">Oluşturma</th>
+              <th class="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wider">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="patientsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t"
+           style="border-color: var(--border); background: var(--bg-card);">
+        <p id="pagerInfo" class="text-xs font-semibold uppercase tracking-wider"
+           style="color: var(--text-muted);">
+          Sayfa 1
+        </p>
+        <div class="flex items-center gap-2">
+          <button id="prevBtn" type="button"
+                  class="rounded-lg border px-3 py-1.5 text-xs font-semibold"
+                  style="border-color: var(--border);">
+            <i class="fa-solid fa-chevron-left mr-1"></i> Önceki
+          </button>
+          <button id="nextBtn" type="button"
+                  class="rounded-lg border px-3 py-1.5 text-xs font-semibold"
+                  style="border-color: var(--border);">
+            Sonraki <i class="fa-solid fa-chevron-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="md:hidden mt-6 space-y-3" id="patientsMobile"></section>
+    <p id="toast" class="mt-3 text-xs" style="color: var(--text-muted); min-height: 1rem;"></p>
+  </main>
+
+  <!-- Create / Edit Modal -->
+  <div id="patientModal" class="hidden fixed inset-0 z-40 items-center justify-center"
+       style="background: rgba(15, 23, 42, 0.70); backdrop-filter: blur(3px);">
+    <div class="w-full max-w-xl mx-4 rounded-2xl border shadow-xl"
+         style="border-color: var(--border); background: var(--bg-card);">
+      <div class="flex items-center justify-between gap-3 px-5 py-3 border-b"
+           style="border-color: var(--border);">
+        <div>
+          <h2 id="modalTitle" class="text-lg font-semibold">Yeni Hasta</h2>
+          <p id="modalSubtitle" class="text-xs mt-0.5" style="color: var(--text-muted);">
+            Temel bilgileri doldurun.
+          </p>
+        </div>
+        <button id="closeModalBtn" class="text-sm" type="button" style="color: var(--text-muted);">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="modalError" class="hidden mx-5 mt-3 rounded-lg border px-3 py-2 text-xs"
+           style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); color: #ef4444;"></div>
+
+      <form id="patientForm" class="px-5 pt-4 pb-5 space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">Ad Soyad *</label>
+            <input id="f_full_name" required
+                   class="w-full rounded-xl border px-3 py-2 text-sm"
+                   style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"
+                   type="text" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">TC</label>
+            <input id="f_tc_no"
+                   class="w-full rounded-xl border px-3 py-2 text-sm"
+                   style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"
+                   type="text" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">Doğum Tarihi</label>
+            <input id="f_birth_date"
+                   class="w-full rounded-xl border px-3 py-2 text-sm"
+                   style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"
+                   type="date" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">Cinsiyet</label>
+            <select id="f_gender"
+                    class="w-full rounded-xl border px-3 py-2 text-sm"
+                    style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);">
+              <option value="">Seçilmedi</option>
+              <option value="erkek">Erkek</option>
+              <option value="kadın">Kadın</option>
+              <option value="diğer">Diğer</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">Kan Grubu</label>
+            <select id="f_blood_type"
+                    class="w-full rounded-xl border px-3 py-2 text-sm"
+                    style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);">
+              <option value="">Seçilmedi</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="0+">0+</option>
+              <option value="0-">0-</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">Telefon</label>
+            <input id="f_phone"
+                   class="w-full rounded-xl border px-3 py-2 text-sm"
+                   style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"
+                   type="tel" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                   style="color: var(--text-muted);">E-posta</label>
+            <input id="f_email"
+                   class="w-full rounded-xl border px-3 py-2 text-sm"
+                   style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"
+                   type="email" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                 style="color: var(--text-muted);">Adres</label>
+          <textarea id="f_address" rows="2"
+                    class="w-full rounded-xl border px-3 py-2 text-sm"
+                    style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"></textarea>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider mb-1"
+                 style="color: var(--text-muted);">Notlar</label>
+          <textarea id="f_notes" rows="2"
+                    class="w-full rounded-xl border px-3 py-2 text-sm"
+                    style="border-color: var(--border); background: var(--bg-primary); color: var(--text-second);"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between gap-3">
+          <p class="text-[11px]" style="color: var(--text-muted);">
+            * Yalnızca temel kimlik ve iletişim alanları zorunlu değil; dilediğiniz kadar detay ekleyebilirsiniz.
+          </p>
+          <div class="flex items-center gap-2">
+            <button type="button" id="modalCancelBtn"
+                    class="rounded-xl border px-3 py-2 text-xs font-semibold"
+                    style="border-color: var(--border); background: var(--bg-primary);">
+              Vazgeç
+            </button>
+            <button type="submit" id="modalSubmitBtn"
+                    class="rounded-xl px-4 py-2 text-xs font-semibold text-white"
+                    style="background: linear-gradient(135deg, #63cab7, #3b9e8a);">
+              Kaydet
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="MenuLoader.js"></script>
+  <script src="auth.js"></script>
+  <script src="AdminMenuOptions.js"></script>
+  <script src="Template.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const API_ROOT = "http://localhost:8000/api/v1/Patient";
+
+      const state = {
+        page: 1,
+        pageSize: 10,
+        total: 0,
+        items: [],
+        filtered: [],
+        loading: false,
+        editingId: null
+      };
+
+      const el = {};
+      const pick = (id) => document.getElementById(id);
+      const esc = (v) =>
+        String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+
+      const fmtDate = (v) => {
+        if (!v) return "-";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return v;
+        return new Intl.DateTimeFormat("tr-TR", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }).format(d);
+      };
+
+      const fmtDateOnly = (v) => {
+        if (!v) return "-";
+        return v;
+      };
+
+      const showToast = (text, isErr) => {
+        if (!el.toast) return;
+        el.toast.textContent = text || "";
+        el.toast.style.color = isErr ? "#ef4444" : "var(--text-muted)";
+        if (!text) return;
+        setTimeout(() => {
+          if (el.toast.textContent === text) el.toast.textContent = "";
+        }, 3500);
+      };
+
+      const showListError = (text) => {
+        if (!el.listError) return;
+        if (!text) {
+          el.listError.classList.add("hidden");
+          el.listError.textContent = "";
+          return;
+        }
+        el.listError.textContent = text;
+        el.listError.classList.remove("hidden");
+      };
+
+      const setLoading = (loading) => {
+        state.loading = loading;
+        if (el.refreshBtn) el.refreshBtn.disabled = loading;
+        if (el.prevBtn) el.prevBtn.disabled = loading || state.page <= 1;
+        if (el.nextBtn)
+          el.nextBtn.disabled = loading || state.page * state.pageSize >= state.total;
+      };
+
+      const normalizeGender = (g) => {
+        if (!g) return "-";
+        const v = String(g).toLowerCase();
+        if (v === "erkek") return "Erkek";
+        if (v === "kadın") return "Kadın";
+        if (v === "diğer") return "Diğer";
+        return g;
+      };
+
+      const normalizePatient = (item) => {
+        if (!item || typeof item !== "object") return null;
+        return {
+          id: item.id,
+          full_name: item.full_name,
+          tc_no: item.tc_no ?? "-",
+          gender: item.gender ?? null,
+          blood_type: item.blood_type ?? null,
+          is_active: Boolean(item.is_active),
+          birth_date: item.birth_date ?? null,
+          created_at: item.created_at ?? null,
+          email: item.email ?? null,
+          phone: item.phone ?? null,
+          notes: item.notes ?? null,
+          raw: item
+        };
+      };
+
+      const updateMetrics = () => {
+        const total = state.total || state.items.length;
+        const active = state.items.filter((p) => p.is_active).length;
+        const recent = state.items.filter((p) => {
+          if (!p.created_at) return false;
+          const d = new Date(p.created_at);
+          if (Number.isNaN(d.getTime())) return false;
+          const diff = Date.now() - d.getTime();
+          return diff <= 24 * 60 * 60 * 1000;
+        }).length;
+
+        if (el.metricTotalPatients) el.metricTotalPatients.textContent = String(total);
+        if (el.metricActivePatients) el.metricActivePatients.textContent = String(active);
+        if (el.metricRecentPatients) el.metricRecentPatients.textContent = String(recent);
+
+        const start = state.items.length ? (state.page - 1) * state.pageSize + 1 : 0;
+        const end = state.items.length ? start + state.items.length - 1 : 0;
+        if (el.metricPagingInfo)
+          el.metricPagingInfo.textContent = `${start}-${end} / ${total}`;
+      };
+
+      const updatePager = () => {
+        const start = state.filtered.length
+          ? (state.page - 1) * state.pageSize + 1
+          : 0;
+        const end = state.filtered.length ? start + state.filtered.length - 1 : 0;
+        const total = state.total || state.filtered.length;
+        if (el.pagerInfo)
+          el.pagerInfo.textContent = `Sayfa ${state.page} • ${start}-${end} / ${total}`;
+
+        if (el.prevBtn) el.prevBtn.disabled = state.page <= 1;
+        if (el.nextBtn)
+          el.nextBtn.disabled = state.page * state.pageSize >= total;
+      };
+
+      const applyFilters = () => {
+        const term = (el.searchInput?.value || "").toLowerCase().trim();
+        const activeFilter = el.activeFilter?.value || "all";
+        const genderFilter = el.genderFilter?.value || "all";
+
+        state.filtered = state.items.filter((p) => {
+          if (term) {
+            const haystack = `${p.id} ${p.full_name} ${p.tc_no} ${p.email ?? ""} ${p.phone ?? ""}`.toLowerCase();
+            if (!haystack.includes(term)) return false;
+          }
+          if (activeFilter === "active" && !p.is_active) return false;
+          if (activeFilter === "inactive" && p.is_active) return false;
+
+          if (genderFilter !== "all") {
+            const g = (p.gender || "").toLowerCase();
+            if (g !== genderFilter) return false;
+          }
+          return true;
+        });
+
+        renderList();
+        updatePager();
+        updateMetrics();
+      };
+
+      const renderList = () => {
+        if (!el.patientsBody || !el.patientsMobile) return;
+
+        if (!state.filtered.length) {
+          el.patientsBody.innerHTML =
+            '<tr><td colspan="8" class="px-4 py-4 text-center text-sm" style="color: var(--text-muted);">Kayıt bulunamadı.</td></tr>';
+          el.patientsMobile.innerHTML =
+            '<div class="rounded-xl border px-4 py-4 text-sm text-center" style="border-color: var(--border); color: var(--text-muted);">Kayıt bulunamadı.</div>';
+          return;
+        }
+
+        el.patientsBody.innerHTML = state.filtered
+          .map((p) => {
+            const statusText = p.is_active ? "Aktif" : "Pasif";
+            const statusClass = p.is_active
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700";
+            return `
+              <tr class="hover:bg-slate-900/5">
+                <td class="px-4 py-2 text-xs">#P-${esc(p.id)}</td>
+                <td class="px-4 py-2 text-sm font-semibold">${esc(p.full_name)}</td>
+                <td class="px-4 py-2 text-xs" style="color: var(--text-muted);">${esc(p.tc_no ?? "-")}</td>
+                <td class="px-4 py-2 text-xs">${esc(normalizeGender(p.gender))}</td>
+                <td class="px-4 py-2 text-xs">${esc(p.blood_type ?? "-")}</td>
+                <td class="px-4 py-2 text-xs">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${statusClass}">
+                    ${statusText}
+                  </span>
+                </td>
+                <td class="px-4 py-2 text-xs" style="color: var(--text-muted);">
+                  ${esc(fmtDate(p.created_at))}
+                </td>
+                <td class="px-4 py-2 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <a href="PatientDetails.html?patient_id=${encodeURIComponent(p.id)}"
+                       class="rounded-lg border px-2 py-1 text-[11px]"
+                       style="border-color: var(--border);">
+                      Detay
+                    </a>
+                    <button type="button"
+                            data-action="delete"
+                            data-id="${esc(p.id)}"
+                            class="rounded-lg border px-2 py-1 text-[11px]"
+                            style="border-color: rgba(239, 68, 68, 0.5); color: #ef4444;">
+                      Sil
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+
+        el.patientsMobile.innerHTML = state.filtered
+          .map((p) => {
+            const statusText = p.is_active ? "Aktif" : "Pasif";
+            const statusClass = p.is_active
+              ? "bg-green-900 text-green-200"
+              : "bg-red-900 text-red-200";
+            return `
+              <article class="rounded-xl border px-4 py-3"
+                       style="border-color: var(--border); background: var(--bg-card);">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <p class="text-xs" style="color: var(--text-muted);">#P-${esc(p.id)}</p>
+                    <p class="font-semibold text-sm">${esc(p.full_name)}</p>
+                    <p class="text-xs mt-0.5" style="color: var(--text-muted);">${esc(p.tc_no ?? "-")}</p>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${statusClass}">
+                    ${statusText}
+                  </span>
+                </div>
+                <p class="mt-2 text-xs" style="color: var(--text-muted);">
+                  ${esc(normalizeGender(p.gender))} • ${esc(p.blood_type ?? "-")} • ${esc(
+              fmtDateOnly(p.birth_date)
+            )}
+                </p>
+                <div class="mt-2 flex items-center justify-end gap-2">
+                  <a href="PatientDetails.html?patient_id=${encodeURIComponent(p.id)}"
+                     class="rounded-lg border px-2 py-1 text-[11px]"
+                     style="border-color: var(--border);">
+                    Detay
+                  </a>
+                  <button type="button"
+                          data-action="delete"
+                          data-id="${esc(p.id)}"
+                          class="rounded-lg border px-2 py-1 text-[11px]"
+                          style="border-color: rgba(239, 68, 68, 0.5); color: #ef4444;">
+                    Sil
+                  </button>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      };
+
+      const fetchPatients = async () => {
+        setLoading(true);
+        showListError("");
+        try {
+          const url = `${API_ROOT}/?page=${state.page}&page_size=${state.pageSize}`;
+          const res = await fetch(url, {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : data.items ?? data.results ?? data.data ?? [];
+          const normalized = list.map(normalizePatient).filter(Boolean);
+          state.items = normalized;
+          state.total = Array.isArray(data)
+            ? normalized.length
+            : Number(data.total ?? normalized.length);
+          applyFilters();
+          showToast("Hasta listesi güncellendi.", false);
+        } catch (e) {
+          state.items = [];
+          state.filtered = [];
+          renderList();
+          updateMetrics();
+          updatePager();
+          showListError(e.message || "Hastalar alınamadı.");
+          showToast("Liste yüklenemedi.", true);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const deletePatient = async (id) => {
+        if (!id) return;
+        const ok = window.confirm(`#P-${id} hastası silinsin mi?`);
+        if (!ok) return;
+        try {
+          const res = await fetch(`${API_ROOT}/${encodeURIComponent(id)}`, {
+            method: "DELETE",
+            credentials: "include"
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          showToast("Hasta silindi.", false);
+          await fetchPatients();
+        } catch (e) {
+          showToast(e.message || "Hasta silinemedi.", true);
+        }
+      };
+
+      const openModal = () => {
+        state.editingId = null;
+        el.patientForm?.reset();
+        if (el.modalTitle) el.modalTitle.textContent = "Yeni Hasta";
+        if (el.modalSubtitle)
+          el.modalSubtitle.textContent = "Yeni hasta kaydı oluşturun.";
+        if (el.patientModal) el.patientModal.classList.remove("hidden");
+        if (el.modalError) {
+          el.modalError.textContent = "";
+          el.modalError.classList.add("hidden");
+        }
+      };
+
+      const closeModal = () => {
+        if (el.patientModal) el.patientModal.classList.add("hidden");
+      };
+
+      const showModalError = (text) => {
+        if (!el.modalError) return;
+        if (!text) {
+          el.modalError.textContent = "";
+          el.modalError.classList.add("hidden");
+          return;
+        }
+        el.modalError.textContent = text;
+        el.modalError.classList.remove("hidden");
+      };
+
+      const collectForm = () => {
+        const v = (id) => (pick(id)?.value || "").trim() || null;
+        const full_name = v("f_full_name");
+        if (!full_name) throw new Error("Ad Soyad alanı zorunlu.");
+        return {
+          full_name,
+          tc_no: v("f_tc_no"),
+          birth_date: v("f_birth_date"),
+          gender: v("f_gender"),
+          blood_type: v("f_blood_type"),
+          phone: v("f_phone"),
+          email: v("f_email"),
+          address: v("f_address"),
+          notes: v("f_notes"),
+          medical_history: null,
+          allergies: null,
+          medications: null
+        };
+      };
+
+      const submitForm = async (ev) => {
+        ev.preventDefault();
+        if (!el.modalSubmitBtn) return;
+        try {
+          const payload = collectForm();
+          el.modalSubmitBtn.disabled = true;
+          const method = state.editingId ? "PUT" : "POST";
+          const url = state.editingId
+            ? `${API_ROOT}/${encodeURIComponent(state.editingId)}`
+            : `${API_ROOT}/`;
+          const res = await fetch(url, {
+            method,
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error(`Kaydedilemedi (HTTP ${res.status})`);
+          closeModal();
+          showToast("Hasta kaydedildi.", false);
+          await fetchPatients();
+        } catch (e) {
+          showModalError(e.message || "Form hatası.");
+        } finally {
+          el.modalSubmitBtn.disabled = false;
+        }
+      };
+
+      const bindEvents = () => {
+        if (el.refreshBtn)
+          el.refreshBtn.addEventListener("click", () => {
+            const val = Number(el.pageSizeInput?.value || "10");
+            state.pageSize = Number.isFinite(val)
+              ? Math.max(1, Math.min(100, val))
+              : 10;
+            state.page = 1;
+            fetchPatients();
+          });
+        if (el.prevBtn)
+          el.prevBtn.addEventListener("click", () => {
+            if (state.page <= 1) return;
+            state.page -= 1;
+            fetchPatients();
+          });
+        if (el.nextBtn)
+          el.nextBtn.addEventListener("click", () => {
+            if (state.page * state.pageSize >= state.total) return;
+            state.page += 1;
+            fetchPatients();
+          });
+
+        if (el.searchInput) el.searchInput.addEventListener("input", applyFilters);
+        if (el.activeFilter)
+          el.activeFilter.addEventListener("change", applyFilters);
+        if (el.genderFilter)
+          el.genderFilter.addEventListener("change", applyFilters);
+        if (el.clearFiltersBtn)
+          el.clearFiltersBtn.addEventListener("click", () => {
+            if (el.searchInput) el.searchInput.value = "";
+            if (el.activeFilter) el.activeFilter.value = "all";
+            if (el.genderFilter) el.genderFilter.value = "all";
+            applyFilters();
+            showToast("Filtreler temizlendi.", false);
+          });
+
+        if (el.openCreateModalBtn)
+          el.openCreateModalBtn.addEventListener("click", openModal);
+        if (el.closeModalBtn)
+          el.closeModalBtn.addEventListener("click", closeModal);
+        if (el.modalCancelBtn)
+          el.modalCancelBtn.addEventListener("click", closeModal);
+        if (el.patientForm)
+          el.patientForm.addEventListener("submit", submitForm);
+
+        if (el.patientsBody)
+          el.patientsBody.addEventListener("click", (ev) => {
+            const btn = ev.target.closest("button[data-action='delete']");
+            if (btn) deletePatient(btn.dataset.id);
+          });
+        if (el.patientsMobile)
+          el.patientsMobile.addEventListener("click", (ev) => {
+            const btn = ev.target.closest("button[data-action='delete']");
+            if (btn) deletePatient(btn.dataset.id);
+          });
+      };
+
+      const init = () => {
+        [
+          "metricTotalPatients",
+          "metricActivePatients",
+          "metricRecentPatients",
+          "metricPagingInfo",
+          "pageSizeInput",
+          "refreshBtn",
+          "searchInput",
+          "activeFilter",
+          "genderFilter",
+          "clearFiltersBtn",
+          "patientsBody",
+          "patientsMobile",
+          "prevBtn",
+          "nextBtn",
+          "pagerInfo",
+          "toast",
+          "listError",
+          "patientModal",
+          "openCreateModalBtn",
+          "closeModalBtn",
+          "modalCancelBtn",
+          "modalSubmitBtn",
+          "patientForm",
+          "modalTitle",
+          "modalSubtitle",
+          "modalError"
+        ].forEach((id) => {
+          el[id] = pick(id);
+        });
+
+        if (window.Theme && typeof window.Theme.renderToggle === "function") {
+          window.Theme.renderToggle("themeBtn");
+        }
+
+        bindEvents();
+        fetchPatients();
+      };
+
+      document.addEventListener("DOMContentLoaded", init);
+    })();
+  </script>
+</body>
+</html>
+

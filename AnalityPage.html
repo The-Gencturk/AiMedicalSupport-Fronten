@@ -417,6 +417,7 @@
 
       const API_ENDPOINT = "http://localhost:8000/api/v1/analyses";
       const BULK_DELETE_ENDPOINT = "http://localhost:8000/api/v1/analyses/BulkDelete";
+      const COMMUNITY_SHARE_ROOT = "http://localhost:8000/api/v1/community/share";
       const state = {
         analyses: [],
         filtered: [],
@@ -601,9 +602,14 @@
                   <div class="text-xs" style="color: var(--text-muted);">${timeAgo(a.createdAt)}</div>
                 </td>
                 <td>
-                  <a class="btn-lite !text-xs !px-3 !py-2" type="button" href="AiTrainAnalisyDetails.html?id=${a.id}">
-                    <i class="fa-solid fa-eye"></i> Detay
-                  </a>
+                  <div class="flex items-center gap-1">
+                    <a class="btn-lite !text-xs !px-3 !py-2" type="button" href="AiTrainAnalisyDetails.html?id=${a.id}">
+                      <i class="fa-solid fa-eye"></i> Detay
+                    </a>
+                    <button class="btn-lite !text-xs !px-3 !py-2" type="button" data-action="share" data-id="${escapeHtml(a.id)}">
+                      <i class="fa-solid fa-share-nodes"></i> Paylas
+                    </button>
+                  </div>
                 </td>
               </tr>
             `;
@@ -815,8 +821,6 @@
         el.modalResultBadge.className = `status ${s.className}`;
         el.modalResultBadge.innerHTML = `<i class="fa-solid ${s.icon}"></i>${s.label}`;
         el.modalRawJson.textContent = JSON.stringify(a.raw, null, 2);
-
-   
       }
 
  
@@ -910,6 +914,29 @@
   }, 0);
 }
 
+async function shareAnalysisToCommunity(analysisId) {
+  if (!analysisId) {
+    setMessage("Gecersiz analiz ID.", true);
+    return;
+  }
+
+  const approved = window.confirm(`#A-${analysisId} toplulukta paylasilsin mi?`);
+  if (!approved) return;
+
+  try {
+    const res = await fetch(`${COMMUNITY_SHARE_ROOT}/${encodeURIComponent(analysisId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include"
+    });
+    if (!res.ok) throw new Error(`Paylasim basarisiz (HTTP ${res.status})`);
+    const payload = await res.json().catch(() => "Paylasim tamamlandi.");
+    setMessage(typeof payload === "string" ? payload : "Analiz topluluga paylasildi.", false);
+  } catch (error) {
+    setMessage(error?.message || "Paylasim basarisiz.", true);
+  }
+}
+
 function initEvents() {
   const doFilter = () => applyFilters();
 
@@ -941,8 +968,13 @@ function initEvents() {
   if (el.analysesBody) {
     el.analysesBody.addEventListener("click", (event) => {
       const btn = event.target.closest("button[data-action='detail']");
-      if (!btn) return;
-      openDetail(btn.dataset.id);
+      if (btn) {
+        openDetail(btn.dataset.id);
+        return;
+      }
+      const shareBtn = event.target.closest("button[data-action='share']");
+      if (!shareBtn) return;
+      shareAnalysisToCommunity(shareBtn.dataset.id);
     });
 
     el.analysesBody.addEventListener("change", (event) => {
