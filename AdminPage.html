@@ -110,7 +110,7 @@
 <div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
 
 <main class="flex-1 p-8">
-<header style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="mb-8 flex items-center justify-center gap-8 dark:bg-background-dark p-8 rounded-xl  transition-all duration-00 ease-in-out">
+<header style="border: var(--border-one) 2px solid;   background-color: var(--bg-thiry);"  class="mb-8 flex items-center justify-center gap-8 dark:bg-background-dark p-8 rounded-xl  transition-all duration-00 ease-in-out">
 
   <img id="userProfile"  alt="Profil" style="border:solid 3px #37ff00ec;" class="w-20 h-20 rounded-full border border-slate-900 "/>
   <div class="text-center ">
@@ -122,96 +122,14 @@
 
 
 </header>
-<div>
-<h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4" style="color: var(--text-second);">Özet</h3>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);" class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
-<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);" >Toplam Analizler</p>
-<p id="totalProducts" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">4</p>
-</div>
-<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl ">
-<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Toplam Hasta</p>
-<p  id="pendingOrders" class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-second);">21</p>
-</div>
-<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
-<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Sadace Bugün</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">2</p>
-</div>
-<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"   class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
-<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Doğruluk Oranı</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">78</p>
-</div>
-<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
-<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Toplam Personel</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">4</p>
-</div>
-<div style="border: var(--border); border: solid 2px; background-color: var(--bg-thiry);"  class="bg-background-light dark:bg-background-dark p-6 rounded-xl">
-<p class="text-sm font-medium text-slate-500 dark:text-slate-400" style="color: var(--text-muted);">Ai Eğitimi</p>
-<p id="TotalUsers" class="text-3xl font-bold text-slate-900 dark:text-white TotalUsers" style="color: var(--text-second);">0</p>
-</div>
-</div>
-</div>
-<div class="mt-8">
-<h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Son Aktiviteler</h3>  
 
-<div class="overflow-x-auto bg-background-light dark:bg-background-dark rounded-xl border border-primary/20 dark:border-primary/30">
-<table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
+<section class="mt-8">
+ 
 
-<thead class="text-xs text-slate-700 dark:text-slate-300 uppercase bg-primary/20 dark:bg-primary/30">
-<tr>
-<th class="px-6 py-3" scope="col">Analiz Id</th>
-<th class="px-6 py-3" scope="col">Hasta</th>
-<th class="px-6 py-3" scope="col">Tarih</th>
-<th class="px-6 py-3" scope="col">Durum</th>
-<th class="px-6 py-3 text-right " scope="col">Toplam</th>
-<th class="px-6 py-3" scope="col"></th>
-</tr>
-</thead>
-<tbody class="divide-y divide-primary/10">
-  <tr class="hover:bg-primary/5 transition-colors">
-    <th class="px-6 py-4 font-medium text-slate-900 dark:text-white" scope="row">#22</th>
-    <td class="px-6 py-4">Ahmet Yılmaz</td>
-    <td class="px-6 py-4 text-xs">26 Mart 2026, 17:28</td>
-    <td class="px-6 py-4">
-      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-        Eğitildi (Trained)
-      </span>
-    </td>
-    <td class="px-6 py-4 text-right font-semibold text-primary">%98.4</td>
-  </tr>
+  <div id="generalDataGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
 
-  <tr class="hover:bg-primary/5 transition-colors">
-    <th class="px-6 py-4 font-medium text-slate-900 dark:text-white" scope="row">#21</th>
-    <td class="px-6 py-4">Ayşe Demir</td>
-    <td class="px-6 py-4 text-xs">26 Mart 2026, 16:15</td>
-    <td class="px-6 py-4">
-      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-        İncelendi (Reviewed)
-      </span>
-    </td>
-    <td class="px-6 py-4 text-right font-semibold text-primary">%92.1</td>
-  </tr>
 
-  <tr class="hover:bg-primary/5 transition-colors">
-    <th class="px-6 py-4 font-medium text-slate-900 dark:text-white" scope="row">#20</th>
-    <td class="px-6 py-4">Mehmet Can</td>
-    <td class="px-6 py-4 text-xs">26 Mart 2026, 15:40</td>
-    <td class="px-6 py-4">
-      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 animate-pulse">
-        Beklemede (Pending)
-      </span>
-    </td>
-    <td class="px-6 py-4 text-right font-semibold text-primary">%85.0</td>
-  </tr>
-</tbody>
-<tr class="bg-background-light dark:bg-background-dark border-b border-primary/20 dark:border-primary/30">
-<th class="px-6 py-4 font-medium text-slate-900 dark:text-white whitespace-nowrap" scope="row"></th>
-<td class="px-6 py-4"></td>
-<td class="px-6 py-4"></td>
-<td class="px-6 py-4">
-<span class="status-badge status-beklemede"></span>
-</td>
-<td class="px-6 py-4 text-right"></td>
+</section>
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
@@ -226,6 +144,121 @@
 <script src="auth.js"></script>
 <script src="AdminMenuOptions.js"></script>
 <script src="Template.js"></script>
+<script>
+  
+  (function () {
+    "use strict";
+
+    const GENERAL_DATA_ENDPOINT = "http://localhost:8000/api/v1/Other/GeneralData";
+    
+    const pick = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+    const labelMap = {
+      total_analyses: "Toplam Analiz",
+      total_analysis: "Toplam Analiz",
+      total_patients: "Toplam Hasta",
+      total_users: "Toplam Kullanici",
+      total_staff: "Toplam Personel",
+      today_analyses: "Bugun Analiz",
+      today_findings: "Bugun Bulgu",
+      avg_confidence: "Ortalama Guven",
+      accuracy_rate: "Dogruluk Orani"
+    };
+
+    function setMsg(text, isErr) {
+      const el = pick("generalDataMessage");
+      if (!el) return;
+      el.textContent = text || "";
+      el.style.color = isErr ? "#ef4444" : "var(--text-muted)";
+    }
+
+    function normalizeGeneralData(payload) {
+      if (!payload || typeof payload !== "object") return {};
+      const source = payload.data && typeof payload.data === "object" ? payload.data : payload;
+      const out = {};
+      Object.keys(source).forEach((key) => {
+        const value = source[key];
+        if (value == null) return;
+        if (typeof value === "number" || typeof value === "string" || typeof value === "boolean") {
+          out[key] = value;
+        }
+      });
+      return out;
+    }
+
+    function prettyLabel(key) {
+      if (labelMap[key]) return labelMap[key];
+      return key
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
+    function prettyValue(key, value) {
+      if (typeof value === "boolean") return value ? "Evet" : "Hayir";
+      if (typeof value === "number" && /rate|accuracy|confidence/i.test(key)) return `${value}%`;
+      return String(value);
+    }
+
+    function renderGeneralDataCards(data) {
+      const grid = pick("generalDataGrid");
+      if (!grid) return;
+
+      const entries = Object.entries(data);
+      if (!entries.length) {
+        grid.innerHTML = `
+          <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+            <p class="text-sm" style="color: var(--text-muted);">Gosterilecek genel veri bulunamadi.</p>
+          </article>
+        `;
+        return;
+      }
+
+      grid.innerHTML = entries.map(([key, value]) => `
+        <article class="rounded-xl border p-4" style="border-color: var(--border); background: var(--bg-card);">
+          <p class="text-xs uppercase tracking-wider" style="color: var(--text-muted);">${esc(prettyLabel(key))}</p>
+          <p class="mt-2 text-2xl font-bold" style="color: var(--text-second);">${esc(prettyValue(key, value))}</p>
+        </article>
+      `).join("");
+    }
+
+    async function loadGeneralData() {
+      const refreshBtn = pick("refreshGeneralDataBtn");
+      const rawEl = pick("generalDataRaw");
+      if (refreshBtn) refreshBtn.disabled = true;
+      setMsg("Genel veri yukleniyor...", false);
+
+      try {
+        const res = await fetch(GENERAL_DATA_ENDPOINT, { credentials: "include", method: "GET" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+        const normalized = normalizeGeneralData(payload);
+        renderGeneralDataCards(normalized);
+        if (rawEl) rawEl.textContent = JSON.stringify(payload, null, 2);
+        setMsg("Genel veri guncellendi.", false);
+      } catch (err) {
+        renderGeneralDataCards({});
+        if (rawEl) rawEl.textContent = "";
+        setMsg(`Genel veri alinamadi: ${err.message}`, true);
+      } finally {
+        if (refreshBtn) refreshBtn.disabled = false;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const refreshBtn = pick("refreshGeneralDataBtn");
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", loadGeneralData);
+      }
+      loadGeneralData();
+    });
+  })();
+</script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const messages = [

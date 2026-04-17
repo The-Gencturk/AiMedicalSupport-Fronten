@@ -1,7 +1,7 @@
 :root, [data-theme="light"] {
   --bg-primary:    #FFFFFFF8;
   --bg-secondary:  #f8fafc;
-  --bg-thiry:      #E2E8EC;
+  --bg-thiry:      #feffff;
   --bg-antilight : #0f172a;
   --text-second:   rgba(15 15 15 / 0.96);
   --bg-card:       #ffffff;
@@ -11,7 +11,8 @@
   --text-green:    #55DD07D2;
   --text-yellow:   #BBD000;
   --metric-articet: #0055FF;
-  --border:        rgba(0,0,0,0.08);
+  --border:        rgba(240, 0, 0, 0.08);
+  --border-one:     rgba(0, 0, 0, 0.08);
   --accent:        #3b9e8a;
   --accent-light:  #63cab7;
   --card:   var(--bg-card);
@@ -32,6 +33,7 @@
   --text-muted:    #55DD07D2;
   --AiBackgraund:  #111c2d;
   --border:        rgba(255,255,255,0.08);
+  --border-one:     rgba(178, 243, 0, 0.945);
   --accent:        #63cab7;
   --accent-light:  #9ee8d8;
   --card:   var(--bg-card);
