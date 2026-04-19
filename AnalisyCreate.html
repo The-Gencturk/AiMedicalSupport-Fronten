@@ -537,7 +537,7 @@
           </div>
         </div>
 
-        <input type="file" id="fileInput" accept="image/*" class="hidden"/>
+        <input type="file" id="fileInput" accept="image/*,.dcm,application/dicom" class="hidden"/>
       </div>
 
       <!-- Step dots -->
@@ -764,10 +764,22 @@
   let lastAnalysisId = null;
   let predictedScanType = 'brain';
 
+  function isDicomFile(file) {
+    if (!file) return false;
+    const name = String(file.name || '').toLowerCase();
+    const type = String(file.type || '').toLowerCase();
+    return name.endsWith('.dcm') || type === 'application/dicom' || type === 'application/dicom+json';
+  }
+
+  function isSupportedFile(file) {
+    if (!file) return false;
+    return String(file.type || '').startsWith('image/') || isDicomFile(file);
+  }
+
   // ── Hastaları çek ──
   async function loadPatients() {
     try {
-      const res = await fetch(`${API_ROOT}/patients`, { credentials: 'include' });
+      const res = await fetch(`${API_ROOT}/Patient`, { credentials: 'include' });
       if (!res.ok) throw new Error();
       const patients = await res.json();
       patients.forEach(p => {
@@ -927,21 +939,34 @@
   }
   function handleFile(file) {
     if (!file) return;
+    if (!isSupportedFile(file)) {
+      alert('Desteklenmeyen dosya tipi. Lutfen PNG, JPG veya DICOM (.dcm) secin.');
+      return;
+    }
     selectedFile = file;
-    const reader = new FileReader();
-    reader.onload = e => {
-      previewImg.src = e.target.result;
-      previewImg.style.display = 'block';
-      dropDefault.classList.add('hidden');
-      dropHasFile.classList.remove('hidden');
-      dropHasFile.classList.add('flex');
-      dropZone.classList.add('has-file');
-      scanLine.style.display = 'block';
-      fileNameEl.textContent = file.name.length > 28
-        ? file.name.substring(0, 25) + '...'
-        : file.name;
-    };
-    reader.readAsDataURL(file);
+    const dicom = isDicomFile(file);
+
+    if (dicom) {
+      previewImg.style.display = 'none';
+      previewImg.src = '';
+    } else {
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        previewImg.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    dropDefault.classList.add('hidden');
+    dropHasFile.classList.remove('hidden');
+    dropHasFile.classList.add('flex');
+    dropZone.classList.add('has-file');
+    scanLine.style.display = dicom ? 'none' : 'block';
+    fileNameEl.textContent = file.name.length > 28
+      ? file.name.substring(0, 25) + '...'
+      : file.name;
+
     updateState();
     predictScanType(file);
   }
@@ -953,7 +978,7 @@
     e.preventDefault();
     dropZone.classList.remove('dragover');
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) handleFile(file);
+    if (file) handleFile(file);
   });
 
   function showResult() {

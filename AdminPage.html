@@ -10,6 +10,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
     />
   <link rel="stylesheet" href="Theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     body { font-family: 'Outfit', sans-serif; }
@@ -126,8 +127,26 @@
 <section class="mt-8">
  
 
-  <div id="generalDataGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+  <div id="generalDataGrid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
+    <div class="card">
+      <p class="text-sm uppercase tracking-wider mb-3" style="color: var(--text-muted);">Bulgu Dağılımı</p>
+      <div id="findingLegend" class="flex flex-wrap gap-2 mb-3"></div>
+      <div style="position:relative; height:220px;">
+        <canvas id="findingChart" role="img" aria-label="Bulgu dağılımı grafiği"></canvas>
+      </div>
+    </div>
+  
+    <div class="card">
+      <p class="text-sm uppercase tracking-wider mb-3" style="color: var(--text-muted);">En Çok Analiz Yapılan Organlar</p>
+      <div id="organLegend" class="flex flex-wrap gap-2 mb-3"></div>
+      <div style="position:relative; height:220px;">
+        <canvas id="organChart" role="img" aria-label="Organ analiz grafiği"></canvas>
+      </div>
+    </div>
+  
+  </div>
 
 </section>
 </body>
@@ -159,17 +178,31 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#39;");
 
+    const COLORS = [
+    "#378ADD", "#1D9E75", "#D85A30",
+    "#7F77DD", "#BA7517", "#D4537E",
+    "#639922", "#E24B4A", "#888780"
+  ];
+
     const labelMap = {
       total_analyses: "Toplam Analiz",
-      total_analysis: "Toplam Analiz",
-      total_patients: "Toplam Hasta",
+      total_analyses: "Toplam Analiz",
+      total_patients: "Toplam Hasta",   
+      total_users: "Toplam Kullanıcı",  
+      total_roles: "Toplam Rol",
       total_users: "Toplam Kullanici",
+      analyses_today:"Bugün analizi",
+      analyses_this_week:"Bu Haftada",
+      active_users:"Aktif Kullanıcı",
+      new_users_today:"Bugün Yeni kayıt",
+      positive_rate:"Doğruluk oranı",
       total_staff: "Toplam Personel",
-      today_analyses: "Bugun Analiz",
+      total_analysis_nowdate: "Bugun Analiz",
       today_findings: "Bugun Bulgu",
       avg_confidence: "Ortalama Guven",
       accuracy_rate: "Dogruluk Orani"
-    };
+    }; 
+
 
     function setMsg(text, isErr) {
       const el = pick("generalDataMessage");
@@ -178,18 +211,113 @@
       el.style.color = isErr ? "#ef4444" : "var(--text-muted)";
     }
 
+    function firstFiniteNumber(...values) {
+      for (const value of values) {
+        const n = Number(value);
+        if (Number.isFinite(n)) return n;
+      }
+      return null;
+    }
+
+    function extractApiCount(payload, source) {
+      const meta = source?.meta && typeof source.meta === "object" ? source.meta : {};
+      const pagination = source?.pagination && typeof source.pagination === "object" ? source.pagination : {};
+      const sourceCount = firstFiniteNumber(
+        source?.count,
+        source?.total,
+        source?.total_count,
+        source?.totalCount,
+        meta?.count,
+        meta?.total,
+        pagination?.count,
+        pagination?.total,
+        payload?.count,
+        payload?.total,
+        payload?.total_count,
+        payload?.totalCount
+      );
+      return sourceCount;
+    }
+
     function normalizeGeneralData(payload) {
       if (!payload || typeof payload !== "object") return {};
       const source = payload.data && typeof payload.data === "object" ? payload.data : payload;
       const out = {};
+      const SKIP = new Set(["finding_distribution", "best_organs"]); // ← bu satırı ekle
+
       Object.keys(source).forEach((key) => {
         const value = source[key];
+        if (SKIP.has(key)) return;
         if (value == null) return;
         if (typeof value === "number" || typeof value === "string" || typeof value === "boolean") {
           out[key] = value;
         }
       });
+
+      const apiCount = extractApiCount(payload, source);
+      if (apiCount !== null) {
+        out.total_analyses = apiCount;
+      }
+
       return out;
+    }
+
+    function buildLegend(containerId, labels, colors) {
+      const el = pick(containerId);
+      if (!el) return;
+      el.innerHTML = labels.map((lbl, i) =>
+        `<span style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-muted);">
+          <span style="width:10px;height:10px;border-radius:2px;background:${colors[i % colors.length]};flex-shrink:0;"></span>
+          ${esc(lbl)}
+        </span>`
+      ).join("");
+    }
+
+    let findingChartInstance = null;
+    let organChartInstance = null;
+
+    function renderFindingChart(distribution) {
+      const canvas = pick("findingChart");
+      if (!canvas || typeof Chart === "undefined") return;
+      const filtered = distribution.filter((d) => d.type !== null && d.type !== undefined);
+      if (!filtered.length) return;
+      const labels = filtered.map((d) => d.type);
+      const data   = filtered.map((d) => d.count);
+      const colors = labels.map((_, i) => COLORS[i % COLORS.length]);
+      buildLegend("findingLegend", labels, colors);
+      if (findingChartInstance) findingChartInstance.destroy();
+      findingChartInstance = new Chart(canvas, {
+        type: "doughnut",
+        data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: "rgba(128,128,128,0.15)" }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: "58%",
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}` } } }
+        }
+      });
+    }
+
+    function renderOrganChart(organs) {
+      const canvas = pick("organChart");
+      if (!canvas || typeof Chart === "undefined") return;
+      if (!organs.length) return;
+      const labels = organs.map((o) => o.name.charAt(0).toUpperCase() + o.name.slice(1));
+      const data   = organs.map((o) => o.count);
+      const colors = labels.map((_, i) => COLORS[i % COLORS.length]);
+      buildLegend("organLegend", labels, colors);
+      canvas.parentElement.style.height = Math.max(180, labels.length * 44 + 60) + "px";
+      if (organChartInstance) organChartInstance.destroy();
+      organChartInstance = new Chart(canvas, {
+        type: "bar",
+        data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 4, borderSkipped: false }] },
+        options: {
+          indexAxis: "y", responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: "rgba(128,128,128,0.1)" }, ticks: { font: { size: 12 }, color: "rgba(128,128,128,0.9)" } },
+            y: { grid: { display: false }, ticks: { font: { size: 13 }, color: "rgba(128,128,128,0.9)" } }
+          }
+        }
+      });
     }
 
     function prettyLabel(key) {
@@ -239,6 +367,9 @@
         const payload = await res.json();
         const normalized = normalizeGeneralData(payload);
         renderGeneralDataCards(normalized);
+        const src = payload.data && typeof payload.data === "object" ? payload.data : payload;
+        if (Array.isArray(src.finding_distribution)) renderFindingChart(src.finding_distribution);
+        if (Array.isArray(src.best_organs))          renderOrganChart(src.best_organs);
         if (rawEl) rawEl.textContent = JSON.stringify(payload, null, 2);
         setMsg("Genel veri guncellendi.", false);
       } catch (err) {
@@ -258,6 +389,7 @@
       loadGeneralData();
     });
   })();
+  
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {

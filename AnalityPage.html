@@ -632,7 +632,6 @@
         
         if (el.metricRecent) el.metricRecent.textContent = String(recent);
         if (el.resultCount) el.resultCount.textContent = `${total} kayıt`;
-        if (el.headerUpdatedAt) el.headerUpdatedAt.textContent = `Son güncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henüz yok"}`;
       }
 
       function syncSelectionUi() {
@@ -714,6 +713,13 @@
         return Number.isFinite(n) && n > 0 ? n : null;
       }
 
+      function parseNum(value, allowZero = true) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return null;
+        if (allowZero) return n >= 0 ? n : null;
+        return n > 0 ? n : null;
+      }
+
       function updatePaginationUi() {
         const page = state.pagination.currentPage;
         const size = state.pagination.pageSize;
@@ -763,26 +769,62 @@
             : Array.isArray(payload.analyses)
             ? payload.analyses
             : [];
-          const totalAnalsiy = parseHeaderInt(res.headers, "x-total-analyses"); 
-          state.pagination.totalCount = totalAnalsiy ?? rawList.length;
+
+          // API toplam bilgisini once body'den, sonra header'dan al.
+          const payloadTotal =
+            parseNum(payload?.total) ??
+            parseNum(payload?.count) ??
+            parseNum(payload?.total_count) ??
+            parseNum(payload?.totalCount) ??
+            parseNum(payload?.pagination?.total) ??
+            parseNum(payload?.pagination?.count) ??
+            parseNum(payload?.meta?.total) ??
+            parseNum(payload?.meta?.count);
 
           const currentHeader = parseHeaderInt(res.headers, "x-current-page");
           const sizeHeader = parseHeaderInt(res.headers, "x-page-size");
           const totalHeader =
+            parseHeaderInt(res.headers, "x-total-analyses") ??
             parseHeaderInt(res.headers, "x-total-count") ??
             parseHeaderInt(res.headers, "x-total-items") ??
             parseHeaderInt(res.headers, "x-total");
 
-          state.pagination.currentPage = currentHeader || requestedPage;
-          state.pagination.pageSize = sizeHeader || state.pagination.pageSize;
-          state.pagination.totalCount = totalHeader ?? state.pagination.totalCount;
+          const payloadPage =
+            parseNum(payload?.page, false) ??
+            parseNum(payload?.current_page, false) ??
+            parseNum(payload?.currentPage, false) ??
+            parseNum(payload?.pagination?.page, false) ??
+            parseNum(payload?.pagination?.current_page, false);
+
+          const payloadPageSize =
+            parseNum(payload?.page_size, false) ??
+            parseNum(payload?.pageSize, false) ??
+            parseNum(payload?.pagination?.page_size, false) ??
+            parseNum(payload?.pagination?.pageSize, false);
+
+          const payloadTotalPages =
+            parseNum(payload?.total_pages, false) ??
+            parseNum(payload?.totalPages, false) ??
+            parseNum(payload?.pagination?.total_pages, false) ??
+            parseNum(payload?.pagination?.totalPages, false);
+
+          state.pagination.currentPage = currentHeader || payloadPage || requestedPage;
+          state.pagination.pageSize = sizeHeader || payloadPageSize || state.pagination.pageSize;
+          state.pagination.totalCount = totalHeader ?? payloadTotal ?? null;
 
           state.analyses = sortByDate(rawList.map(normalizeAnalysis).filter(Boolean));
           const validIds = new Set(state.analyses.map((a) => String(a.id)));
           state.selectedIds = new Set([...state.selectedIds].filter((id) => validIds.has(id)));
-          state.pagination.hasNext = Number.isFinite(state.pagination.totalCount)
+          state.pagination.hasNext = payloadTotalPages
+            ? state.pagination.currentPage < payloadTotalPages
+            : Number.isFinite(state.pagination.totalCount)
             ? state.pagination.currentPage * state.pagination.pageSize < state.pagination.totalCount
-            : state.analyses.length >= state.pagination.pageSize;
+            : state.analyses.length === state.pagination.pageSize;
+
+          // Header/body toplam bilgisi yoksa, en azindan sayfalama butonlari dogru calissin.
+          if (totalHeader === null && payloadTotal === null && payloadTotalPages === null) {
+            state.pagination.hasNext = rawList.length === state.pagination.pageSize;
+          }
           state.lastUpdated = new Date();
           updateDoctorFilter();
           applyFilters();
@@ -987,7 +1029,7 @@ function initEvents() {
 
       function initElements() {
   [
-    "headerUpdatedAt", "metricTotal", "metricAverage",
+     "metricTotal", "metricAverage",
      "metricRecent",
     "searchInput", "statusFilter", "doctorFilter","careFilter",
     "dateTo",
@@ -997,7 +1039,7 @@ function initEvents() {
     "fetchError", "tableLoadingHint", "resultCount",
     "analysesBody", "paginationInfo", "prevPageBtn", "nextPageBtn"
   ].forEach((id) => {
-    const element = pick(id); // ✅ BURASI ŞART
+    const element = pick(id); 
 
     if (!element) {
       console.warn("ELEMENT BULUNAMADI:", id);

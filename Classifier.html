@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classifier Yönetimi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+<script src="MenuLoader.js"></script>
+<script src="AdminMenuOptions.js"></script>
+<script src="Template.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <style>
+    :root { color-scheme: dark; }
+    body { background: #0b1220; color: #dbe7ff; }
+    .card { background: #111b2f; border: 1px solid #243451; border-radius: 14px; padding: 16px; }
+    .btn { border: 1px solid #2c4166; background: #16243f; padding: 8px 12px; border-radius: 10px; }
+    .btn:hover { background: #1b2c4b; }
+    .btn-primary { border-color: #2c7a7b; background: #1d5e63; color: #ecfeff; }
+    .in { width: 100%; background: #0e1628; border: 1px solid #2a3b58; border-radius: 10px; padding: 8px 10px; }
+    .label { font-size: 12px; color: #9fb5d8; }
+    .mini { font-size: 12px; color: #97a9c7; }
+    pre { max-height: 260px; overflow: auto; }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    
+<div id="AdminMenu"></div>
+<div id="themeBtn" style="right: 24px; position: fixed; top: 14px; z-index: 1300;"></div>
+  <main class="max-w-7xl mx-auto grid gap-4">
+    <section class="card">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 class="text-2xl font-bold">Organ Classifier Paneli</h1>
+          <p class="mini mt-1">Dataset, ayarlar, eğitim ve yedek yönetimi</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="apiBase" class="in w-80" />
+          <button id="saveApiBaseBtn" class="btn">API Kaydet</button>
+        </div>
+      </div>
+      <p id="globalMsg" class="mini mt-3"></p>
+    </section>
+
+    <section class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <article class="card">
+        <div class="flex items-center justify-between">
+          <h2 class="font-semibold">Dataset Özeti</h2>
+          <button id="loadDatasetBtn" class="btn">Yenile</button>
+        </div>
+        <pre id="datasetOut" class="mt-3 text-xs"></pre>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Dataset'e Görsel Ekle</h2>
+        <label class="label mt-3 block">Class Name</label>
+        <input id="uploadClassName" class="in mt-1" placeholder="ör: lung" />
+        <label class="label mt-3 block">Dosyalar</label>
+        <input id="uploadFiles" class="in mt-1" type="file" multiple accept="image/*,.dcm,application/dicom" />
+        <button id="uploadDatasetBtn" class="btn btn-primary mt-3 w-full">Yükle</button>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Dataset'ten Görsel Sil</h2>
+        <label class="label mt-3 block">Class Name</label>
+        <input id="deleteClassName" class="in mt-1" placeholder="ör: lung" />
+        <label class="label mt-3 block">Filename</label>
+        <input id="deleteFilename" class="in mt-1" placeholder="ör: xray_001.png" />
+        <button id="deleteImageBtn" class="btn mt-3 w-full">Sil</button>
+      </article>
+
+      <article class="card">
+        <div class="flex items-center justify-between">
+          <h2 class="font-semibold">Settings</h2>
+          <button id="getSettingsBtn" class="btn">GET</button>
+        </div>
+        <textarea id="settingsJson" class="in mt-3 h-36 font-mono text-xs" placeholder='{"learning_rate":0.001}'></textarea>
+        <button id="putSettingsBtn" class="btn btn-primary mt-3 w-full">PUT Settings</button>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Priors (PUT)</h2>
+        <textarea id="priorsJson" class="in mt-3 h-36 font-mono text-xs" placeholder='{"priors":{"normal":0.5,"mass":0.5}}'></textarea>
+        <button id="putPriorsBtn" class="btn btn-primary mt-3 w-full">PUT Priors</button>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Train & Status</h2>
+        <label class="label mt-3 block">auto_reload</label>
+        <select id="autoReloadTrain" class="in mt-1"><option value="true">true</option><option value="false">false</option></select>
+        <button id="trainBtn" class="btn btn-primary mt-3 w-full">Train Başlat</button>
+        <label class="label mt-3 block">job_id</label>
+        <input id="jobIdInput" class="in mt-1" placeholder="train sonrası doldurulur" />
+        <button id="trainStatusBtn" class="btn mt-3 w-full">Train Status</button>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Reload</h2>
+        <button id="reloadBtn" class="btn btn-primary mt-3 w-full">Classifier Reload</button>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Backups</h2>
+        <label class="label mt-3 block">limit</label>
+        <input id="backupLimit" class="in mt-1" type="number" value="50" min="1" max="200" />
+        <button id="listBackupsBtn" class="btn mt-3 w-full">Backups Listele</button>
+      </article>
+
+      <article class="card">
+        <h2 class="font-semibold">Rollback</h2>
+        <label class="label mt-3 block">backup_id</label>
+        <input id="rollbackId" class="in mt-1" placeholder="backup id" />
+        <label class="label mt-3 block">auto_reload</label>
+        <select id="autoReloadRollback" class="in mt-1"><option value="true">true</option><option value="false">false</option></select>
+        <button id="rollbackBtn" class="btn mt-3 w-full">Rollback</button>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2 class="font-semibold mb-3">API Çıktısı</h2>
+      <pre id="apiOut" class="text-xs"></pre>
+    </section>
+  </main>
+
+  <script>
+          document.addEventListener('DOMContentLoaded', () => {
+     Theme.renderToggle('themeBtn');
+  });
+    (function () {
+      "use strict";
+      const pick = (id) => document.getElementById(id);
+      const apiOut = pick("apiOut");
+      const globalMsg = pick("globalMsg");
+      const apiBaseInput = pick("apiBase");
+
+      const initialBase = window.localStorage.getItem("API_BASE_URL") || "http://localhost:8000";
+      apiBaseInput.value = initialBase;
+
+      function apiBase() {
+        return (apiBaseInput.value || "http://localhost:8000").replace(/\/+$/, "");
+      }
+      function endpoint(path) {
+        return `${apiBase()}${path}`;
+      }
+      function boolFromSelect(value) {
+        return String(value) === "true";
+      }
+      function parseJson(text, fallback = {}) {
+        if (!text || !text.trim()) return fallback;
+        return JSON.parse(text);
+      }
+      function setOut(title, data) {
+        apiOut.textContent = `${title}\n\n${JSON.stringify(data, null, 2)}`;
+      }
+      function setMsg(text, isErr) {
+        globalMsg.textContent = text;
+        globalMsg.style.color = isErr ? "#fca5a5" : "#97a9c7";
+      }
+
+      async function request(url, options = {}) {
+        const res = await fetch(url, { credentials: "include", ...options });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(body?.detail || `HTTP ${res.status}`);
+        }
+        return body;
+      }
+
+      async function loadDataset() {
+        const data = await request(endpoint("/api/v1/Organ/classifier/dataset"));
+        setOut("GET /classifier/dataset", data);
+        pick("datasetOut").textContent = JSON.stringify(data, null, 2);
+      }
+
+      async function uploadDatasetImages() {
+        const className = pick("uploadClassName").value.trim();
+        const files = pick("uploadFiles").files;
+        if (!className) throw new Error("class_name gerekli");
+        if (!files || !files.length) throw new Error("En az 1 dosya secin");
+        const fd = new FormData();
+        Array.from(files).forEach((f) => fd.append("files", f));
+        const data = await request(endpoint(`/api/v1/Organ/classifier/dataset/${encodeURIComponent(className)}/images`), {
+          method: "POST",
+          body: fd
+        });
+        setOut("POST /classifier/dataset/{class_name}/images", data);
+      }
+
+      async function deleteDatasetImage() {
+        const className = pick("deleteClassName").value.trim();
+        const filename = pick("deleteFilename").value.trim();
+        if (!className || !filename) throw new Error("class_name ve filename gerekli");
+        const data = await request(
+          endpoint(`/api/v1/Organ/classifier/dataset/${encodeURIComponent(className)}/images/${encodeURIComponent(filename)}`),
+          { method: "DELETE" }
+        );
+        setOut("DELETE /classifier/dataset/{class_name}/images/{filename}", data);
+      }
+
+      async function getSettings() {
+        const data = await request(endpoint("/api/v1/Organ/classifier/settings"));
+        pick("settingsJson").value = JSON.stringify(data, null, 2);
+        setOut("GET /classifier/settings", data);
+      }
+
+      async function putSettings() {
+        const payload = parseJson(pick("settingsJson").value, {});
+        const data = await request(endpoint("/api/v1/Organ/classifier/settings"), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        setOut("PUT /classifier/settings", data);
+      }
+
+      async function putPriors() {
+        const payload = parseJson(pick("priorsJson").value, {});
+        const data = await request(endpoint("/api/v1/Organ/classifier/priors"), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        setOut("PUT /classifier/priors", data);
+      }
+
+      async function trainClassifier() {
+        const autoReload = boolFromSelect(pick("autoReloadTrain").value);
+        const data = await request(endpoint(`/api/v1/Organ/classifier/train?auto_reload=${autoReload}`), {
+          method: "POST"
+        });
+        const jobId = data?.job_id || data?.id || data?.train_job_id || "";
+        if (jobId) pick("jobIdInput").value = jobId;
+        setOut("POST /classifier/train", data);
+      }
+
+      async function trainStatus() {
+        const jobId = pick("jobIdInput").value.trim();
+        if (!jobId) throw new Error("job_id gerekli");
+        const data = await request(endpoint(`/api/v1/Organ/classifier/train/${encodeURIComponent(jobId)}`));
+        setOut("GET /classifier/train/{job_id}", data);
+      }
+
+      async function reloadClassifier() {
+        const data = await request(endpoint("/api/v1/Organ/classifier/reload"), { method: "POST" });
+        setOut("POST /classifier/reload", data);
+      }
+
+      async function listBackups() {
+        const limit = Math.max(1, Math.min(200, Number(pick("backupLimit").value) || 50));
+        const data = await request(endpoint(`/api/v1/Organ/classifier/backups?limit=${limit}`));
+        setOut("GET /classifier/backups", data);
+      }
+
+      async function rollbackClassifier() {
+        const backupId = pick("rollbackId").value.trim();
+        const autoReload = boolFromSelect(pick("autoReloadRollback").value);
+        if (!backupId) throw new Error("backup_id gerekli");
+        const data = await request(
+          endpoint(`/api/v1/Organ/classifier/rollback/${encodeURIComponent(backupId)}?auto_reload=${autoReload}`),
+          { method: "POST" }
+        );
+        setOut("POST /classifier/rollback/{backup_id}", data);
+      }
+
+      function bind(id, fn) {
+        pick(id).addEventListener("click", async () => {
+          try {
+            setMsg("Islem basladi...", false);
+            await fn();
+            setMsg("Islem basarili.", false);
+          } catch (err) {
+            setMsg(err.message || "Islem basarisiz.", true);
+            setOut("Hata", { error: err.message || String(err) });
+          }
+        });
+      }
+
+      pick("saveApiBaseBtn").addEventListener("click", () => {
+        window.localStorage.setItem("API_BASE_URL", apiBase());
+        setMsg("API base kaydedildi.", false);
+      });
+
+      bind("loadDatasetBtn", loadDataset);
+      bind("uploadDatasetBtn", uploadDatasetImages);
+      bind("deleteImageBtn", deleteDatasetImage);
+      bind("getSettingsBtn", getSettings);
+      bind("putSettingsBtn", putSettings);
+      bind("putPriorsBtn", putPriors);
+      bind("trainBtn", trainClassifier);
+      bind("trainStatusBtn", trainStatus);
+      bind("reloadBtn", reloadClassifier);
+      bind("listBackupsBtn", listBackups);
+      bind("rollbackBtn", rollbackClassifier);
+    })();
+  </script>
+</body>
+</html>
