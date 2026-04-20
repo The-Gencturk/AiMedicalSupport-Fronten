@@ -330,7 +330,7 @@
 
             <button id="submitBtn" class="btn-main" type="button">
               <i class="fa-solid fa-paper-plane"></i>
-              EÄŸitimi Ver
+              Eğitimi Ver
             </button>
           </div>
         </section>
@@ -339,11 +339,11 @@
         <section class="panel space-y-3">
           <span class="chip" id="confChip" style="display:none;">
 
-  <i class="fa-solid fa-chart-line"></i> GÃ¼ven: <span id="confValue">0</span>%
+  <i class="fa-solid fa-chart-line"></i> Güven: <span id="confValue">0</span>%
 </span>
 
 <div id="confDisplay" class="text-xs font-bold px-2 py-1 rounded hidden" style="background: rgba(99, 202, 183, 0.2); color: var(--accent);">
-  AI GÃ¼ven Skoru: %<span id="confValue">0</span>
+  AI Güven Skoru: %<span id="confValue">0</span>
 </div>
           <h2 class="text-base" style=" font-weight:700;">Canli Kontrol</h2>
           
@@ -435,30 +435,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    if (refs.chipUpdated) refs.chipUpdated.textContent = 'Veri yÃ¼kleniyor...';
+    if (refs.chipUpdated) refs.chipUpdated.textContent = 'Veri yükleniyor...';
 
     try {
       const response = await fetch(`${Ap}/api/v1/analyses/${id}`, { credentials: 'include' });
-      if (!response.ok) throw new Error("API hatasÄ±: " + response.status);
+      if (!response.ok) throw new Error("API hatası: " + response.status);
       
       const data = await response.json();
       
-      // State gÃ¼ncelleme
+  
       state.analysisId = data.id;
       state.currentImagePath = data.image_path;
       state.currentHeatmapPath = data.heatmap_path;
 
       populateForm(data);
     } catch (error) {
-      console.error("YÃ¼kleme HatasÄ±:", error);
-      if (refs.chipUpdated) refs.chipUpdated.textContent = 'YÃ¼kleme baÅŸarÄ±sÄ±z';
+      console.error("Yükleme Hatası:", error);
+      if (refs.chipUpdated) refs.chipUpdated.textContent = 'Yükleme başarısız';
     }
   }
 
   function populateForm(data) {
     if (refs.caseLabel) refs.caseLabel.value = data.label || `Analiz-${data.id}`;
     
-    // Confidence (GÃ¼ven Skoru) YazdÄ±rma
+    // Confidence (Güven Skoru) Yazdırma
     if (data.confidence !== undefined && refs.confValue) {
       refs.confValue.textContent = Math.round(data.confidence);
       if (refs.confChip) refs.confChip.style.display = 'inline-flex';
