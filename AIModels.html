@@ -289,9 +289,14 @@
 
       <section class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="metric"><p class="metric-label">Toplam Model</p><p id="metricTotal" class="metric-number">2</p><p class="metric-sub">Kayitli model sayisi</p></article>
-        <article class="metric"><p class="metric-label">Prod Surum</p><p id="metricProd" class="metric-number">0</p><p class="metric-sub">Canli ortamda aktif</p></article>
+        <article class="metric"><p class="metric-label">Aktif Surum</p><p id="metricProd" class="metric-number">2</p><p class="metric-sub">Canli ortamda aktif</p></article>
         <article class="metric"><p class="metric-label">Ortalama Dogruluk</p><p id="metricAccuracy" class="metric-number">71%</p><p class="metric-sub"> modeller</p></article>
-        <article class="metric"><p class="metric-label">Ortalama Latency</p><p id="metricLatency" class="metric-number">-</p><p class="metric-sub">Hız</p></article>
+        <article class="metric" onclick="document.getElementById('fileInput').click()" style="cursor:pointer;">
+          <input type="file" id="fileInput" accept=".h4,.h5,.keras" class="hidden" />
+          <p class="metric-label">Model Ekle</p>
+          <p id="metricLatency" class="metric-number">+</p>
+          <p class="metric-sub">h4, h5 ve keras</p>
+        </article>
       </section>
 
       <section class="panel mt-4 p-4">
@@ -572,8 +577,8 @@
 
       function updateMetrics(list) {
         const total = list.length;
-        const prodCount = list.filter((m) => m.status === "prod").length;
-
+        const prodCount = list.filter((m) => m.is_active === "true").length;
+        console.log(prodCount);
         el.metricTotal.textContent = String(total);
         el.metricProd.textContent = String(prodCount);
      
