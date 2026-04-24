@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KVKK</title>
+<body>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #DADCE1;
+    font-weight: 600;
+    color: #fff;
+  }
+
+</style>
+<div id="kvkk-overlay" style="
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2.5rem);
+  max-width: 760px;
+  z-index: 9999;
+  animation: kvkkSlideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+">
+  <div style="
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+  ">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem; flex-wrap:wrap;">
+
+      <!-- Metin -->
+      <div style="flex:1; min-width:220px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFD600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span style="font-size:13px; font-weight:600; color:#fff; letter-spacing:0.02em;">Yapay Zekâ Analiz Bildirimi</span>
+        </div>
+        <p style="margin:0; font-size:12px; line-height:1.6; color:#aaa;">
+          Bu platformdaki analizler yapay zekâ tarafından üretilmektedir ve
+          <span style="color:#FFD600; font-weight:500;">tıbbi teşhis niteliği taşımaz</span>.
+          Nihai sorumluluk doktora aittir.
+          <span onclick="toggleDetail()" style="color:#555; font-size:11px; cursor:pointer; margin-left:4px; text-decoration:underline;">daha fazla</span>
+        </p>
+        <div id="kvkk-detail" style="display:none; margin-top:8px; padding:10px; background:#1a1a1a; border-radius:8px; border:1px solid #2a2a2a;">
+          <p style="margin:0 0 5px; font-size:11px; color:#888; line-height:1.6;">• Sonuçlar kesin doğruluk içermez ve hata payı barındırabilir.</p>
+          <p style="margin:0 0 5px; font-size:11px; color:#888; line-height:1.6;">• Verileriniz yalnızca analiz amacıyla işlenmektedir.</p>
+          <p style="margin:0; font-size:11px; color:#888; line-height:1.6;">• Zorunlu işlemler için rızanız gerekmektedir.</p>
+        </div>
+      </div>
+
+      <!-- Butonlar -->
+      <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+        <button onclick="kvkkAccept('all')" style="padding:9px 20px; background:#FFD600; color:#111; border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:0.02em;">
+          Tümünü Kabul Et
+        </button>
+        <button onclick="kvkkAccept('necessary')" style="padding:9px 20px; background:transparent; color:#fff; border:1px solid #444; border-radius:8px; font-size:12px; font-weight:500; cursor:pointer;">
+          Yalnızca Gerekli
+        </button>
+        <button onclick="kvkkAccept('reject')" style="padding:9px 20px; background:transparent; color:#555; border:1px solid #2a2a2a; border-radius:8px; font-size:12px; font-weight:400; cursor:pointer;">
+          Reddet
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes kvkkSlideUp {
+  from { opacity:0; transform:translateX(-50%) translateY(24px); }
+  to   { opacity:1; transform:translateX(-50%) translateY(0); }
+}
+</style>
+
+<script>
+function toggleDetail() {
+  const d = document.getElementById('kvkk-detail');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+
+function kvkkAccept(type) {
+  const overlay = document.getElementById('kvkk-overlay');
+  overlay.style.transition = 'opacity 0.3s, transform 0.3s';
+  overlay.style.opacity = '0';
+  overlay.style.transform = 'translateX(-50%) translateY(20px)';
+  setTimeout(() => overlay.remove(), 300);
+  localStorage.setItem('kvkkChoice', type);
+}
+
+window.addEventListener('load', () => {
+  if (localStorage.getItem('kvkkChoice')) {
+    document.getElementById('kvkk-overlay').remove();
+  }
+});
+</script>  
+  
+</body>
+</html>
