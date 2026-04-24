@@ -1,0 +1,196 @@
+/*****************************************************
+  ÇİZGİ İZLEYEN ROBOT - GELİŞTİRİLMİŞ PID KONTROL
+  Özellikler:
+    - Ağırlıklı ortalama ile hassas pozisyon hesaplama
+    - PID kontrolcü (sıfır yalpalama)
+    - Dinamik hız sınırlama
+    - Akıllı çizgi kayıp kurtarma
+    - Otomatik sensör kalibrasyon desteği
+*****************************************************/
+
+// --- Motor Sürücü Pinleri ---
+const int ENA = 3;   // Sol Motor Hız (PWM)
+const int IN1 = 7;   // Sol İleri
+const int IN2 = 8;   // Sol Geri
+const int ENB = 5;   // Sağ Motor Hız (PWM)
+const int IN3 = 11;  // Sağ İleri
+const int IN4 = 12;  // Sağ Geri
+
+// --- Sensör Pinleri ---
+const int SENSOR_COUNT = 8;
+const int qtrPins[SENSOR_COUNT] = {A0, A1, A2, A3, A4, A5, A6, A7};
+
+// --- Sensör Pozisyon Ağırlıkları ---
+// Merkez = 0, Sol negatif, Sağ pozitif
+// Sensör:   S0    S1    S2    S3   S4   S5   S6   S7
+const int sensorPos[SENSOR_COUNT] = {-70, -50, -30, -10, 10, 30, 50, 70};
+
+// --- Kalibrasyon Değerleri ---
+int sensorMin[SENSOR_COUNT];  // Siyah zemin (hat üstü)
+int sensorMax[SENSOR_COUNT];  // Beyaz zemin (hat dışı)
+
+// --- PID Sabitleri (Ayarlanabilir) ---
+float Kp = 0.45;   // Orantısal kazanç — sert virajlar için artır
+float Ki = 0.0008; // İntegral kazanç  — sabit sapma için kullan
+float Kd = 1.8;    // Türevsel kazanç  — titreşimi bastırır
+
+// --- PID Değişkenleri ---
+float hata       = 0;
+float oncekiHata = 0;
+float integral   = 0;
+float derivatif  = 0;
+
+// --- Hız Ayarları ---
+const int ANA_HIZ    = 200;  // Düz gidişte taban hız
+const int MAKS_HIZ   = 255;  // Maksimum motor hızı
+const int MIN_HIZ    = 0;    // Minimum motor hızı (negatif = geri)
+const int DON_HIZ    = 160;  // Yerinde dönüş hızı (kayıp kurtarma)
+
+// --- Çizgi Kayıp Kurtarma ---
+bool cizgiKayip      = false;
+int  sonYon          = 0;    // -1: son kez sol, +1: son kez sağ
+unsigned long kayipZaman = 0;
+const unsigned long ARAMA_SURESI = 800; // ms — bu süreden uzun kaybolursa dur
+
+void setup() {
+  // Motor pinleri
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT); pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT);
+
+  // Motoru ileri yönde kilitle
+  ileriYon();
+
+  // Kalibrasyon: min/max değerleri sıfırla
+  for (int i = 0; i < SENSOR_COUNT; i++) {
+    sensorMin[i] = 1023;
+    sensorMax[i] = 0;
+  }
+
+  // Başlangıç kalibrasyonu (1 saniye boyunca sensörleri tara)
+  // Robotu bu süre içinde çizgi üzerinde ileri-geri sür
+  unsigned long basla = millis();
+  while (millis() - basla < 1000) {
+    for (int i = 0; i < SENSOR_COUNT; i++) {
+      int val = analogRead(qtrPins[i]);
+      if (val < sensorMin[i]) sensorMin[i] = val;
+      if (val > sensorMax[i]) sensorMax[i] = val;
+    }
+  }
+
+  motorDur();
+  delay(200);
+}
+
+void loop() {
+  int ham[SENSOR_COUNT];
+  int normalize[SENSOR_COUNT];
+
+  // --- 1. Sensörleri Oku ve Normalize Et (0-1000 arası) ---
+  for (int i = 0; i < SENSOR_COUNT; i++) {
+    ham[i] = analogRead(qtrPins[i]);
+
+    // 0 (beyaz / hat dışı) → 1000 (siyah / hat üstü)
+    normalize[i] = map(
+      constrain(ham[i], sensorMin[i], sensorMax[i]),
+      sensorMin[i], sensorMax[i],
+      0, 1000
+    );
+  }
+
+  // --- 2. Ağırlıklı Ortalama ile Pozisyon Hesapla ---
+  long agirlikliToplam = 0;
+  long toplamAgirlık   = 0;
+  int  aktifSensor     = 0;
+
+  for (int i = 0; i < SENSOR_COUNT; i++) {
+    if (normalize[i] > 200) {  // Eşik: sensör aktif mi?
+      agirlikliToplam += (long)normalize[i] * sensorPos[i];
+      toplamAgirlık   += normalize[i];
+      aktifSensor++;
+    }
+  }
+
+  // --- 3. Çizgi Kayıp Kontrolü ---
+  if (toplamAgirlık < 500 || aktifSensor == 0) {
+    // Çizgi kayboldu!
+    if (!cizgiKayip) {
+      cizgiKayip = true;
+      kayipZaman = millis();
+    }
+
+    // Çok uzun süredir kayboldu mu?
+    if (millis() - kayipZaman > ARAMA_SURESI) {
+      motorDur();
+      return;
+    }
+
+    // Son bilinen yöne doğru yerinde dön
+    if (sonYon <= 0) {
+      // Sola dön
+      motorControl(-DON_HIZ, DON_HIZ);
+    } else {
+      // Sağa dön
+      motorControl(DON_HIZ, -DON_HIZ);
+    }
+    return;
+  }
+
+  // Çizgi bulundu, kayıp durumunu sıfırla
+  cizgiKayip = false;
+  hata = (float)agirlikliToplam / toplamAgirlık;  // -70 ile +70 arası
+
+  // Son yönü kaydet
+  if      (hata < -5) sonYon = -1;
+  else if (hata >  5) sonYon =  1;
+
+  // --- 4. PID Hesapla ---
+  integral   += hata;
+  integral    = constrain(integral, -3000, 3000);  // Integral windup koruması
+  derivatif   = hata - oncekiHata;
+  oncekiHata  = hata;
+
+  float duzeltme = (Kp * hata) + (Ki * integral) + (Kd * derivatif);
+
+  // --- 5. Hızları Hesapla ---
+  int solHiz = ANA_HIZ - (int)duzeltme;
+  int sagHiz = ANA_HIZ + (int)duzeltme;
+
+  // Hız sınırlama
+  solHiz = constrain(solHiz, MIN_HIZ, MAKS_HIZ);
+  sagHiz = constrain(sagHiz, MIN_HIZ, MAKS_HIZ);
+
+  // --- 6. Motorları Sürdür ---
+  motorControl(solHiz, sagHiz);
+}
+
+// --- Yardımcı Fonksiyonlar ---
+
+void ileriYon() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+}
+
+void motorControl(int sol, int sag) {
+  // Sol motor
+  if (sol >= 0) {
+    digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+    analogWrite(ENA, sol);
+  } else {
+    digitalWrite(IN1, LOW); digitalWrite(IN2, HIGH);
+    analogWrite(ENA, -sol);
+  }
+
+  // Sağ motor
+  if (sag >= 0) {
+    digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+    analogWrite(ENB, sag);
+  } else {
+    digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);
+    analogWrite(ENB, -sag);
+  }
+}
+
+void motorDur() {
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+}

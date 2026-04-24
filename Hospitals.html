@@ -1,0 +1,228 @@
+
+
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Sayfası</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+     <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+    />
+  <link rel="stylesheet" href="Theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 0.15; }
+      50%       { opacity: 0.32; }
+    }
+    @keyframes scan {
+      0%   { top: 0%; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .fade-up { animation: fadeUp 0.65s ease both; }
+    .fade-up-1 { animation-delay: 0.05s; }
+    .fade-up-2 { animation-delay: 0.15s; }
+    .fade-up-3 { animation-delay: 0.25s; }
+    .fade-up-4 { animation-delay: 0.35s; }
+    .pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
+    .scan-line {
+      position: absolute; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99,202,183,0.6), transparent);
+      animation: scan 3s ease-in-out infinite;
+    }
+    .field-enter { animation: slideIn 0.28s ease both; }
+
+    .input-field {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #f1f5f9;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .input-field::placeholder { color: rgba(255,255,255,0.22); }
+    .input-field:focus {
+      outline: none;
+      border-color: rgba(99,202,183,0.6);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .tab-btn {
+      position: relative;
+      padding-bottom: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px; width: 0;
+      background: #63cab7;
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+    .tab-btn.active { color: #63cab7; }
+    .tab-btn.active::after { width: 100%; }
+    .tab-btn:not(.active) { color: rgba(255,255,255,0.28); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
+      transition: opacity 0.2s, transform 0.15s;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0px); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+ .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+  </style>
+</head>
+<body class="min-h-screen flex" style="background: var(--bg-primary);">
+
+<div id="AdminMenu"></div>
+<div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
+
+<main class="flex-1 p-8">
+<header style="border: var(--border-one) 2px solid;   background-color: var(--bg-thiry);"  class="mb-8 flex items-center justify-center gap-8 dark:bg-background-dark p-8 rounded-xl  transition-all duration-00 ease-in-out">
+
+  <img id="userProfile"  alt="Profil" style="border:solid 3px #37ff00ec;" class="w-20 h-20 rounded-full border border-slate-900 "/>
+  <div class="text-center ">
+    <h2 class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-primary);">Hoşgeldin</h2>
+    <span id="username" class="block text-1xl font-semibold text-slate-700 dark:text-gray-300" style="color: var(--text-second);"></span>
+    <p id="changingText" class="text-slate-500 transition-opacity duration-500" style="color: var(--text-yellow); font-size: large; "></p>
+  </div>
+</header> 
+
+
+</header>
+
+<section class="mt-8">
+ 
+
+  <div id="generalDataGrid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+    <div class="card">
+      <p class="text-sm uppercase tracking-wider mb-3" style="color: var(--text-muted);">Bulgu Dağılımı</p>
+      <div id="findingLegend" class="flex flex-wrap gap-2 mb-3"></div>
+      <div style="position:relative; height:220px;">
+        <canvas id="findingChart" role="img" aria-label="Bulgu dağılımı grafiği"></canvas>
+      </div>
+    </div>
+  
+    <div class="card">
+      <p class="text-sm uppercase tracking-wider mb-3" style="color: var(--text-muted);">En Çok Analiz Yapılan Organlar</p>
+      <div id="organLegend" class="flex flex-wrap gap-2 mb-3"></div>
+      <div style="position:relative; height:220px;">
+        <canvas id="organChart" role="img" aria-label="Organ analiz grafiği"></canvas>
+      </div>
+    </div>
+  
+  </div>
+
+</section>
+</body>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+     Theme.renderToggle('themeBtn');
+   const user = await getCurrentUser();
+   let UserProfile = document.getElementById("userProfile");
+   UserProfile.src = user.profile;
+  });
+  
+</script>
+<script src="MenuLoader.js"></script>
+<script src="auth.js"></script>
+<script src="AdminMenuOptions.js"></script>
+<script src="Template.js"></script>
+
+
+<script>
+let allProducts = []; 
+fetch("http://localhost:5256/api/Products/UserWiem", {
+  credentials: "include"
+})
+  .then(res => res.json())
+  .then(result => {
+    const productArray = Array.isArray(result.data) ? result.data : result.data.$values || [];
+    const urunGrubu = document.getElementById("urun-grubu");
+    allProducts = productArray;
+
+   productArray.forEach(product => {
+    const imageArray = product.productImages || [];
+    const rawPath = imageArray.length > 0 ? imageArray[0].imagePath : null;
+
+    const category = product.categoryName ? product.categoryName : "Kategori Bilgisi Yok";
+        
+    const imagePath = rawPath 
+        ? `http://localhost:5256/ProductImagesTX/${encodeURIComponent(rawPath)}`
+        : "TemplateImage/miniverse_logo.jpg";
+
+      const urunDiv = document.createElement("div");
+      urunDiv.className = "group relative flex flex-col rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900/50 shadow-md hover:shadow-xl transition-shadow duration-300";
+
+      urunDiv.innerHTML = `
+        <div class="aspect-square w-full bg-cover bg-center" style="background-image: url('${imagePath}');"></div>
+        <div class="p-4 flex-grow">
+          <h3 class="font-bold text-gray-900 dark:text-white">${product.productName}</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">${product.productAc}</p><p style="color: #00FF33; cursor: pointer; " class="text-sm text-gray-600 dark:text-gray-400">${category}</p>
+        </div>
+        
+        <div class="p-4 pt-0">
+          <span class="font-bold text-primary">${product.productPrice} TL</span>
+        </div>
+        <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+  <button 
+      onclick="openProductModal(${product.productId})" 
+      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors">
+      Daha Fazla
+  </button>
+
+  <!-- Sepete Ekle Butonu -->
+  <button 
+      onclick="AddToMyCart(${product.productId})" 
+      class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors">
+      Sepete Ekle
+  </button>
+
+</div>
+      `;
+
+      urunGrubu.appendChild(urunDiv);
+    });
+  })
+  .catch(err => console.error("Veri çekme hatası:"));
+
+</script>
+</html>
