@@ -404,7 +404,7 @@
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div class="flex items-center gap-4">
             <div class="avatar-tools">
-              <div class="profile-wrap" src="http://localhost:8000/wwwroot/UserProfile/a04cd77d-5a04-459b-ad06-0b36f1f44d71.jpeg"  style="border-radius: 50%; border:2px solid yellow;">
+              <div class="profile-wrap" style="border-radius: 50%; border:2px solid yellow;">
                 <img id="avatarImg" alt="Profil" />
                 <span id="avatarInitial" class="profile-initial">U</span>
               </div>
@@ -542,16 +542,6 @@
       "use strict";
 
       const API_ORIGIN = "http://localhost:8000";
-      const FALLBACK_USER = {
-        id: 1,
-        full_name: "Kagan Gencturk",
-        email: "eymengencturk2008@gmail.com",
-        specialty: "SuperAdmin",
-        is_active: true,
-        profile: "/wwwroot/UserProfile/a04cd77d-5a04-459b-ad06-0b36f1f44d71.jpeg",
-        created_at: "2026-03-14T00:16:27.579706+03:00"
-      };
-
       const state = {
         user: null,
         loadedAt: null,
@@ -597,17 +587,27 @@
       }
 
       function normalizeUser(raw) {
-        const profilePath = raw?.profile || "";
+        const base = raw?.user ?? raw?.data ?? raw ?? {};
+        const roleFromRoles =
+          Array.isArray(base?.roles) && base.roles.length > 0
+            ? String(base.roles[0] ?? "").trim()
+            : "";
+        const profilePath =
+          base?.profile ??
+          base?.profile_url ??
+          base?.avatar ??
+          base?.image ??
+          "";
         const hasAbsolute = /^https?:\/\//i.test(profilePath);
 
         return {
-          id: raw?.id ?? "-",
-          full_name: raw?.full_name || "Bilinmeyen Kullanici",
-          email: raw?.email || "-",
-          specialty: raw?.specialty || "Belirtilmedi",
-          is_active: Boolean(raw?.is_active),
+          id: base?.id ?? "-",
+          full_name: base?.full_name || "Bilinmeyen Kullanici",
+          email: base?.email || "-",
+          specialty: base?.specialty || roleFromRoles || "Belirtilmedi",
+          is_active: Boolean(base?.is_active),
           profile: profilePath ? (hasAbsolute ? profilePath : `${API_ORIGIN}${profilePath}`) : "",
-          created_at: raw?.created_at || null
+          created_at: base?.created_at || null
         };
       }
 
@@ -664,6 +664,8 @@
       }
 
       function renderTimeline(user) {
+        if (!el.timeline) return;
+
         const createdAt = formatDate(user.created_at);
         const loadedAt = state.loadedAt ? formatDate(state.loadedAt) : "-";
         const timeline = [
@@ -711,22 +713,24 @@
 
         el.avatarInitial.textContent = getInitial(user.full_name);
         if (user.profile) {
-          el.avatarImg.src = "http://localhost:8000/wwwroot/UserProfile/42782fce-70bb-429e-9bcc-8d404793ff35.png";
+          el.avatarImg.src = user.profile;
           el.avatarImg.style.display = "block";
           el.avatarInitial.style.display = "none";
-          el.avatarState.textContent = "Mevcut";
+          if (el.avatarState) el.avatarState.textContent = "Mevcut";
         } else {
           el.avatarImg.style.display = "none";
           el.avatarInitial.style.display = "block";
-          el.avatarState.textContent = "Yok";
+          if (el.avatarState) el.avatarState.textContent = "Yok";
         }
 
         el.profileLoadedAt.textContent = `Yuklenme: ${formatDate(state.loadedAt)}`;
-        el.sourceText.textContent = state.source === "api" ? "Canli API" : "Yerel Ornek Veri";
-        el.syncText.textContent = formatDate(state.loadedAt);
-        el.connectText.textContent = state.source === "api" ? "Bagli" : "Kesik";
-        el.apiState.textContent = state.source === "api" ? "API Bagli" : "API Erisilemedi";
-        el.apiState.classList.toggle("offline", state.source !== "api");
+        if (el.sourceText) el.sourceText.textContent = state.source === "api" ? "Canli API" : "Yerel Veri";
+        if (el.syncText) el.syncText.textContent = formatDate(state.loadedAt);
+        if (el.connectText) el.connectText.textContent = state.source === "api" ? "Bagli" : "Kesik";
+        if (el.apiState) {
+          el.apiState.textContent = state.source === "api" ? "API Bagli" : "API Erisilemedi";
+          el.apiState.classList.toggle("offline", state.source !== "api");
+        }
 
         renderTimeline(user);
       }
@@ -787,12 +791,10 @@
           state.loadedAt = new Date().toISOString();
           render(state.user);
           setFormMessage("Profil bilgileri basariyla guncellendi.", "success");
-        } catch {
-          state.user = normalizeUser(FALLBACK_USER);
-          state.source = "fallback";
-          state.loadedAt = new Date().toISOString();
-          render(state.user);
-          setFormMessage("API ulasilamadi. Gosterim icin ornek veri kullaniliyor.", "error");
+        } catch (error) {
+          state.user = null;
+          state.source = "api";
+          setFormMessage(error?.message || "Profil verisi API'den alinamadi.", "error");
         } finally {
           setLoading(false);
         }

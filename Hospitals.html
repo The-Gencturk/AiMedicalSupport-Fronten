@@ -18,94 +18,400 @@
   <style>
     body { font-family: 'Outfit', sans-serif; }
 
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse-slow {
-      0%, 100% { opacity: 0.15; }
-      50%       { opacity: 0.32; }
-    }
-    @keyframes scan {
-      0%   { top: 0%; opacity: 0; }
-      10%  { opacity: 1; }
-      90%  { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(12px); }
-      to   { opacity: 1; transform: translateX(0); }
+    .hospitals-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
     }
 
-    .fade-up { animation: fadeUp 0.65s ease both; }
-    .fade-up-1 { animation-delay: 0.05s; }
-    .fade-up-2 { animation-delay: 0.15s; }
-    .fade-up-3 { animation-delay: 0.25s; }
-    .fade-up-4 { animation-delay: 0.35s; }
-    .pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
-    .scan-line {
-      position: absolute; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(99,202,183,0.6), transparent);
-      animation: scan 3s ease-in-out infinite;
+    .hospitals-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
     }
-    .field-enter { animation: slideIn 0.28s ease both; }
 
-    .input-field {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #f1f5f9;
-      transition: border-color 0.2s, background 0.2s;
+    
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     }
-    .input-field::placeholder { color: rgba(255,255,255,0.22); }
-    .input-field:focus {
+   
+    .f-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+    .f-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+      padding: 0.6rem 0.8rem;
+      font-size: 0.92rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .f-input:focus {
       outline: none;
-      border-color: rgba(99,202,183,0.6);
-      background: rgba(255,255,255,0.07);
+      border-color: rgba(99, 202, 183, 0.65);
+      box-shadow: 0 0 0 3px rgba(99, 202, 183, 0.17);
     }
-
-    .tab-btn {
-      position: relative;
-      padding-bottom: 10px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: color 0.2s;
+    .btn-lite,
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      border-radius: 12px;
+      padding: 0.6rem 0.92rem;
+      font-weight: 700;
+      font-size: 0.84rem;
+      transition: opacity 0.2s, transform 0.15s, border-color 0.2s, background 0.2s;
     }
-    .tab-btn::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0;
-      height: 2px; width: 0;
-      background: #63cab7;
-      transition: width 0.3s ease;
-      border-radius: 2px;
-    }
-    .tab-btn.active { color: #63cab7; }
-    .tab-btn.active::after { width: 100%; }
-    .tab-btn:not(.active) { color: rgba(255,255,255,0.28); }
-
-    .btn-primary {
+    .btn-main {
       background: linear-gradient(135deg, #63cab7 0%, #3b9e8a 100%);
-      transition: opacity 0.2s, transform 0.15s;
-      font-family: 'Syne', sans-serif;
-      font-weight: 600;
+      color: white;
+      border: 1px solid transparent;
     }
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0px); }
-    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-lite {
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+    }
+    .btn-lite:hover {
+      border-color: rgba(99, 202, 183, 0.4);
+      background: rgba(99, 202, 183, 0.08);
+    }
+    .btn-main:hover {
+      opacity: 0.9;
+    }
+   
+ 
+    .hospitals-title {
+      letter-spacing: 0.2px;
+      color: var(--text-second);
+    }
 
- .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  transition: 0.3s;
-}
+    .hospitals-subtitle {
+      color: color-mix(in srgb, var(--text-second) 70%, transparent);
+      font-size: 14px;
+    }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
+    #Hospitals {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .hospital-tile {
+      position: relative;
+      border-radius: 12px;
+      overflow: visible;
+      background: linear-gradient(145deg, var(--bg-card), color-mix(in srgb, var(--bg-card) 70%, #000));
+      border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      transform: translateZ(0);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      isolation: isolate;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hospital-tile:hover {
+      transform: translateY(-2px) scale(1.02);
+      border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    .hospital-cover {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      border-radius: 12px;
+      background: radial-gradient(120% 120% at 20% 0%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 55%),
+                  radial-gradient(120% 120% at 100% 100%, color-mix(in srgb, var(--metric-articet) 22%, transparent), transparent 60%),
+                  linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent 60%),
+                  linear-gradient(145deg, var(--bg-secondary), var(--bg-card));
+    }
+
+    .hospital-cover img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.05) contrast(1.03);
+      transform: scale(1.01);
+    }
+
+    .hospital-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 70%, rgba(0,0,0,0.68) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+
+
+    .hospital-placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: color-mix(in srgb, var(--text-second) 70%, transparent);
+      z-index: 0;
+      font-size: 44px;
+    }
+
+    .hospital-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    
+    }
+
+    .hospital-hover-card {
+      position: absolute;
+      top: 0;
+      left: calc(100% + 14px);
+      width: min(320px, calc(100vw - 48px));
+      min-height: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-card) 92%, #000);
+      border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+      
+      opacity: 0;
+      transform: translate3d(-10px, 0, 0);
+      transition: opacity 180ms ease, transform 180ms ease;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .hospital-tile[data-hover-side="left"] .hospital-hover-card {
+      left: auto;
+      right: calc(100% + 14px);
+      transform: translate3d(10px, 0, 0);
+    }
+
+    .hospital-tile:hover .hospital-hover-card,
+    .hospital-tile:focus-within .hospital-hover-card {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      pointer-events: auto;
+    }
+
+    .hospital-hover-media {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--bg-secondary) 78%, #000), var(--bg-card));
+    }
+
+    .hospital-hover-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hospital-hover-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(10, 16, 25, 0.08) 0%, rgba(10, 16, 25, 0.28) 100%);
+      pointer-events: none;
+    }
+
+    .hospital-hover-body {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 94%, transparent), color-mix(in srgb, var(--bg-primary) 88%, transparent));
+    }
+
+    .hospital-hover-title {
+      color: var(--text-second);
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .hospital-hover-subtitle {
+      color: color-mix(in srgb, var(--text-second) 74%, transparent);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .hospital-hover-meta {
+      display: grid;
+      gap: 8px;
+    }
+
+    .hospital-hover-row {
+      display: grid;
+      gap: 2px;
+    }
+
+    .hospital-hover-label {
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hospital-hover-value {
+      color: var(--text-second);
+      font-size: 0.92rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    @media (max-width: 1100px) {
+      .hospital-tile[data-hover-side="left"] .hospital-hover-card,
+      .hospital-hover-card {
+        top: auto;
+        bottom: calc(100% + 12px);
+        left: 50%;
+        right: auto;
+        transform: translate3d(-50%, 10px, 0);
+      }
+
+      .hospital-tile[data-hover-side="left"]:hover .hospital-hover-card,
+      .hospital-tile[data-hover-side="left"]:focus-within .hospital-hover-card,
+      .hospital-tile:hover .hospital-hover-card,
+      .hospital-tile:focus-within .hospital-hover-card {
+        transform: translate3d(-50%, 0, 0);
+      }
+    }
+
+    .hospital-info {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      z-index: 2;
+      display: grid;
+      gap: 6px;
+    }
+
+    .hospital-name {
+      color: rgba(255, 255, 255, 0.94);
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.2;
+      
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .hospital-code {
+      justify-self: start;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.92);
+      background: rgba(2, 132, 199, 0.28);
+      border: 1px solid rgba(56, 189, 248, 0.26);
+      backdrop-filter: blur(10px);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hospital-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .hospital-badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.92);
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(10px);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hospital-badge--code {
+      background: rgba(2, 132, 199, 0.28);
+      border-color: rgba(56, 189, 248, 0.26);
+    }
+
+    .view-filter-box {
+      display: flex;
+   
+      gap: 8px;
+    }
+
+    .view-filter-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 46px;
+      padding-left: 0.65rem;
+      padding-right: 0.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-second);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .view-filter-item input {
+      width: 16px;
+      height: 16px;
+      accent-color: #63cab7;
+      cursor: pointer;
+    }
+
+    html[data-show-name="0"] .hospital-name {
+      display: none;
+    }
+
+    html[data-show-code="0"] .hospital-code {
+      display: none;
+    }
+
+    .hospital-skeleton {
+      border-radius: 12px;
+      aspect-ratio: 3 / 4;
+      background: linear-gradient(110deg,
+        color-mix(in srgb, var(--bg-card) 85%, #000) 8%,
+        color-mix(in srgb, var(--bg-card) 70%, #fff) 18%,
+        color-mix(in srgb, var(--bg-card) 85%, #000) 33%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s linear infinite;
+      border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    }
+
+    @keyframes shimmer {
+      to { background-position-x: -200%; }
+    }
   </style>
 </head>
 <body class="min-h-screen flex" style="background: var(--bg-primary);">
@@ -114,51 +420,79 @@
 <div id="themeBtn" style="right: 30px; position: fixed; top:15px;"></div>
 
 <main class="flex-1 p-8">
-<header style="border: var(--border-one) 2px solid;   background-color: var(--bg-thiry);"  class="mb-8 flex items-center justify-center gap-8 dark:bg-background-dark p-8 rounded-xl  transition-all duration-00 ease-in-out">
-
-  <img id="userProfile"  alt="Profil" style="border:solid 3px #37ff00ec;" class="w-20 h-20 rounded-full border border-slate-900 "/>
-  <div class="text-center ">
-    <h2 class="text-3xl font-bold text-slate-900 dark:text-white" style="color: var(--text-primary);">Hoşgeldin</h2>
-    <span id="username" class="block text-1xl font-semibold text-slate-700 dark:text-gray-300" style="color: var(--text-second);"></span>
-    <p id="changingText" class="text-slate-500 transition-opacity duration-500" style="color: var(--text-yellow); font-size: large; "></p>
-  </div>
-</header> 
-
-
-</header>
-
-<section class="mt-8">
- 
-
-  <div id="generalDataGrid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-
-    <div class="card">
-      <p class="text-sm uppercase tracking-wider mb-3" style="color: var(--text-muted);">Bulgu Dağılımı</p>
-      <div id="findingLegend" class="flex flex-wrap gap-2 mb-3"></div>
-      <div style="position:relative; height:220px;">
-        <canvas id="findingChart" role="img" aria-label="Bulgu dağılımı grafiği"></canvas>
+  <div class="hospitals-wrap">
+    <div class="hospitals-header">
+      <div>
+        <h1 class="hospitals-title text-3xl font-bold">Hastaneler</h1>
+        
+      <section class="panel mt-4 p-4">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-8">
+          <div class="xl:col-span-2">
+            <label for="searchInput" class="f-label">Hızlı Arama</label>
+            <input id="searchInput" class="f-input" type="search" placeholder="Hastane adı veya kod..." />
+          </div>
+          <div>
+            <label for="statusFilter" class="f-label">Durum</label>
+            <select id="statusFilter" class="f-input">
+              <option value="all">Tümü</option>
+              <option value="critical">Kritik</option>
+              <option value="warning">Uyarı</option>
+              <option value="normal">Normal</option>
+            </select>
+          </div>
+          <div>
+            <label for="doctorFilter" class="f-label">Doktor</label>
+            <select id="doctorFilter" class="f-input"><option value="all">Tüm doktorlar</option></select>
+          </div>
+          <div>
+            <label for="careFilter" class="f-label">Bakım</label>
+              <select id="careFilter" class="f-input">
+              <option value="all">Tümü</option>
+              <option value="Beklemede">Beklemede</option>
+              <option value="Kontrol Edildi">Kontrol Edildi</option>
+              <option value="Eğitildi">Eğitildi</option>
+            </select>
+          </div>
+          <div>
+              <label for="dateTo" class="f-label">Gün</label>
+              <input id="dateTo" class="f-input" type="date" />
+          </div>
+          <div class="xl:col-span-2">
+            <label class="f-label">Görünüm</label>
+            <div class="view-filter-box">
+              <label class="view-filter-item" for="showHospitalName">
+                <input id="showHospitalName" type="checkbox" checked />
+                <span>Hastane adını göster</span>
+              </label>
+              <label class="view-filter-item" for="showHospitalCode">
+                <input id="showHospitalCode" type="checkbox" />
+                <span>Kodu göster</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <button id="refreshBtn" class="btn-main" type="button"><i class="fa-solid fa-rotate-right"></i> Yenile</button>
+          <button id="clearFiltersBtn" class="btn-lite" type="button"><i class="fa-solid fa-filter-circle-xmark"></i> Filtreleri Temizle</button>
+          <button id="exportCsvBtn" class="btn-lite" type="button"><i class="fa-solid fa-file-csv"></i> CSV Dışa Aktar</button>
+          <button id="bulkDeleteBtn" class="btn-lite" type="button" disabled><i class="fa-solid fa-trash-can"></i> Seçilileri Sil</button>
+          <span id="selectedCount" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">0 seçili</span>
+          <p id="actionMessage" class="toast ml-auto"></p>
+        </div>
+      </section>
+        <div class="hospitals-subtitle" id="HospitalsMeta">Yükleniyor…</div>
       </div>
     </div>
-  
-    <div class="card">
-      <p class="text-sm uppercase tracking-wider mb-3" style="color: var(--text-muted);">En Çok Analiz Yapılan Organlar</p>
-      <div id="organLegend" class="flex flex-wrap gap-2 mb-3"></div>
-      <div style="position:relative; height:220px;">
-        <canvas id="organChart" role="img" aria-label="Organ analiz grafiği"></canvas>
-      </div>
-    </div>
-  
+    <div id="Hospitals" aria-live="polite"></div>
   </div>
+</main>
 
-</section>
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
      Theme.renderToggle('themeBtn');
    const user = await getCurrentUser();
-   let UserProfile = document.getElementById("userProfile");
-   UserProfile.src = user.profile;
+
   });
   
 </script>
@@ -169,60 +503,371 @@
 
 
 <script>
-let allProducts = []; 
-fetch("http://localhost:5256/api/Products/UserWiem", {
-  credentials: "include"
-})
-  .then(res => res.json())
-  .then(result => {
-    const productArray = Array.isArray(result.data) ? result.data : result.data.$values || [];
-    const urunGrubu = document.getElementById("urun-grubu");
-    allProducts = productArray;
+const HOSPITAL_API_ORIGIN = 'http://localhost:8000';
+const HOSPITALS_ENDPOINT = `${HOSPITAL_API_ORIGIN}/api/v1/Hospital/GetAllHospital`;
 
-   productArray.forEach(product => {
-    const imageArray = product.productImages || [];
-    const rawPath = imageArray.length > 0 ? imageArray[0].imagePath : null;
+function createSkeletonTiles(count = 8) {
+  const grid = document.getElementById('Hospitals');
+  for (let i = 0; i < count; i++) {
+    const sk = document.createElement('div');
+    sk.className = 'hospital-skeleton';
+    sk.dataset.skeleton = '1';
+    grid.appendChild(sk);
+  }
+}
 
-    const category = product.categoryName ? product.categoryName : "Kategori Bilgisi Yok";
-        
-    const imagePath = rawPath 
-        ? `http://localhost:5256/ProductImagesTX/${encodeURIComponent(rawPath)}`
-        : "TemplateImage/miniverse_logo.jpg";
+function clearSkeletonTiles() {
+  document.querySelectorAll('#Hospitals [data-skeleton="1"]').forEach(el => el.remove());
+}
 
-      const urunDiv = document.createElement("div");
-      urunDiv.className = "group relative flex flex-col rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900/50 shadow-md hover:shadow-xl transition-shadow duration-300";
+function buildHospitalAssetCandidates(assetPath) {
+  if (!assetPath) return [];
 
-      urunDiv.innerHTML = `
-        <div class="aspect-square w-full bg-cover bg-center" style="background-image: url('${imagePath}');"></div>
-        <div class="p-4 flex-grow">
-          <h3 class="font-bold text-gray-900 dark:text-white">${product.productName}</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">${product.productAc}</p><p style="color: #00FF33; cursor: pointer; " class="text-sm text-gray-600 dark:text-gray-400">${category}</p>
-        </div>
-        
-        <div class="p-4 pt-0">
-          <span class="font-bold text-primary">${product.productPrice} TL</span>
-        </div>
-        <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-  <button 
-      onclick="openProductModal(${product.productId})" 
-      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors">
-      Daha Fazla
-  </button>
+  const raw = String(assetPath).trim();
+  if (!raw) return [];
+  if (/^https?:\/\//i.test(raw)) return [raw];
 
-  <!-- Sepete Ekle Butonu -->
-  <button 
-      onclick="AddToMyCart(${product.productId})" 
-      class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors">
-      Sepete Ekle
-  </button>
+  const normalizedRaw = raw.startsWith('/') ? raw : `/${raw}`;
+  const withoutWebRoot = normalizedRaw.replace(/^\/wwwroot(?=\/)/i, '');
+  const candidates = [];
 
-</div>
-      `;
+  [withoutWebRoot, normalizedRaw].forEach((candidatePath) => {
+    if (!candidatePath) return;
+    try {
+      candidates.push(new URL(candidatePath, HOSPITAL_API_ORIGIN).href);
+    } catch {}
+  });
 
-      urunGrubu.appendChild(urunDiv);
+  return [...new Set(candidates)];
+}
+
+function attachImageWithFallback(img, assetPath, onFail) {
+  const candidates = buildHospitalAssetCandidates(assetPath);
+  if (!candidates.length) {
+    if (typeof onFail === 'function') onFail();
+    return false;
+  }
+
+  let index = 0;
+  img.src = candidates[index];
+
+  img.addEventListener('error', () => {
+    index += 1;
+    if (index < candidates.length) {
+      img.src = candidates[index];
+      return;
+    }
+
+    if (typeof onFail === 'function') onFail();
+  });
+
+  return true;
+}
+
+function pickHospitalValue(hospital, keys) {
+  for (const key of keys) {
+    const value = hospital?.[key];
+    if (value === undefined || value === null) continue;
+
+    const normalized = String(value).trim();
+    if (normalized) return normalized;
+  }
+
+  return "";
+}
+
+function appendHoverRow(container, label, value) {
+  if (!value) return;
+
+  const row = document.createElement('div');
+  row.className = 'hospital-hover-row';
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'hospital-hover-label';
+  labelEl.textContent = label;
+
+  const valueEl = document.createElement('div');
+  valueEl.className = 'hospital-hover-value';
+  valueEl.textContent = value;
+
+  row.appendChild(labelEl);
+  row.appendChild(valueEl);
+  container.appendChild(row);
+}
+
+function updateHoverPlacement(tile) {
+  if (window.innerWidth <= 1100) {
+    tile.dataset.hoverSide = 'top';
+    return;
+  }
+
+  const hoverCard = tile.querySelector('.hospital-hover-card');
+  if (!hoverCard) return;
+
+  const rect = tile.getBoundingClientRect();
+  const estimatedWidth = hoverCard.offsetWidth || 320;
+  const rightSpace = window.innerWidth - rect.right;
+  const leftSpace = rect.left;
+
+  tile.dataset.hoverSide = rightSpace >= estimatedWidth + 24 || rightSpace >= leftSpace ? 'right' : 'left';
+}
+
+function appendHospitalCard(h) {
+  const grid = document.getElementById('Hospitals');
+
+  const tile = document.createElement('div');
+  tile.className = 'hospital-tile';
+  tile.tabIndex = 0;
+  tile.setAttribute('role', 'button');
+  const hospitalName = h?.name ? String(h.name) : 'Hastane';
+  const hospitalCode = h?.code ? String(h.code) : '';
+  const hospitalType = pickHospitalValue(h, ['type', 'hospital_type', 'category']);
+  const hospitalPhone = pickHospitalValue(h, ['phone', 'telephone', 'tel']);
+  const hospitalEmail = pickHospitalValue(h, ['email', 'mail']);
+  const hospitalAddress = pickHospitalValue(h, ['address', 'full_address', 'location']);
+  const hospitalCity = pickHospitalValue(h, ['city', 'province', 'il']);
+  const hospitalDistrict = pickHospitalValue(h, ['district', 'town', 'ilce']);
+  const hospitalProfileImage = h?.profile ? String(h.profile) : '';
+  const hospitalFooterImage = h?.footer_image ? String(h.footer_image) : hospitalProfileImage;
+  const hospitalLocation = [hospitalDistrict, hospitalCity].filter(Boolean).join(' / ');
+  const hospitalSubtitle = hospitalType || hospitalLocation || 'Sağlık kurumu';
+  tile.title = hospitalCode ? `${hospitalName} | Kod: ${hospitalCode}` : hospitalName;
+  tile.dataset.name = hospitalName.toLowerCase();
+  tile.dataset.code = hospitalCode.toLowerCase();
+
+  const cover = document.createElement('div');
+  cover.className = 'hospital-cover';
+
+  const placeholder = document.createElement('div');
+  placeholder.className = 'hospital-placeholder';
+  if (hospitalProfileImage) {
+    const img = document.createElement('img');
+    img.alt = h?.name ? String(h.name) : 'Hastane görseli';
+    img.loading = 'lazy';
+    const hasImage = attachImageWithFallback(img, hospitalProfileImage, () => {
+      placeholder.innerHTML = '<i class="fa-solid fa-hospital"></i>';
     });
-  })
-  .catch(err => console.error("Veri çekme hatası:"));
+    if (hasImage) {
+      placeholder.appendChild(img);
+    } else {
+      placeholder.innerHTML = '<i class="fa-solid fa-hospital"></i>';
+    }
+  } else {
+    placeholder.innerHTML = '<i class="fa-solid fa-hospital"></i>';
+  }
+
+  const info = document.createElement('div');
+  info.className = 'hospital-info';
+
+  const name = document.createElement('div');
+  name.className = 'hospital-name';
+  name.textContent = hospitalName;
+
+  const codeBadge = document.createElement('div');
+  codeBadge.className = 'hospital-code';
+  codeBadge.textContent = hospitalCode ? `Kod: ${hospitalCode}` : 'Kod bilgisi yok';
+
+  info.appendChild(name);
+  info.appendChild(codeBadge);
+
+  cover.appendChild(placeholder);
+  cover.appendChild(info);
+  tile.appendChild(cover);
+
+  const hoverCard = document.createElement('div');
+  hoverCard.className = 'hospital-hover-card';
+
+  const hoverMedia = document.createElement('div');
+  hoverMedia.className = 'hospital-hover-media';
+
+  if (hospitalFooterImage) {
+    const hoverImg = document.createElement('img');
+    hoverImg.alt = `${hospitalName} footer görseli`;
+    hoverImg.loading = 'lazy';
+    const hasHoverImage = attachImageWithFallback(hoverImg, hospitalFooterImage, () => {
+      hoverImg.remove();
+    });
+    if (hasHoverImage) hoverMedia.appendChild(hoverImg);
+  }
+
+  const hoverBody = document.createElement('div');
+  hoverBody.className = 'hospital-hover-body';
+
+  const hoverTitle = document.createElement('div');
+  hoverTitle.className = 'hospital-hover-title';
+  hoverTitle.textContent = hospitalName;
+
+  const hoverSubtitle = document.createElement('div');
+  hoverSubtitle.className = 'hospital-hover-subtitle';
+  hoverSubtitle.textContent = hospitalSubtitle;
+
+  const hoverMeta = document.createElement('div');
+  hoverMeta.className = 'hospital-hover-meta';
+
+  appendHoverRow(hoverMeta, 'Kod', hospitalCode || 'Bilgi yok');
+  if (hospitalType) appendHoverRow(hoverMeta, 'Tür', hospitalType);
+  if (hospitalLocation) appendHoverRow(hoverMeta, 'Konum', hospitalLocation);
+  if (hospitalPhone) appendHoverRow(hoverMeta, 'Telefon', hospitalPhone);
+  if (hospitalEmail) appendHoverRow(hoverMeta, 'E-posta', hospitalEmail);
+  if (hospitalAddress) appendHoverRow(hoverMeta, 'Adres', hospitalAddress);
+
+  hoverBody.appendChild(hoverTitle);
+  hoverBody.appendChild(hoverSubtitle);
+  hoverBody.appendChild(hoverMeta);
+
+  hoverCard.appendChild(hoverMedia);
+  hoverCard.appendChild(hoverBody);
+  tile.appendChild(hoverCard);
+
+  tile.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
+  });
+
+  tile.addEventListener('mouseenter', () => updateHoverPlacement(tile));
+  tile.addEventListener('focus', () => updateHoverPlacement(tile));
+
+  grid.appendChild(tile);
+}
+
+let currentPage = 1;
+let isLoading = false;
+let hasMore = true;
+let lastMeta = null;
+
+function updateHospitalMeta() {
+  const metaEl = document.getElementById('HospitalsMeta');
+  const total = Number(lastMeta?.total ?? 0);
+  const shown = document.querySelectorAll('#Hospitals .hospital-tile').length;
+  const visible = document.querySelectorAll('#Hospitals .hospital-tile:not([hidden])').length;
+  const searchValue = document.getElementById('searchInput')?.value?.trim() || '';
+
+  if (searchValue) {
+    metaEl.textContent = `${visible} / ${shown} görüntüleniyor (toplam ${total})`;
+    return;
+  }
+
+  metaEl.textContent = `${shown} / ${total} kayıt`;
+}
+
+function applyHospitalFilters() {
+  const searchValue = document.getElementById('searchInput')?.value?.trim().toLowerCase() || '';
+  const tiles = document.querySelectorAll('#Hospitals .hospital-tile');
+
+  tiles.forEach(tile => {
+    const nameValue = tile.dataset.name || '';
+    const codeValue = tile.dataset.code || '';
+    tile.hidden = searchValue ? !(nameValue.includes(searchValue) || codeValue.includes(searchValue)) : false;
+  });
+
+  updateHospitalMeta();
+}
+
+function applyHospitalViewToggles() {
+  const showHospitalName = document.getElementById('showHospitalName');
+  const showHospitalCode = document.getElementById('showHospitalCode');
+
+  document.documentElement.dataset.showName = showHospitalName?.checked ? '1' : '0';
+  document.documentElement.dataset.showCode = showHospitalCode?.checked ? '1' : '0';
+}
+
+function resetHospitalList() {
+  document.getElementById('Hospitals').innerHTML = '';
+  currentPage = 1;
+  isLoading = false;
+  hasMore = true;
+  lastMeta = null;
+}
+
+async function loadHospitals() {
+  if (isLoading || !hasMore) return;
+  isLoading = true;
+
+  const metaEl = document.getElementById('HospitalsMeta');
+  if (!lastMeta) createSkeletonTiles(10);
+  let json;
+
+  try {
+    const res = await fetch(`${HOSPITALS_ENDPOINT}?page=${currentPage}&page_size=50`, {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      clearSkeletonTiles();
+      metaEl.textContent = `Hata: ${res.status}`;
+      isLoading = false;
+      return;
+    }
+
+    json = await res.json();
+  } catch (err) {
+    clearSkeletonTiles();
+    metaEl.textContent = 'Bağlantı hatası';
+    isLoading = false;
+    return;
+  }
+
+  clearSkeletonTiles();
+
+  (json.data || []).forEach(h => appendHospitalCard(h));
+
+  lastMeta = json;
+  applyHospitalFilters();
+
+  const page = Number(json.page ?? currentPage);
+  const pageSize = Number(json.page_size ?? 20);
+  const total = Number(json.total ?? 0);
+  hasMore = (page * pageSize) < total;
+  currentPage = page + 1;
+  isLoading = false;
+}
+
+const sentinel = document.createElement('div');
+sentinel.id = 'sentinel';
+sentinel.style.height = '1px';
+sentinel.setAttribute('aria-hidden', 'true');
+document.getElementById('Hospitals').after(sentinel);
+
+const observer = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) loadHospitals();
+}, { threshold: 0.1, rootMargin: '800px 0px' });
+
+observer.observe(sentinel);
+
+document.documentElement.dataset.showName = '1';
+document.documentElement.dataset.showCode = '0';
+
+document.getElementById('searchInput')?.addEventListener('input', applyHospitalFilters);
+document.getElementById('showHospitalName')?.addEventListener('change', applyHospitalViewToggles);
+document.getElementById('showHospitalCode')?.addEventListener('change', applyHospitalViewToggles);
+
+document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
+  const searchInput = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const doctorFilter = document.getElementById('doctorFilter');
+  const careFilter = document.getElementById('careFilter');
+  const dateTo = document.getElementById('dateTo');
+  const showHospitalName = document.getElementById('showHospitalName');
+  const showHospitalCode = document.getElementById('showHospitalCode');
+
+  if (searchInput) searchInput.value = '';
+  if (statusFilter) statusFilter.value = 'all';
+  if (doctorFilter) doctorFilter.value = 'all';
+  if (careFilter) careFilter.value = 'all';
+  if (dateTo) dateTo.value = '';
+  if (showHospitalName) showHospitalName.checked = true;
+  if (showHospitalCode) showHospitalCode.checked = false;
+
+  applyHospitalViewToggles();
+  applyHospitalFilters();
+});
+
+document.getElementById('refreshBtn')?.addEventListener('click', () => {
+  resetHospitalList();
+  loadHospitals();
+});
+
+applyHospitalViewToggles();
+loadHospitals();
 
 </script>
 </html>
