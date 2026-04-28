@@ -228,15 +228,7 @@
       z-index: 1200;
       backdrop-filter: blur(3px);
     }
-    .modal-panel {
-      width: min(760px, 100%);
-      max-height: 90vh;
-      overflow: auto;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      box-shadow: 0 30px 80px rgba(2, 6, 23, 0.42);
-    }
+    
     .detail-item {
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -381,38 +373,8 @@
   </main>
 
   <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-panel">
-      <div class="px-4 py-3 border-b" style="border-color: var(--border);">
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted);">Model Detayi</p>
-            <h3 id="modalTitle" class="hero-title text-lg">Kayit</h3>
-          </div>
-          <button id="closeDetailBtn" class="btn-lite !px-3 !py-2" type="button"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-      </div>
-      <div class="p-4 grid gap-3">
-        <div class="flex flex-wrap items-center gap-2">
-          <span id="modalStatus" class="status status-stage">Staging</span>
-          <span id="modalLatency" class="text-sm font-semibold" style="color: var(--text-muted);">Latency: -</span>
-          <span id="modalAccuracy" class="text-sm font-semibold" style="color: var(--text-muted);">Dogruluk: -</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div class="detail-item"><p class="detail-k">Model ID</p><p id="modalModelId" class="detail-v">-</p></div>
-          <div class="detail-item"><p class="detail-k">Surum</p><p id="modalVersion" class="detail-v">-</p></div>
-          <div class="detail-item"><p class="detail-k">Owner</p><p id="modalOwner" class="detail-v">-</p></div>
-          <div class="detail-item"><p class="detail-k">Domain</p><p id="modalDomain" class="detail-v">-</p></div>
-        </div>
-        <div class="detail-item">
-          <p class="detail-k">Notlar</p>
-          <p id="modalNotes" class="detail-v">-</p>
-        </div>
-        <div class="detail-item">
-          <p class="detail-k">Config Snapshot</p>
-          <pre id="modalConfig">{}</pre>
-        </div>
-      </div>
-    </div>
+
+    
   </div>
 
   <script src="MenuLoader.js"></script>
@@ -566,25 +528,25 @@
            
               <td>${formatDate(m.updatedAt)}</td>
               <td>
-                <button class="btn-lite !text-xs !px-3 !py-2" type="button" data-action="detail" data-id="${escapeHtml(m.id)}">
-                  <i class="fa-solid fa-eye"></i> Detay
-                </button>
+                <a href="AIModelsDetails.html?data-id=${escapeHtml(m.id)}" class="btn-lite !text-xs !px-3 !py-2 inline-block">
+  <i class="fa-solid fa-eye"></i> Detay
+</a>
               </td>
             </tr>
           `;
         }).join("");
       }
 
-      function updateMetrics(list) {
-        const total = list.length;
-        const prodCount = list.filter((m) => m.is_active === "true").length;
-        console.log(prodCount);
-        el.metricTotal.textContent = String(total);
-        el.metricProd.textContent = String(prodCount);
+      // function updateMetrics(list) {
+      //   const total = list.length;
+      //   const prodCount = list.filter((m) => m.is_active === "true").length;
+      //   console.log(prodCount);
+      //   el.metricTotal.textContent = String(total);
+      //   el.metricProd.textContent = String(prodCount);
      
-        el.resultCount.textContent = `${total} model`;
-        el.headerUpdatedAt.textContent = `Son guncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henuz yok"}`;
-      }
+      //   el.resultCount.textContent = `${total} model`;
+      //   el.headerUpdatedAt.textContent = `Son guncelleme: ${state.lastUpdated ? formatDate(state.lastUpdated) : "Henuz yok"}`;
+      // }
 
       function updateDomainFilter() {
         const current = el.domainFilter.value;
@@ -632,7 +594,7 @@
         });
 
         renderRows(state.filtered);
-        updateMetrics(state.filtered);
+        // updateMetrics(state.filtered);
       }
 
       function showMessage(text, isError) {
@@ -723,7 +685,7 @@
           "headerUpdatedAt", "metricTotal", "metricProd", "metricAccuracy",,
           "searchInput", "statusFilter", "domainFilter", "refreshBtn", "clearFiltersBtn",
           "resultCount", "modelsBody", "actionMessage", "fetchError", "tableLoadingHint", "rolloutModel", "rolloutPercent",
-          "rolloutPercentLabel", "rolloutHint", "startRolloutBtn", "detailModal", "closeDetailBtn",
+          "rolloutPercentLabel", "rolloutHint", "startRolloutBtn",
           "modalTitle", "modalStatus", "modalLatency", "modalAccuracy", "modalModelId", "modalVersion",
           "modalOwner", "modalDomain", "modalNotes", "modalConfig"
         ].forEach((id) => {
@@ -769,11 +731,7 @@
           showMessage(`${model.name} ${model.version} icin %${pct} canary rollout planlandi.`, false);
         });
 
-        el.closeDetailBtn.addEventListener("click", closeDetail);
-        el.detailModal.addEventListener("click", (event) => {
-          if (event.target === el.detailModal) closeDetail();
-        });
-
+  
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape" && !el.detailModal.classList.contains("hidden")) closeDetail();
         });
