@@ -20,23 +20,7 @@
       position: relative;
       isolation: isolate;
     }
-    .page-shell::before {
-      content: "";
-      position: absolute;
-      inset: -20% 0 auto;
-      height: 420px;
-      background:
-        radial-gradient(720px 280px at 12% 8%, rgba(99, 202, 183, 0.2), transparent 70%),
-        radial-gradient(620px 240px at 92% 20%, rgba(59, 158, 138, 0.14), transparent 70%);
-      z-index: -1;
-      pointer-events: none;
-    }
-    .hero-title,
-    .metric-number,
-    .chip,
-    .panel-title,
-    .name-text {
-    }
+  
     .hero {
       border: 1px solid var(--border);
       border-radius: 18px;
@@ -160,7 +144,7 @@
       border-radius: 50%;
       top: -46px;
       right: -44px;
-      background: rgba(99, 202, 183, 0.14);
+      background: var(--metric-articet);
     }
     .metric-label {
       color: var(--text-muted);

@@ -123,6 +123,7 @@
       isolation: isolate;
       cursor: pointer;
       user-select: none;
+      z-index: 0;
     }
 
     .hospital-tile:hover {
@@ -196,13 +197,14 @@
       transform: translate3d(-10px, 0, 0);
       transition: opacity 180ms ease, transform 180ms ease;
       pointer-events: none;
-      z-index: 30;
+      z-index: 1000;
     }
 
     .hospital-tile[data-hover-side="left"] .hospital-hover-card {
       left: auto;
       right: calc(100% + 14px);
       transform: translate3d(10px, 0, 0);
+      
     }
 
     .hospital-tile:hover .hospital-hover-card,
@@ -612,6 +614,8 @@ function updateHoverPlacement(tile) {
   tile.dataset.hoverSide = rightSpace >= estimatedWidth + 24 || rightSpace >= leftSpace ? 'right' : 'left';
 }
 
+
+
 function appendHospitalCard(h) {
   const grid = document.getElementById('Hospitals');
 
@@ -631,6 +635,8 @@ function appendHospitalCard(h) {
   const hospitalFooterImage = h?.footer_image ? String(h.footer_image) : hospitalProfileImage;
   const hospitalLocation = [hospitalDistrict, hospitalCity].filter(Boolean).join(' / ');
   const hospitalSubtitle = hospitalType || hospitalLocation || 'Sağlık kurumu';
+  const hospitalId = h?.id !== undefined && h?.id !== null ? String(h.id) : '';
+  tile.dataset.id = hospitalId;
   tile.title = hospitalCode ? `${hospitalName} | Kod: ${hospitalCode}` : hospitalName;
   tile.dataset.name = hospitalName.toLowerCase();
   tile.dataset.code = hospitalCode.toLowerCase();
@@ -718,10 +724,21 @@ function appendHospitalCard(h) {
   hoverCard.appendChild(hoverMedia);
   hoverCard.appendChild(hoverBody);
   tile.appendChild(hoverCard);
-
+  
   tile.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
   });
+
+
+  tile.addEventListener('click', () => {
+  if (!hospitalId) {
+    console.warn('Hospital ID bulunamadı');
+    return;
+  }
+  window.location.href = `/HospitalDetails.html?Id=${hospitalId}`;
+  });
+
+
 
   tile.addEventListener('mouseenter', () => updateHoverPlacement(tile));
   tile.addEventListener('focus', () => updateHoverPlacement(tile));
@@ -809,7 +826,6 @@ async function loadHospitals() {
   clearSkeletonTiles();
 
   (json.data || []).forEach(h => appendHospitalCard(h));
-
   lastMeta = json;
   applyHospitalFilters();
 

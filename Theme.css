@@ -2,6 +2,8 @@
   --bg-primary:    #FFFFFFF8;
   --bg-secondary:  #f8fafc;
   --bg-thiry:      #feffff;
+  --bg-fourty:     #fefefe;
+  --bg-anti:       #0f172a;
   --bg-antilight : #0f172a;
   --text-second:   rgba(15 15 15 / 0.96);
   --bg-card:       #ffffff;
@@ -24,7 +26,9 @@
   --bg-primary:    #080f1a;
   --bg-secondary:  #0d1829;
   --bg-thiry:      #0D1520;
+  --bg-fourty:     #080f1a;
   --bg-card:       #111c2d;
+  --bg-anti:       #f6f7f9;
   --text-primary:  #63cab7;
   --text-green:    #55DD07D2;
   --text-yellow:   #F6FF00;

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hastane Detayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"/>
+  <link rel="stylesheet" href="Theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+
+      background:
+       
+        linear-gradient(180deg, #0f1a2d 0%, #0a121f 34%, #0a111c 100%);
+      color: #d8e2f1;
+    }
+
+    .details-page {
+      max-width: none;
+      padding-top: 70px;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    /* ── Hero ── */
+    .hospital-hero {
+      position: relative;
+      width: calc(100% + 4rem);
+      margin-left: -2rem;
+      margin-right: -2rem;
+      height: 450px;
+      overflow: hidden;
+      bottom: 80px;      
+       position: relative;
+    }
+
+    .hospital-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      transition: transform 0.8s ease, filter 0.5s ease;
+     
+    }
+
+   
+
+
+    /* Hero üzerindeki başlık bloğu */
+    .hospital-hero-content {
+      position: absolute;
+      bottom: 24px;
+      left: 28px;
+      right: 28px;
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+    }
+
+    .hospital-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 14px;
+      border: 3px solid rgba(255,255,255,0.18);
+      object-fit: cover;
+      flex-shrink: 0;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .hospital-avatar-placeholder {
+      width: 90px;
+      height: 90px;
+      border-radius: 14px;
+      border: 3px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(4px);
+      flex-shrink: 0;
+    }
+
+    .hospital-hero-titles {
+      flex: 1;
+    }
+
+    .hospital-hero-name {
+
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+      margin-bottom: 4px;
+    }
+
+    .hospital-hero-type {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Sekmeler ── */
+    .detail-tabs {
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid rgba(160, 185, 220, 0.18);
+      margin-bottom: 28px;
+
+      margin-top: -60px;
+    }
+
+    .detail-tab {
+      padding: 10px 18px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(195,210,236,0.58);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .detail-tab:hover {
+      color: #f2f6ff;
+    }
+
+    .detail-tab.active {
+      color: #6fb7ff;
+      border-bottom-color: #4ca4ff;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .list-grid {
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .list-card {
+      background: linear-gradient(160deg, rgba(22, 34, 56, 0.82), rgba(14, 24, 40, 0.92));
+      border: 1px solid rgba(0, 106, 255, 0.929);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    .list-card-title {
+      font-size: 0.95rem;
+      color: #eaf3ff;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .list-card-sub {
+      font-size: 0.82rem;
+      color: rgba(195, 210, 236, 0.82);
+      line-height: 1.45;
+    }
+
+    .tab-note {
+      color: rgba(188, 205, 232, 0.62);
+      font-size: 0.82rem;
+      margin-bottom: 16px;
+    }
+
+    .tab-state {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(150, 177, 214, 0.16);
+      color: rgba(188, 205, 232, 0.72);
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
+    }
+
+    .info-section {
+  background: var(--bg-fourty);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--bg-anti);
+  overflow: hidden;
+}
+.info-section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 18px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid rgba(199, 235, 55, 0.901);
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--text-second);
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.info-section-header i { color: #7ec2ff; }
+.info-row {
+  display: flex; align-items: center;
+  padding: 12px 18px;
+  background: var(--bg-fourty);
+  border-bottom: 2px solid var(--bg-secondary);
+  gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row-label {
+  width: 170px; flex-shrink: 0;
+  font-size: 0.78rem; color: var(--text-second);
+}
+.info-row-value {
+  font-size: 0.875rem; font-weight: 500; color: var(--text-main);
+  word-break: break-all;
+}
+.info-row-value a { color: #7ec2ff; text-decoration: none; }
+.info-row-value a:hover { text-decoration: underline; }
+.badge-bool-yes { background: rgba(52,211,153,0.12); color: #34d399; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; }
+.badge-bool-no  { background: rgba(248,113,113,0.12); color: #f87171; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; }
+    /* ── Skeleton loader ── */
+    .skeleton {
+      background: linear-gradient(90deg,
+        var(--bg-secondary, rgba(255,255,255,0.05)) 25%,
+        var(--bg-hover, rgba(255,255,255,0.1)) 50%,
+        var(--bg-secondary, rgba(255,255,255,0.05)) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      to { background-position-x: -200%; }
+    }
+
+    .skeleton-hero {
+      width: 100%;
+      height: 320px;
+      border-radius: 16px;
+      margin-bottom: 0;
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-blue {
+      background: rgba(59, 131, 246, 0.732);
+      color: #f5f5f5;
+      border: 1px solid rgba(59,130,246,0.25);
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: rgba(193, 211, 238, 0.58);
+      cursor: pointer;
+      transition: color 0.2s;
+      margin-bottom: 20px;
+      padding: 6px 0;
+      letter-spacing: 0.02em;
+    }
+
+    .back-btn:hover {
+      color: #eef4ff;
+    }
+
+    /* ── Panel section ── */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ecf3ff;
+      margin-bottom: 14px;
+      letter-spacing: 0.01em;
+    }
+
+    .AllInfoBlock{
+      display: grid;
+      
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    #personelList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.personel-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.personel-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.personel-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.personel-name {
+    display: block;
+    font-weight: bold;
+    color: #333;
+}
+
+.personel-specialty {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.status-online { background-color: #28a745; }
+.status-offline { background-color: #dc3545; }
+
+    /* fade-in */
+    .fade-in {
+      animation: fadeIn 0.4s ease both;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .details-page {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 62px;
+      }
+
+      .hospital-hero {
+        width: calc(100% + 2rem);
+        margin-left: -1rem;
+        margin-right: -1rem;
+        height: 300px;
+      }
+
+      .hospital-hero-content {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+      }
+
+      .hospital-hero-name {
+        font-size: 1.3rem;
+      }
+
+      
+    }
+  </style>
+</head>
+<body class="min-h-screen flex">
+
+<div id="AdminMenu"></div>
+<div id="themeBtn" style="right: 30px; position: fixed; top:15px; z-index: 1300;"></div>
+
+<main class="flex-1 details-page">
+
+  <!-- Skeleton (yüklenirken görünür) -->
+  <div id="skeletonBlock">
+    <div class="skeleton skeleton-hero mb-6"></div>
+    <div class="info-grid">
+      <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+      <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+      <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+      <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Asıl içerik (API'den sonra gösterilir) -->
+  <div id="detailBlock" style="display:none;" class="fade-in">
+
+    <!-- Hero -->
+    <div class="hospital-hero" id="heroWrap">
+      <img class="hospital-hero-img" id="heroImg" src="" alt="Hastane görseli"
+           onerror="this.style.display='none'; document.getElementById('heroFallback').style.display='flex';">
+      <div id="heroFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:var(--bg-secondary);font-size:5rem;color:rgba(255,255,255,0.15);">
+        <i class="fa-solid fa-hospital"></i>
+      </div>
+      <div class="hospital-hero-overlay"></div>
+      <div class="hospital-hero-content">
+        <img id="avatarImg" class="hospital-avatar" src="" alt="Logo"
+             onerror="this.style.display='none'; document.getElementById('avatarFallback').style.display='flex';">
+        <div id="avatarFallback" class="hospital-avatar-placeholder" style="display:none;">
+          <i class="fa-solid fa-hospital"></i>
+        </div>
+        <div class="hospital-hero-titles">
+          <div class="hospital-hero-name" id="heroName">—</div>
+          <div class="hospital-hero-type">
+            <span class="badge badge-blue" id="heroBadge"><i class="fa-solid fa-circle-check text-xs"></i> —</span>
+            <span id="heroLocation" style="margin-left:4px;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sekmeler -->
+    <div  class="detail-tabs">
+      <div id="generalTab" class="detail-tab active">Genel Bilgi</div>
+      <div id="personelTab" class="detail-tab">Personeller</div>
+      <div id="calismaTab" class="detail-tab">Yapılan Çalışmalar</div>
+      <div id="arastirmaTab" class="detail-tab">Araştırmalar</div>
+      <div id="basarilarTab" class="detail-tab">Başarılar</div>
+    </div>
+
+    <!-- Tab içerikleri -->
+    <div id="generalPanel" class="tab-panel active">
+      <div id="generalInfoBlock" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4" ></div>
+    </div>
+
+
+    <div id="personelPanel" class="tab-panel">
+      <div class="tab-note">Personel listesi API'den otomatik yüklenir.</div>
+      <div id="personelState" class="tab-state">Henüz yüklenmedi.</div>
+      <div id="personelList" class="list-grid"></div>
+    </div>
+
+    <div id="calismaPanel" class="tab-panel">
+      <div class="tab-note">Yapılan çalışmalar API'den otomatik yüklenir.</div>
+      <div id="calismaState" class="tab-state">Henüz yüklenmedi.</div>
+      <div id="calismaList" class="list-grid"></div>
+    </div>
+
+    <div id="arastirmaPanel" class="tab-panel">
+      <div class="tab-note">Araştırmalar API'den otomatik yüklenir.</div>
+      <div id="arastirmaState" class="tab-state">Henüz yüklenmedi.</div>
+      <div id="arastirmaList" class="list-grid"></div>
+    </div>
+
+    <div id="basarilarPanel" class="tab-panel">
+      <div class="tab-state">Başarılar içeriğini bu alandan dilediğin gibi düzenleyebilirsin.</div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const BASE_URL = 'http://localhost:8000';
+  function getParam(key) {
+    return new URLSearchParams(window.location.search).get(key);
+  }
+
+  function buildAssetCandidates(assetPath) {
+  if (!assetPath) return [];
+  const raw = String(assetPath).trim();
+  if (!raw) return [];
+  if (/^https?:\/\//i.test(raw)) return [raw];
+
+  const normalizedRaw = raw.startsWith('/') ? raw : `/${raw}`;
+  return [`${BASE_URL}${normalizedRaw}`];
+}
+
+  function setImageWithFallback(imgEl, assetPath, onFail) {
+    const candidates = buildAssetCandidates(assetPath);
+    if (!candidates.length) {
+      if (typeof onFail === 'function') onFail();
+      return false;
+    }
+
+    let index = 0;
+    const tryNext = () => {
+      index += 1;
+      if (index < candidates.length) {
+        imgEl.src = candidates[index];
+        return;
+      }
+      imgEl.removeEventListener('error', tryNext);
+      if (typeof onFail === 'function') onFail();
+    };
+
+    imgEl.addEventListener('error', tryNext);
+    imgEl.src = candidates[index];
+    return true;
+  }
+
+  function buildInfoCard(icon, label, value) {
+    if (!value) return '';
+    return `
+      <div class="info-card">
+        <div class="info-card-icon"><i class="${icon}"></i></div>
+        <div>
+          <div class="info-card-label">${label}</div>
+          <div class="info-card-value">${value}</div>
+        </div>
+      </div>`;
+  }
+
+  function getFirstValue(obj, keys) {
+    for (const key of keys) {
+      const value = obj?.[key];
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        return String(value);
+      }
+    }
+    return '';
+  }
+
+  function formatRecordDetails(record, ignoreKeys = []) {
+    const ignored = new Set(ignoreKeys.map(k => k.toLowerCase()));
+    const lines = Object.entries(record || {})
+      .filter(([key, value]) => !ignored.has(key.toLowerCase()) && value !== null && value !== undefined && String(value).trim() !== '')
+      .slice(0, 4)
+      .map(([key, value]) => `${key}: ${value}`);
+    return lines.length ? lines.join(' • ') : 'Detay bilgisi bulunmuyor.';
+  }
+
+  function buildListCard(title, subtitle) {
+    return `
+      <div class="list-card">
+        <div class="list-card-title">${title}</div>
+        <div class="list-card-sub">${subtitle}</div>
+      </div>`;
+  }
+
+  const tabs = [
+    { buttonId: 'generalTab', panelId: 'generalPanel' },
+    { buttonId: 'personelTab', panelId: 'personelPanel' },
+    { buttonId: 'calismaTab', panelId: 'calismaPanel' },
+    { buttonId: 'arastirmaTab', panelId: 'arastirmaPanel' },
+    { buttonId: 'basarilarTab', panelId: 'basarilarPanel' },
+  ];
+
+  function activateTab(buttonId) {
+    tabs.forEach(({ buttonId: currentButtonId, panelId }) => {
+      const tabEl = document.getElementById(currentButtonId);
+      const panelEl = document.getElementById(panelId);
+      const isActive = currentButtonId === buttonId;
+      tabEl.classList.toggle('active', isActive);
+      panelEl.classList.toggle('active', isActive);
+    });
+  }
+
+  function setupTabs() {
+    tabs.forEach(({ buttonId }) => {
+      document.getElementById(buttonId).addEventListener('click', () => activateTab(buttonId));
+    });
+  }
+
+  async function fetchHospitalSubList(id, endpoint) {
+    const res = await fetch(`${BASE_URL}${endpoint}/${id}`, { credentials: 'include' });
+    if (!res.ok) throw new Error(`Liste yüklenemedi (${res.status})`);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  }
+
+  async function loadPersonelList(hospitalId) {
+    const stateEl = document.getElementById('personelState');
+    const listEl = document.getElementById('personelList');
+    
+    stateEl.textContent = 'Personeller yükleniyor...';
+    stateEl.style.display = 'block';
+    listEl.innerHTML = '';
+
+    try {
+        const rows = await fetchHospitalSubList(hospitalId, '/api/v1/Hospital/HospitalPersonelList');
+        
+        if (!rows || rows.length === 0) {
+            stateEl.textContent = 'Personel kaydı bulunamadı.';
+            return;
+        }
+
+        listEl.innerHTML = rows.map(person => {
+            // Profil fotoğrafı yoksa varsayılan bir görsel kullan
+            const profileImg = person.profile || 'https://via.placeholder.com/50';
+            const statusClass = person.is_active ? 'status-online' : 'status-offline';
+            const statusText = person.is_active ? 'Aktif' : 'Pasif';
+
+            return `
+                <div class="personel-card">
+                    <div class="personel-info">
+                        <img src="${profileImg}" alt="${person.full_name}" class="personel-avatar">
+                        <div class="personel-details">
+                            <span class="personel-name">${person.full_name}</span>
+                            <span class="personel-specialty">${person.specialty}</span>
+                        </div>
+                    </div>
+                    <div class="personel-status">
+                        <span class="status-dot ${statusClass}"></span>
+                        <small>${statusText}</small>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        stateEl.style.display = 'none';
+    } catch (error) {
+        console.error('Personel listesi alınamadı:', error);
+        stateEl.textContent = 'Personel listesi yüklenirken bir hata oluştu.';
+    }
+}
+
+  async function loadCalismaList(hospitalId) {
+    const stateEl = document.getElementById('calismaState');
+    const listEl = document.getElementById('calismaList');
+    stateEl.textContent = 'Çalışmalar yükleniyor...';
+    listEl.innerHTML = '';
+
+    try {
+      const rows = await fetchHospitalSubList(hospitalId, '/api/v1/Hospital/HospitalStudiesConductedList');
+      if (!rows.length) {
+        stateEl.textContent = 'Çalışma kaydı bulunamadı.';
+        return;
+      }
+
+      listEl.innerHTML = rows.map((item, index) => {
+        const title = getFirstValue(item, ['title', 'name', 'study_name', 'subject']) || `Çalışma #${index + 1}`;
+        const subtitle = formatRecordDetails(item, ['title', 'name', 'study_name', 'subject']);
+        return buildListCard(title, subtitle);
+      }).join('');
+      stateEl.style.display = 'none';
+    } catch (error) {
+      console.error('Çalışma listesi alınamadı:', error);
+      stateEl.textContent = 'Çalışma listesi yüklenemedi.';
+    }
+  }
+
+  async function loadArastirmaList(hospitalId) {
+    const stateEl = document.getElementById('arastirmaState');
+    const listEl = document.getElementById('arastirmaList');
+    stateEl.textContent = 'Araştırmalar yükleniyor...';
+    listEl.innerHTML = '';
+
+    try {
+      const rows = await fetchHospitalSubList(hospitalId, '/api/v1/Hospital/HospitalResearchList');
+      if (!rows.length) {
+        stateEl.textContent = 'Araştırma kaydı bulunamadı.';
+        return;
+      }
+
+      listEl.innerHTML = rows.map((item, index) => {
+        const title = getFirstValue(item, ['title', 'name', 'research_name', 'topic']) || `Araştırma #${index + 1}`;
+        const subtitle = formatRecordDetails(item, ['title', 'name', 'research_name', 'topic']);
+        return buildListCard(title, subtitle);
+      }).join('');
+      stateEl.style.display = 'none';
+    } catch (error) {
+      console.error('Araştırma listesi alınamadı:', error);
+      stateEl.textContent = 'Araştırma listesi yüklenemedi.';
+    }
+  }
+
+  async function loadHospital() {
+    const id = getParam('Id');
+    if (id === null) return;
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/v1/Hospital/HospitalDetail/${id}`, {
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('API hatası');
+      const h = await res.json();
+
+      // Hero görsel
+      const heroImg = document.getElementById('heroImg');
+      const heroFallback = document.getElementById('heroFallback');
+      const heroLoaded = setImageWithFallback(heroImg, h.footer_image, () => {
+        heroImg.style.display = 'none';
+        heroFallback.style.display = 'flex';
+      });
+      if (!heroLoaded) {
+        heroImg.style.display = 'none';
+        heroFallback.style.display = 'flex';
+      } else {
+        heroImg.style.display = 'block';
+        heroFallback.style.display = 'none';
+      }
+
+      // Avatar
+      const avatarImg = document.getElementById('avatarImg');
+      const avatarFallback = document.getElementById('avatarFallback');
+      const avatarLoaded = setImageWithFallback(avatarImg, h.profile, () => {
+        avatarImg.style.display = 'none';
+        avatarFallback.style.display = 'flex';
+      });
+      if (!avatarLoaded) {
+        avatarImg.style.display = 'none';
+        avatarFallback.style.display = 'flex';
+      } else {
+        avatarImg.style.display = 'block';
+        avatarFallback.style.display = 'none';
+      }
+
+      // Başlık
+      document.getElementById('heroName').textContent = h.name || 'Hastane';
+      document.getElementById('heroBadge').innerHTML =
+        `<i class="fa-solid fa-circle-check text-xs"></i> ${h.type || 'Sağlık Kurumu'}`;
+
+      // Konum
+      const loc = [h.district, h.city].filter(Boolean).join(' / ');
+      if (loc) document.getElementById('heroLocation').textContent = loc;
+
+    // Eski kodu sil:
+// const grid = document.getElementById('infoGrid');
+// grid.innerHTML = [...].join('');
+
+// Yerine bunu koy:
+function infoSection(icon, title, rows) {
+  const content = rows
+    .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '')
+    .map(([label, value]) => `
+      <div class="info-row">
+        <div class="info-row-label">${label}</div>
+        <div class="info-row-value">${value}</div>
+      </div>`)
+    .join('');
+  if (!content) return '';
+  return `
+    <div class="info-section">
+      <div class="info-section-header"><i class="fa-solid fa-${icon}"></i> ${title}</div>
+      ${content}
+    </div>`;
+}
+
+function boolBadge(val) {
+  return val
+    ? `<span class="badge-bool-yes"><i class="fa-solid fa-check"></i> Evet</span>`
+    : `<span class="badge-bool-no"><i class="fa-solid fa-xmark"></i> Hayır</span>`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+
+document.getElementById('generalInfoBlock').innerHTML = [
+  infoSection('hospital', 'Temel Bilgiler', [
+    ['Hastane Adı', h.name],
+    ['Kurum Kodu',  h.code],
+    ['Tür',         h.type],
+    
+  ]),
+  infoSection('address-book', 'İletişim', [
+    ['Telefon',    h.phone ? `<a href="tel:${h.phone}">${h.phone}</a>` : null],
+    ['E-posta',    h.email ? `<a href="mailto:${h.email}">${h.email}</a>` : null],
+    ['Web Sitesi', h.website ? `<a href="${h.website}" target="_blank">${h.website}</a>` : null],
+    ['Adres',      h.address],
+    ['Konum',      loc || null],
+  ]),
+  infoSection('bed-pulse', 'Kapasite & Hizmetler', [
+    ['Yatak Kapasitesi',  h.capacity_beds],
+    ['Yoğun Bakım',       h.capacity_icu],
+    ['Acil Servis',       boolBadge(h.emergency_available)],
+    ['Ambulans Hizmeti',  boolBadge(h.ambulance_service)],
+  ]),
+  infoSection('stethoscope', 'Departmanlar', [
+    ['Departmanlar', h.departments],
+  ]),
+  infoSection('circle-info', 'Notlar & Sistem', [
+    ['Notlar',         h.notes],
+    ['Oluşturulma',    fmtDate(h.created_at)],
+    ['Son Güncelleme', fmtDate(h.updated_at)],
+  ]),
+].join('');
+
+      // Göster
+      document.getElementById('skeletonBlock').style.display = 'none';
+      document.getElementById('detailBlock').style.display = 'block';
+
+      await Promise.all([
+        loadPersonelList(id),
+        loadCalismaList(id),
+        loadArastirmaList(id),
+      ]);
+
+    } catch (err) {
+      console.error('Hastane yüklenemedi:', err);
+      document.getElementById('skeletonBlock').innerHTML =
+        `<div style="text-align:center;padding:60px;color:var(--text-secondary);">
+           <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+           Hastane bilgileri yüklenemedi.
+         </div>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    setupTabs();
+    Theme.renderToggle('themeBtn');
+    const user = await getCurrentUser();
+    await loadHospital();
+  });
+</script>
+
+<script src="MenuLoader.js"></script>
+<script src="auth.js"></script>
+<script src="AdminMenuOptions.js"></script>
+<script src="Template.js"></script>
+</body>
+</html>

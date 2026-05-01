@@ -364,6 +364,33 @@
       width: 100%; height: 100%;
       object-fit: contain; transition: opacity 0.3s ease;
     }
+    .viewer-panel {
+      border: 1px solid var(--stat-chip-border);
+      background: var(--stat-chip-bg);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .viewer-frame {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 34px;
+      gap: 8px;
+      align-items: center;
+    }
+    .side-slider {
+      width: 180px;
+      transform: rotate(90deg);
+      accent-color: #63cab7;
+      justify-self: center;
+      opacity: 0.92;
+    }
+    .slice-note {
+      font-size: 11px;
+      color: var(--result-detail);
+    }
+    @media (max-width: 900px) {
+      .side-slider { width: 110px; }
+    }
     .img-toggle-btn {
       font-size: 0.7rem;
       font-weight: 700; letter-spacing: 0.05em;
@@ -525,7 +552,7 @@
             </div>
             <div>
               <p class="text-sm font-medium drop-title">Görüntüyü sürükleyin veya seçin</p>
-              <p class="text-xs mt-1 drop-sub">PNG, JPG, DICOM desteklenir</p>
+              <p class="text-xs mt-1 drop-sub">PNG, JPG, DICOM ve AVI desteklenir</p>
             </div>
           </div>
 
@@ -537,7 +564,7 @@
           </div>
         </div>
 
-        <input type="file" id="fileInput" accept="image/*,.dcm,application/dicom" class="hidden"/>
+        <input type="file" id="fileInput" accept="image/*,.dcm,.avi,application/dicom,video/avi,video/x-msvideo" class="hidden"/>
       </div>
 
       <!-- Step dots -->
@@ -646,32 +673,31 @@
           <div id="imageViewerWrap" class="hidden px-6 pb-5">
             <div class="flex items-center justify-between mb-2">
               <p class="text-xs font-semibold uppercase tracking-widest result-fl" style=" ">Görüntü</p>
-              <div class="flex gap-2">
+              <div class="flex gap-2 flex-wrap justify-end">
+                <label class="img-toggle-btn" style="display:inline-flex;align-items:center;gap:8px;cursor:default;">
+                  <span>Dilim</span>
+                  <input id="maxSlicesInput" type="number" min="2" max="128" value="64" style="width:60px;background:transparent;border:1px solid var(--stat-chip-border);border-radius:8px;padding:2px 6px;color:var(--text-second);">
+                </label>
+                <button id="btnLoad3D" class="img-toggle-btn" onclick="load3DVolume()">3D</button>
                 <button id="btnOriginal" class="img-toggle-btn active" onclick="switchView('original')">Orijinal</button>
                 <button id="btnHeatmap"  class="img-toggle-btn"        onclick="switchView('heatmap')">Isı Haritası</button>
               </div>
             </div>
-            <div class="img-viewer">
-              <img id="viewerImg" src="" alt="Görüntü"/>
-              <div id="noHeatmapNote" class="hidden absolute inset-0 flex items-center justify-center">
-                <p class="text-xs px-4 py-2 rounded-lg" style="background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.5);">Isı haritası mevcut değil</p>
-              </div>
-            </div>
-          </div>
 
-          <!-- Stats -->
-          <div class="px-6 pb-5 grid grid-cols-3 gap-3">
-            <div class="stat-chip px-3 py-3 text-center">
-              <p class="text-xs mb-1 chip-label">Hasta</p>
-              <p id="statPatient" class="text-sm font-bold truncate chip-value" style=" ">—</p>
-            </div>
-            <div class="stat-chip px-3 py-3 text-center">
-              <p class="text-xs mb-1 chip-label">Analiz ID</p>
-              <p id="statAnalysis" class="text-sm font-bold chip-value" style=" ">—</p>
-            </div>
-            <div class="stat-chip px-3 py-3 text-center">
-              <p class="text-xs mb-1 chip-label">Sınıf</p>
-              <p id="statClass" class="text-sm font-bold chip-value" style=" ">—</p>
+            <div class="viewer-panel">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-semibold uppercase tracking-widest result-fl">3D Çıktı</p>
+                <p id="outputSliceInfo" class="slice-note">Katman: 1/1</p>
+              </div>
+              <div class="viewer-frame">
+                <div class="img-viewer">
+                  <img id="outputViewerImg" src="" alt="Çıktı Görüntü"/>
+                  <div id="noHeatmapNote" class="hidden absolute inset-0 flex items-center justify-center">
+                    <p class="text-xs px-4 py-2 rounded-lg" style="background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.5);">Isı haritası mevcut değil</p>
+                  </div>
+                </div>
+                <input id="outputSliceSlider" type="range" min="0" max="0" value="0" class="side-slider"/>
+              </div>
             </div>
           </div>
 
@@ -763,6 +789,11 @@
   let lastPatientId  = null;
   let lastAnalysisId = null;
   let predictedScanType = 'brain';
+  let volumeSlices = [];
+  let volumeHeatmapSlices = [];
+  let currentOutputMode = 'original';
+  let outputSliceIndex = 0;
+  let autoSliceTimer = null;
 
   function isDicomFile(file) {
     if (!file) return false;
@@ -771,9 +802,113 @@
     return name.endsWith('.dcm') || type === 'application/dicom' || type === 'application/dicom+json';
   }
 
+  function isAviFile(file) {
+    if (!file) return false;
+    const name = String(file.name || '').toLowerCase();
+    const type = String(file.type || '').toLowerCase();
+    return name.endsWith('.avi') || type === 'video/avi' || type === 'video/x-msvideo' || type === 'application/x-troff-msvideo';
+  }
+
   function isSupportedFile(file) {
     if (!file) return false;
-    return String(file.type || '').startsWith('image/') || isDicomFile(file);
+    return String(file.type || '').startsWith('image/') || isDicomFile(file) || isAviFile(file);
+  }
+
+  function resolveAssetUrl(pathOrUrl) {
+    if (!pathOrUrl) return null;
+    const raw = String(pathOrUrl).trim();
+    if (!raw) return null;
+    return /^https?:\/\//i.test(raw) ? raw : `${API_BASE}${raw}`;
+  }
+
+  function currentOutputSlices() {
+    if (currentOutputMode === 'heatmap' && volumeHeatmapSlices.length) return volumeHeatmapSlices;
+    return volumeSlices;
+  }
+
+  function syncViewerFromSlices() {
+    const outputImg = document.getElementById('outputViewerImg');
+    const outputSlider = document.getElementById('outputSliceSlider');
+    const outputInfo = document.getElementById('outputSliceInfo');
+    const noHeatmapNote = document.getElementById('noHeatmapNote');
+    const outputSet = currentOutputSlices();
+    const outputTotal = Math.max(1, outputSet.length || 1);
+    outputSliceIndex = Math.min(Math.max(0, outputSliceIndex), outputTotal - 1);
+
+    outputSlider.max = String(outputTotal - 1);
+    outputSlider.value = String(outputSliceIndex);
+    outputInfo.textContent = `Katman: ${outputSliceIndex + 1}/${outputTotal}`;
+
+    const outputSrc = outputSet[outputSliceIndex] || window._originalUrl || '';
+    outputImg.src = outputSrc;
+
+    if (currentOutputMode === 'heatmap' && !volumeHeatmapSlices.length) noHeatmapNote.classList.remove('hidden');
+    else noHeatmapNote.classList.add('hidden');
+  }
+
+  function stopAutoSlice() {
+    if (autoSliceTimer) {
+      clearInterval(autoSliceTimer);
+      autoSliceTimer = null;
+    }
+  }
+
+  function startAutoSlice() {
+    stopAutoSlice();
+    const outputSet = currentOutputSlices();
+    if (!Array.isArray(outputSet) || outputSet.length < 2) return;
+
+    autoSliceTimer = setInterval(() => {
+      const liveSet = currentOutputSlices();
+      if (!Array.isArray(liveSet) || liveSet.length < 2) return;
+      outputSliceIndex = (outputSliceIndex + 1) % liveSet.length;
+      syncViewerFromSlices();
+    }, 700);
+  }
+
+  async function load3DVolume() {
+    const analysisId = lastAnalysisId;
+    if (!analysisId || analysisId === '—') {
+      alert('Önce analiz oluşturulmalı.');
+      return;
+    }
+    const maxSlicesRaw = Number(document.getElementById('maxSlicesInput')?.value || 64);
+    const maxSlices = Math.min(128, Math.max(2, Number.isFinite(maxSlicesRaw) ? Math.floor(maxSlicesRaw) : 64));
+
+    const btn = document.getElementById('btnLoad3D');
+    const oldText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Yükleniyor...';
+    try {
+      const url = `${API_ROOT}/analyses/${encodeURIComponent(analysisId)}/3d?max_slices=${maxSlices}&include_heatmap=true&use_cache=true`;
+      const res = await fetch(url, { method: 'GET', credentials: 'include', headers: { accept: 'application/json' } });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `3D verisi alınamadı (HTTP ${res.status})`);
+      }
+      const json = await res.json();
+      const frames = Array.isArray(json.frames) ? json.frames : [];
+      const slices = Array.isArray(json.slices) ? json.slices : [];
+      const heatmapSlices = Array.isArray(json.heatmap_slices) ? json.heatmap_slices : [];
+
+      if (frames.length) {
+        volumeSlices = frames.map((f) => resolveAssetUrl(f.image_url)).filter(Boolean);
+        volumeHeatmapSlices = frames.map((f) => resolveAssetUrl(f.heatmap_url)).filter(Boolean);
+      } else {
+        volumeSlices = slices.map(resolveAssetUrl).filter(Boolean);
+        volumeHeatmapSlices = heatmapSlices.map(resolveAssetUrl).filter(Boolean);
+      }
+
+      const defaultIndex = Number(json.default_frame_index ?? 0);
+      outputSliceIndex = Number.isFinite(defaultIndex) ? Math.max(0, defaultIndex) : 0;
+      syncViewerFromSlices();
+      startAutoSlice();
+    } catch (err) {
+      alert(err.message || '3D verisi yüklenemedi');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
   }
 
   // ── Hastaları çek ──
@@ -934,19 +1069,21 @@
 
 
   function gototrainpage() {
-    let analysisId = document.getElementById('statAnalysis').textContent || lastAnalysisId || '';
+    let analysisId = lastAnalysisId || '';
     window.location.href = `AiTrainAnalisyDetails.html?id=${analysisId}`;
   }
   function handleFile(file) {
     if (!file) return;
     if (!isSupportedFile(file)) {
-      alert('Desteklenmeyen dosya tipi. Lutfen PNG, JPG veya DICOM (.dcm) secin.');
+      alert('Desteklenmeyen dosya tipi. Lutfen PNG, JPG, DICOM (.dcm) veya AVI (.avi) secin.');
       return;
     }
     selectedFile = file;
     const dicom = isDicomFile(file);
+    const avi = isAviFile(file);
+    const volumetric = dicom || avi;
 
-    if (dicom) {
+    if (volumetric) {
       previewImg.style.display = 'none';
       previewImg.src = '';
     } else {
@@ -962,7 +1099,7 @@
     dropHasFile.classList.remove('hidden');
     dropHasFile.classList.add('flex');
     dropZone.classList.add('has-file');
-    scanLine.style.display = dicom ? 'none' : 'block';
+    scanLine.style.display = volumetric ? 'none' : 'block';
     fileNameEl.textContent = file.name.length > 28
       ? file.name.substring(0, 25) + '...'
       : file.name;
@@ -1060,21 +1197,20 @@
       document.getElementById('confValue').textContent = 'N/A';
     }
 
-    const selOpt = patientSelect.options[patientSelect.selectedIndex];
-    document.getElementById('statPatient').textContent = (selOpt && selOpt.value) ? selOpt.textContent : '—';
-    document.getElementById('statAnalysis').textContent = analysisId;
-    document.getElementById('statClass').textContent = data.class_index !== undefined ? '#' + data.class_index : '—';
-
     window._originalUrl = data.image_path   ? API_BASE + data.image_path   : null;
     window._heatmapUrl  = data.heatmap_path ? API_BASE + data.heatmap_path : null;
 
     const imageViewerWrap = document.getElementById('imageViewerWrap');
-    const viewerImg       = document.getElementById('viewerImg');
     const noHeatmapNote   = document.getElementById('noHeatmapNote');
 
     if (window._originalUrl) {
       imageViewerWrap.classList.remove('hidden');
-      viewerImg.src = window._originalUrl;
+      volumeSlices = [window._originalUrl];
+      volumeHeatmapSlices = window._heatmapUrl ? [window._heatmapUrl] : [];
+      outputSliceIndex = 0;
+      currentOutputMode = 'original';
+      syncViewerFromSlices();
+      startAutoSlice();
       document.getElementById('btnOriginal').classList.add('active');
       document.getElementById('btnHeatmap').classList.remove('active');
       noHeatmapNote.classList.add('hidden');
@@ -1094,22 +1230,20 @@
 
   // ── Image toggle ──
   function switchView(mode) {
-    const viewerImg     = document.getElementById('viewerImg');
     const noHeatmapNote = document.getElementById('noHeatmapNote');
     const btnOriginal   = document.getElementById('btnOriginal');
     const btnHeatmap    = document.getElementById('btnHeatmap');
 
     if (mode === 'heatmap') {
-      if (window._heatmapUrl) {
-        viewerImg.src = window._heatmapUrl;
-        noHeatmapNote.classList.add('hidden');
-      } else {
-        noHeatmapNote.classList.remove('hidden');
-      }
+      currentOutputMode = 'heatmap';
+      syncViewerFromSlices();
+      startAutoSlice();
       btnHeatmap.classList.add('active');
       btnOriginal.classList.remove('active');
     } else {
-      viewerImg.src = window._originalUrl || '';
+      currentOutputMode = 'original';
+      syncViewerFromSlices();
+      startAutoSlice();
       noHeatmapNote.classList.add('hidden');
       btnOriginal.classList.add('active');
       btnHeatmap.classList.remove('active');
@@ -1136,6 +1270,11 @@
     predictMeta.textContent = 'API sonucu bekleniyor';
     predictCandidates.textContent = '';
     predictedScanType = 'brain';
+    volumeSlices = [];
+    volumeHeatmapSlices = [];
+    currentOutputMode = 'original';
+    outputSliceIndex = 0;
+    stopAutoSlice();
     if (scanTypeSelect) scanTypeSelect.value = 'brain';
     updateState();
   }
@@ -1151,6 +1290,17 @@
       predictInfo.textContent = `Tarama tipi: ${predictedScanType} (manuel secim)`;
     });
   }
+  document.getElementById('outputSliceSlider')?.addEventListener('input', (e) => {
+    stopAutoSlice();
+    outputSliceIndex = Number(e.target.value || 0);
+    syncViewerFromSlices();
+    startAutoSlice();
+  });
+  document.getElementById('maxSlicesInput')?.addEventListener('change', (e) => {
+    const raw = Number(e.target.value || 64);
+    const clamped = Math.min(128, Math.max(2, Number.isFinite(raw) ? Math.floor(raw) : 64));
+    e.target.value = String(clamped);
+  });
   resetForm();
   loadPatients();
 </script>
