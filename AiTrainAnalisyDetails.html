@@ -6,6 +6,8 @@
   <title>BT Etiketleme - AI Egitim</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@annotorious/annotorious@latest/dist/annotorious.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@annotorious/annotorious@latest/dist/annotorious.js"></script>
   <link rel="stylesheet" href="Theme.css" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -145,7 +147,7 @@
       background: rgba(99, 202, 183, 0.12);
     }
     .preview-box {
-
+      position: relative;
       overflow: hidden;
       aspect-ratio: 1;
       display: flex;
@@ -156,6 +158,60 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+    }
+    .preview-box.annotating {
+      cursor: crosshair;
+    }
+    .viewer-frame.viewer-fullscreen {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      bottom: 16px;
+      left: var(--viewer-left-offset, 320px);
+      width: auto;
+      z-index: 5000;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--AiBackgraund);
+      padding: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+    .viewer-frame.viewer-fullscreen .preview-box {
+      height: calc(100vh - 56px);
+      aspect-ratio: auto;
+    }
+    .viewer-frame.viewer-fullscreen .side-slider {
+      width: 260px;
+    }
+    body.viewer-fullscreen-lock {
+      overflow: hidden;
+    }
+    .annotation-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .viewer-frame.viewer-fullscreen .preview-box:not(.annotating) .annotation-overlay {
+      pointer-events: auto;
+    }
+    .annotation-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .viewer-fs-tools {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5100;
+      display: none;
+      gap: 8px;
+      align-items: center;
+    }
+    .viewer-frame.viewer-fullscreen .viewer-fs-tools {
+      display: inline-flex;
     }
     .viewer-frame {
       position: relative;
@@ -370,21 +426,34 @@
       <button id="btnLoad3D" class="btn-lite !py-1 !px-3 text-xs" type="button">3D</button>
       <button id="btnShowOriginal" class="btn-lite !py-1 !px-3 text-xs" type="button">Orijinal</button>
       <button id="btnShowHeatmap" class="btn-lite !py-1 !px-3 text-xs" type="button">Heatmap</button>
+      <button id="btnAutoSlice" class="btn-lite !py-1 !px-3 text-xs" type="button"><i class="fa-solid fa-play"></i> Oto Katman: Kapali</button>
+      <button id="btnFullscreenViewer" class="btn-lite !py-1 !px-3 text-xs" type="button"><i class="fa-solid fa-expand"></i> Tam Ekran</button>
     </div>
           <div class="flex justify-end">
             <p id="outputSliceInfo" class="slice-note">Katman: 1/1</p>
           </div>
           
-          <div class="viewer-frame">
+          <div class="viewer-frame" id="viewerFrame">
             <div class="preview-box" id="previewBox">
+              <div id="fullscreenTools" class="viewer-fs-tools">
+                <button id="btnFsShowOriginal" class="btn-lite !py-1 !px-3 text-xs" type="button">Orijinal</button>
+                <button id="btnFsShowHeatmap" class="btn-lite !py-1 !px-3 text-xs" type="button">Heatmap</button>
+                <input id="fsMaxSlicesInput" class="f-input !py-1 !px-2 text-xs" type="number" min="2" max="128" value="64" style="width:76px;" />
+                <button id="btnFsLoad3D" class="btn-lite !py-1 !px-3 text-xs" type="button">3D</button>
+                <button id="btnPolygonMode" class="btn-lite !py-1 !px-3 text-xs" type="button"><i class="fa-solid fa-draw-polygon"></i> Polygon</button>
+                <button id="btnUndoPolygon" class="btn-lite !py-1 !px-3 text-xs" type="button"><i class="fa-solid fa-eraser"></i> Sil</button>
+                <button id="btnFsSaveExit" class="btn-lite !py-1 !px-3 text-xs" type="button"><i class="fa-solid fa-floppy-disk"></i> Kaydet & Cik</button>
+              </div>
               <div id="previewPlaceholder"  class="text-center px-3" style="background-color: var(--AiBackgraund);">
                 <i class="fa-solid fa-image text-2xl"></i>
                 <p class="text-sm mt-2">Onizleme ici dosya secildiginde burada gorunur.</p>
               </div>
-              <img id="previewImg" alt="BT Onizleme" class="hidden" style="background-color: var(--AiBackgraund);"/>
+              <img id="previewImg" alt="BT Onizleme" class="hidden" style="-webkit-user-drag: none; user-select: none; background-color: var(--AiBackgraund);"/>
+              <svg id="annotationOverlay" class="annotation-overlay" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
             </div>
             <input id="outputSliceSlider" type="range" min="0" max="0" value="0" class="side-slider"/>
           </div>
+          <p id="annotationHint" class="annotation-hint">Polygon zorunlu degil. Polygon modu acikken tikla, cift tikla ile bitir.</p>
 
           <div>
             <p class="f-label">Gonderilecek JSON</p>
@@ -431,12 +500,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     chipUpdated:      document.getElementById("chipUpdated"),
     btnShowOriginal:  document.getElementById("btnShowOriginal"),
     btnShowHeatmap:   document.getElementById("btnShowHeatmap"),
+    btnFsShowOriginal: document.getElementById("btnFsShowOriginal"),
+    btnFsShowHeatmap: document.getElementById("btnFsShowHeatmap"),
+    btnAutoSlice:     document.getElementById("btnAutoSlice"),
     btnLoad3D:        document.getElementById("btnLoad3D"),
+    btnFsLoad3D:      document.getElementById("btnFsLoad3D"),
+    fsMaxSlicesInput: document.getElementById("fsMaxSlicesInput"),
+    btnPolygonMode:   document.getElementById("btnPolygonMode"),
+    btnUndoPolygon:   document.getElementById("btnUndoPolygon"),
+    btnFsSaveExit:    document.getElementById("btnFsSaveExit"),
+    btnFullscreenViewer: document.getElementById("btnFullscreenViewer"),
     maxSlicesInput:   document.getElementById("maxSlicesInput"),
     outputSliceSlider: document.getElementById("outputSliceSlider"),
     outputSliceInfo:  document.getElementById("outputSliceInfo"),
     confValue:        document.getElementById("confValue"),
-    confChip:         document.getElementById("confChip")
+    confChip:         document.getElementById("confChip"),
+    viewerFrame:      document.getElementById("viewerFrame"),
+    previewBox:       document.getElementById("previewBox"),
+    annotationOverlay: document.getElementById("annotationOverlay"),
+    annotationHint:   document.getElementById("annotationHint")
   };
 
   const state = {
@@ -447,8 +529,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     volumeHeatmapSlices: [],
     currentOutputMode: 'original',
     outputSliceIndex: 0,
-    autoSliceTimer: null
+    autoSliceTimer: null,
+    autoSliceEnabled: false,
+    polygonModeEnabled: false,
+    annotations: [],
+    selectedAnnotationId: null
   };
+  let anno = null;
+  let annoAttachedSrc = "";
+  let currentViewerSrc = "";
+  const FADE_SLICE_DISTANCE = 5;
 
   function resolveAssetUrl(pathOrUrl) {
     if (!pathOrUrl) return null;
@@ -471,6 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function startAutoSlice() {
     stopAutoSlice();
+    if (!state.autoSliceEnabled || state.polygonModeEnabled) return;
     const set = currentOutputSlices();
     if (!Array.isArray(set) || set.length < 2) return;
     state.autoSliceTimer = setInterval(() => {
@@ -494,21 +585,219 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const src = outputSet[state.outputSliceIndex] || resolveAssetUrl(state.currentImagePath) || '';
     if (src && refs.previewImg) {
-      refs.previewImg.src = src;
+      if (currentViewerSrc !== src) {
+        refs.previewImg.src = src;
+        currentViewerSrc = src;
+      }
       refs.previewImg.classList.remove('hidden');
       if (refs.previewPlaceholder) refs.previewPlaceholder.classList.add('hidden');
     }
+    ensureAnnotoriousBound();
+    renderAnnotations();
+    syncAnnotoriousVisibility();
   }
 
-  async function load3DVolume() {
+  function isVolumeMode() {
+    return currentOutputSlices().length > 1;
+  }
+
+  function pointsToSvg(points) {
+    return points.map((p) => `${Math.round(p.x * 1000)},${Math.round(p.y * 1000)}`).join(" ");
+  }
+
+  function renderAnnotations() {
+    if (!refs.annotationOverlay) return;
+    refs.annotationOverlay.innerHTML = "";
+
+    const totalSlices = currentOutputSlices().length;
+    const activeIndex = state.outputSliceIndex;
+    const in3D = totalSlices > 1;
+
+    state.annotations.forEach((ann) => {
+      const points = Array.isArray(ann.points) ? ann.points : [];
+      if (points.length < 3) return;
+
+      let opacity = 1;
+      if (in3D && Number.isFinite(ann.slice_index)) {
+        const dist = Math.abs(Number(ann.slice_index) - activeIndex);
+        if (dist > FADE_SLICE_DISTANCE) return;
+        opacity = Math.max(0, 1 - dist / FADE_SLICE_DISTANCE);
+      } else if (in3D && ann.slice_index == null) {
+        opacity = 0;
+      }
+
+      const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      const isSelected = state.selectedAnnotationId === ann.id;
+      polygon.setAttribute("points", pointsToSvg(points));
+      polygon.setAttribute("fill", `rgba(239,68,68,${(0.24 * opacity).toFixed(3)})`);
+      polygon.setAttribute("stroke", isSelected ? `rgba(34,197,94,${Math.max(0.2, opacity).toFixed(3)})` : `rgba(239,68,68,${Math.max(0.08, 0.95 * opacity).toFixed(3)})`);
+      polygon.setAttribute("stroke-width", isSelected ? "3" : "2");
+      polygon.style.cursor = "pointer";
+      polygon.dataset.annotationId = ann.id;
+      refs.annotationOverlay.appendChild(polygon);
+    });
+
+  }
+
+  function deleteSelectedAnnotation() {
+    if (!state.selectedAnnotationId) {
+      alert("Silmek icin once bir polygon sec.");
+      return;
+    }
+    const before = state.annotations.length;
+    state.annotations = state.annotations.filter((ann) => ann.id !== state.selectedAnnotationId);
+    if (state.annotations.length === before) {
+      alert("Secili polygon bulunamadi.");
+      return;
+    }
+    state.selectedAnnotationId = null;
+    renderAnnotations();
+    syncBleedingUI();
+  }
+
+  function toggleAutoSlice() {
+    state.autoSliceEnabled = !state.autoSliceEnabled;
+    if (refs.btnAutoSlice) {
+      refs.btnAutoSlice.innerHTML = state.autoSliceEnabled
+        ? '<i class="fa-solid fa-pause"></i> Oto Katman: Acik'
+        : '<i class="fa-solid fa-play"></i> Oto Katman: Kapali';
+      refs.btnAutoSlice.style.border = state.autoSliceEnabled ? "2px solid var(--accent)" : "1px solid var(--border)";
+    }
+    if (state.autoSliceEnabled) startAutoSlice();
+    else stopAutoSlice();
+  }
+
+  function setPolygonMode(enabled) {
+    state.polygonModeEnabled = Boolean(enabled);
+    if (refs.previewBox) refs.previewBox.classList.toggle("annotating", state.polygonModeEnabled);
+    if (refs.btnPolygonMode) {
+      refs.btnPolygonMode.style.border = state.polygonModeEnabled ? "2px solid var(--accent)" : "1px solid var(--border)";
+      refs.btnPolygonMode.style.background = state.polygonModeEnabled ? "rgba(99, 202, 183, 0.14)" : "var(--bg-primary)";
+    }
+    if (refs.annotationHint) {
+      refs.annotationHint.textContent = state.polygonModeEnabled
+        ? "Polygon modu acik: Annotorious ile ciz, bitince otomatik kayit edilir."
+        : "Polygon zorunlu degil. Polygon modu acikken cizim yapabilirsin.";
+    }
+    syncAnnotoriousVisibility();
+    if (state.polygonModeEnabled) stopAutoSlice();
+    else if (state.autoSliceEnabled) startAutoSlice();
+    renderAnnotations();
+    syncBleedingUI();
+  }
+
+  function parsePolygonPointsFromSelector(selectorValue) {
+    if (!selectorValue) return [];
+    const match = String(selectorValue).match(/points\s*=\s*["']([^"']+)["']/i);
+    if (!match || !match[1]) return [];
+    const rawPoints = match[1].trim().split(/\s+/);
+    const w = refs.previewImg?.naturalWidth || refs.previewImg?.clientWidth || 1;
+    const h = refs.previewImg?.naturalHeight || refs.previewImg?.clientHeight || 1;
+    return rawPoints.map((token) => {
+      const [x, y] = token.split(",");
+      return {
+        x: Number((Number(x) / w).toFixed(5)),
+        y: Number((Number(y) / h).toFixed(5))
+      };
+    }).filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1);
+  }
+
+  function initAnnotorious() {
+    if (!refs.previewImg || anno) return;
+    try {
+      if (window.Annotorious && typeof window.Annotorious.createImageAnnotator === "function") {
+        anno = window.Annotorious.createImageAnnotator(refs.previewImg);
+      } else if (typeof window.createImageAnnotator === "function") {
+        anno = window.createImageAnnotator(refs.previewImg);
+      } else if (window.Annotorious && typeof window.Annotorious.init === "function") {
+        anno = window.Annotorious.init({ image: refs.previewImg, drawingEnabled: false });
+      } else if (typeof window.Annotorious === "function") {
+        anno = window.Annotorious(refs.previewImg, { drawingEnabled: false });
+      }
+    } catch (e) {
+      console.error("Annotorious init hatasi:", e);
+      anno = null;
+    }
+    if (!anno || typeof anno.on !== "function") return;
+    annoAttachedSrc = refs.previewImg.currentSrc || refs.previewImg.src || "";
+
+    anno.on("createAnnotation", (a) => {
+      const selector = a?.target?.selector;
+      const selectorValue = typeof selector === "string" ? selector : selector?.value;
+      const points = parsePolygonPointsFromSelector(selectorValue);
+      if (points.length < 3) return;
+      state.annotations.push({
+        id: `ann-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        type: "polygon",
+        mode: isVolumeMode() ? "3d" : "2d",
+        image_type: state.currentOutputMode,
+        slice_index: isVolumeMode() ? state.outputSliceIndex : null,
+        points
+      });
+      state.selectedAnnotationId = state.annotations[state.annotations.length - 1]?.id || null;
+      try { anno.removeAnnotation(a.id); } catch (_) {}
+      renderAnnotations();
+      syncBleedingUI();
+    });
+  }
+
+  function ensureAnnotoriousBound() {
+    const currentSrc = refs.previewImg?.currentSrc || refs.previewImg?.src || "";
+    if (!currentSrc) return;
+    if (!anno) {
+      initAnnotorious();
+      return;
+    }
+    if (annoAttachedSrc === currentSrc) return;
+    try {
+      if (typeof anno.destroy === "function") anno.destroy();
+    } catch (_) {}
+    anno = null;
+    annoAttachedSrc = "";
+    initAnnotorious();
+    syncAnnotoriousVisibility();
+  }
+
+  function syncAnnotoriousVisibility() {
+    if (!anno) return;
+    try {
+      if (typeof anno.setDrawingTool === "function") anno.setDrawingTool("polygon");
+      if (typeof anno.setDrawingEnabled === "function") anno.setDrawingEnabled(Boolean(state.polygonModeEnabled));
+    } catch (_) {}
+  }
+
+  function updateFullscreenLayout() {
+    if (!refs.viewerFrame || !refs.viewerFrame.classList.contains("viewer-fullscreen")) return;
+    const nodes = Array.from(document.querySelectorAll("body *"));
+    let maxLeftOccupied = 0;
+    let maxRightOccupied = 0;
+    nodes.forEach((el) => {
+      if (!(el instanceof HTMLElement)) return;
+      if (el === refs.viewerFrame || refs.viewerFrame.contains(el)) return;
+      const style = window.getComputedStyle(el);
+      if (style.position !== "fixed") return;
+      if (style.display === "none" || style.visibility === "hidden") return;
+      const r = el.getBoundingClientRect();
+      if (r.width < 40 || r.height < 40) return;
+      if (r.left <= 8) maxLeftOccupied = Math.max(maxLeftOccupied, r.right);
+      if (r.right >= window.innerWidth - 8) maxRightOccupied = Math.max(maxRightOccupied, window.innerWidth - r.left);
+    });
+    const leftOffset = Math.round(Math.max(16, maxLeftOccupied + 16));
+    const rightOffset = Math.round(Math.max(16, maxRightOccupied + 16));
+    refs.viewerFrame.style.setProperty("--viewer-left-offset", `${leftOffset}px`);
+    refs.viewerFrame.style.right = `${rightOffset}px`;
+  }
+
+  async function load3DVolume(forcedMaxSlices) {
     const analysisId = state.analysisId || Number(new URLSearchParams(window.location.search).get("id"));
     if (!analysisId || Number.isNaN(Number(analysisId))) {
       alert("Önce geçerli analiz açılmalı.");
       return;
     }
-    const raw = Number(refs.maxSlicesInput?.value || 64);
+    const raw = Number(forcedMaxSlices ?? refs.maxSlicesInput?.value ?? 64);
     const maxSlices = Math.min(128, Math.max(2, Number.isFinite(raw) ? Math.floor(raw) : 64));
     if (refs.maxSlicesInput) refs.maxSlicesInput.value = String(maxSlices);
+    if (refs.fsMaxSlicesInput) refs.fsMaxSlicesInput.value = String(maxSlices);
 
     if (refs.btnLoad3D) {
       refs.btnLoad3D.disabled = true;
@@ -534,11 +823,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         state.volumeSlices = slices.map(resolveAssetUrl).filter(Boolean);
         state.volumeHeatmapSlices = heatmapSlices.map(resolveAssetUrl).filter(Boolean);
       }
+      // Slice gecisinde goruntu kaybolup gelmesini azaltmak icin onceden cachele.
+      state.volumeSlices.forEach((u) => { const img = new Image(); img.src = u; });
+      state.volumeHeatmapSlices.forEach((u) => { const img = new Image(); img.src = u; });
 
       const defaultIndex = Number(json.default_frame_index ?? 0);
       state.outputSliceIndex = Number.isFinite(defaultIndex) ? Math.max(0, defaultIndex) : 0;
       syncViewerFromSlices();
-      startAutoSlice();
+      if (state.autoSliceEnabled && !state.polygonModeEnabled) startAutoSlice();
     } catch (error) {
       alert("3D yukleme hatasi: " + error.message);
     } finally {
@@ -630,13 +922,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!refs.previewImg) return;
     state.currentOutputMode = type === 'heatmap' ? 'heatmap' : 'original';
     syncViewerFromSlices();
-    startAutoSlice();
+    if (state.autoSliceEnabled && !state.polygonModeEnabled) startAutoSlice();
 
     // Aktif buton gÃ¶rseli
     if (refs.btnShowOriginal && refs.btnShowHeatmap) {
       refs.btnShowOriginal.style.border = (type === 'original') ? "2px solid var(--accent)" : "1px solid var(--border)";
       refs.btnShowHeatmap.style.border = (type === 'heatmap') ? "2px solid var(--accent)" : "1px solid var(--border)";
     }
+    if (refs.btnFsShowOriginal && refs.btnFsShowHeatmap) {
+      refs.btnFsShowOriginal.style.border = (type === 'original') ? "2px solid var(--accent)" : "1px solid var(--border)";
+      refs.btnFsShowHeatmap.style.border = (type === 'heatmap') ? "2px solid var(--accent)" : "1px solid var(--border)";
+    }
+    renderAnnotations();
   }
 
   async function downloadReport() {
@@ -680,7 +977,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (isNaN(analysis_id)) {
     alert("GeÃ§ersiz Analiz ID!");
-    return;
+    return false;
   }
 
   // 2. Payload olusturma (Yeni review schema)
@@ -691,7 +988,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     finding_type:  isBleeding ? refs.bleedingType.value : "none",
     severity:      isBleeding ? normalizedSeverity : "none",
     label:         refs.caseLabel.value.trim(),
-    note:          refs.note.value.trim()
+    note:          refs.note.value.trim(),
+    annotations:   state.annotations.map((ann) => ({
+      type: ann.type,
+      mode: ann.mode,
+      image_type: ann.image_type,
+      slice_index: ann.slice_index,
+      points: ann.points
+    }))
   };
 
   refs.submitBtn.disabled = true;
@@ -711,6 +1015,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (response.ok) {
       if (refs.responsePreview) refs.responsePreview.textContent = JSON.stringify(result, null, 2);
       alert("Etiket baÅŸarÄ±yla kaydedildi.");
+      return true;
     } else {
       // 422 hatasÄ±nÄ±n detayÄ±nÄ± konsolda gÃ¶rmek iÃ§in:
       console.error("DoÄŸrulama HatasÄ± (422):", result);
@@ -721,6 +1026,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (error) {
     alert("Hata: " + error.message);
+    return false;
   } finally {
     refs.submitBtn.disabled = false;
     refs.submitBtn.innerHTML = originalText;
@@ -747,13 +1053,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         finding_type: isBleeding ? refs.bleedingType.value : "none",
         severity: isBleeding ? normalizeSeverity(refs.severity.value) : "none",
         label: refs.caseLabel.value,
-        note: refs.note.value
+        note: refs.note.value,
+        annotations: state.annotations.map((ann) => ({
+          type: ann.type,
+          mode: ann.mode,
+          image_type: ann.image_type,
+          slice_index: ann.slice_index,
+          points: ann.points
+        }))
       }, null, 2);
     }
   }
 
   function updateStatusChip(data) {
     if (refs.chipUpdated) refs.chipUpdated.textContent = `Analiz ID: ${data.id}`;
+  }
+
+  function closeFullscreenViewer() {
+    if (!refs.viewerFrame) return;
+    refs.viewerFrame.classList.remove("viewer-fullscreen");
+    document.body.classList.remove("viewer-fullscreen-lock");
+    refs.viewerFrame.style.removeProperty("--viewer-left-offset");
+    refs.viewerFrame.style.removeProperty("right");
+    if (refs.btnFullscreenViewer) refs.btnFullscreenViewer.innerHTML = '<i class="fa-solid fa-expand"></i> Tam Ekran';
+  }
+
+  function savePolygonsAndExitFullscreen() {
+    if (refs.annotationHint) refs.annotationHint.textContent = "Polygonlar kaydedildi. Egitim gonderilmedi.";
+    closeFullscreenViewer();
   }
 
   function init() {
@@ -767,13 +1094,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (refs.btnShowOriginal) refs.btnShowOriginal.addEventListener('click', () => switchImage('original'));
     if (refs.btnShowHeatmap) refs.btnShowHeatmap.addEventListener('click', () => switchImage('heatmap'));
+    if (refs.btnFsShowOriginal) refs.btnFsShowOriginal.addEventListener('click', () => switchImage('original'));
+    if (refs.btnFsShowHeatmap) refs.btnFsShowHeatmap.addEventListener('click', () => switchImage('heatmap'));
     if (refs.btnLoad3D) refs.btnLoad3D.addEventListener('click', load3DVolume);
+    if (refs.btnFsLoad3D) {
+      refs.btnFsLoad3D.addEventListener('click', () => {
+        const raw = Number(refs.fsMaxSlicesInput?.value || refs.maxSlicesInput?.value || 64);
+        load3DVolume(raw);
+      });
+    }
     if (refs.outputSliceSlider) {
       refs.outputSliceSlider.addEventListener('input', (e) => {
         stopAutoSlice();
         state.outputSliceIndex = Number(e.target.value || 0);
         syncViewerFromSlices();
-        startAutoSlice();
+        if (state.autoSliceEnabled && !state.polygonModeEnabled) startAutoSlice();
       });
     }
     if (refs.maxSlicesInput) {
@@ -781,11 +1116,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         const raw = Number(e.target.value || 64);
         const clamped = Math.min(128, Math.max(2, Number.isFinite(raw) ? Math.floor(raw) : 64));
         e.target.value = String(clamped);
+        if (refs.fsMaxSlicesInput) refs.fsMaxSlicesInput.value = String(clamped);
+      });
+    }
+    if (refs.fsMaxSlicesInput) {
+      refs.fsMaxSlicesInput.addEventListener('change', (e) => {
+        const raw = Number(e.target.value || 64);
+        const clamped = Math.min(128, Math.max(2, Number.isFinite(raw) ? Math.floor(raw) : 64));
+        e.target.value = String(clamped);
+        if (refs.maxSlicesInput) refs.maxSlicesInput.value = String(clamped);
+      });
+    }
+    if (refs.previewImg) {
+      refs.previewImg.addEventListener("load", () => {
+        initAnnotorious();
+        syncAnnotoriousVisibility();
       });
     }
 
     refs.submitBtn.addEventListener("click", submitPayload);
     if (refs.downloadReportBtn) refs.downloadReportBtn.addEventListener("click", downloadReport);
+    if (refs.btnAutoSlice) refs.btnAutoSlice.addEventListener("click", toggleAutoSlice);
+    if (refs.btnPolygonMode) refs.btnPolygonMode.addEventListener("click", () => setPolygonMode(!state.polygonModeEnabled));
+    if (refs.btnUndoPolygon) {
+      refs.btnUndoPolygon.addEventListener("click", deleteSelectedAnnotation);
+    }
+    if (refs.annotationOverlay) {
+      refs.annotationOverlay.addEventListener("click", (e) => {
+        const target = e.target;
+        const id = target && target.dataset ? target.dataset.annotationId : null;
+        if (!id) return;
+        state.selectedAnnotationId = id;
+        renderAnnotations();
+      });
+    }
+    if (refs.btnFsSaveExit) {
+      refs.btnFsSaveExit.addEventListener("click", () => {
+        savePolygonsAndExitFullscreen();
+      });
+    }
+    if (refs.btnFullscreenViewer) {
+      refs.btnFullscreenViewer.addEventListener("click", () => {
+        if (!refs.viewerFrame) return;
+        const enter = !refs.viewerFrame.classList.contains("viewer-fullscreen");
+        refs.viewerFrame.classList.toggle("viewer-fullscreen", enter);
+        document.body.classList.toggle("viewer-fullscreen-lock", enter);
+        if (enter) updateFullscreenLayout();
+        else {
+          refs.viewerFrame.style.removeProperty("--viewer-left-offset");
+          refs.viewerFrame.style.removeProperty("right");
+        }
+        refs.btnFullscreenViewer.innerHTML = enter
+          ? '<i class="fa-solid fa-compress"></i> Kapat'
+          : '<i class="fa-solid fa-expand"></i> Tam Ekran';
+      });
+    }
+    window.addEventListener("resize", updateFullscreenLayout);
+    initAnnotorious();
+    syncAnnotoriousVisibility();
     refs.resetBtn.addEventListener("click", () => {
         if(confirm("Formu sÄ±fÄ±rlamak istediÄŸinize emin misiniz?")) location.reload();
     });

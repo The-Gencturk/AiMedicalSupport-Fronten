@@ -603,15 +603,31 @@
         }
 
         listEl.innerHTML = rows.map(person => {
-            // Profil fotoğrafı yoksa varsayılan bir görsel kullan
-            const profileImg = person.profile || 'https://via.placeholder.com/50';
+            // 1. Yol Temizleme: /wwwroot kısmını büyük/küçük harf bakmaksızın siler
+            let imgPath = person.profile || '';
+            if (imgPath.toLowerCase().startsWith('/wwwroot')) {
+                imgPath = imgPath.substring(8); // "/wwwroot" tam 8 karakterdir
+            }
+
+            // 2. Yol Kontrolü: Yolun başında / olduğundan emin olalım
+            if (imgPath && !imgPath.startsWith('/')) {
+                imgPath = '/' + imgPath;
+            }
+
+            // 3. Hata Ayıklama: Eğer hala resim gelmiyorsa konsoldan yolu kontrol edebilirsin
+            console.log("Düzeltilmiş Resim Yolu:", imgPath);
+
+            const profileImg = imgPath || 'https://via.placeholder.com/50';
             const statusClass = person.is_active ? 'status-online' : 'status-offline';
             const statusText = person.is_active ? 'Aktif' : 'Pasif';
 
             return `
                 <div class="personel-card">
                     <div class="personel-info">
-                        <img src="${profileImg}" alt="${person.full_name}" class="personel-avatar">
+                        <img src="${profileImg}" 
+                             alt="${person.full_name}" 
+                             class="personel-avatar" 
+                          >
                         <div class="personel-details">
                             <span class="personel-name">${person.full_name}</span>
                             <span class="personel-specialty">${person.specialty}</span>
@@ -732,11 +748,7 @@
       const loc = [h.district, h.city].filter(Boolean).join(' / ');
       if (loc) document.getElementById('heroLocation').textContent = loc;
 
-    // Eski kodu sil:
-// const grid = document.getElementById('infoGrid');
-// grid.innerHTML = [...].join('');
 
-// Yerine bunu koy:
 function infoSection(icon, title, rows) {
   const content = rows
     .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '')
